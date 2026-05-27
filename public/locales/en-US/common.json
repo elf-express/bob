@@ -599,5 +599,15 @@
     "empty": "No history records",
     "error": "Failed to load",
     "phase4Placeholder": "Phase 4 pending"
+  },
+  "annotation": {
+    "aiSection": "AI Description",
+    "generate": "Generate / Regenerate",
+    "purposePlaceholder": "What does this file do?",
+    "relationsPlaceholder": "Related files (comma-separated)",
+    "userNote": "Your note (optional)",
+    "skipNotice": "This file does not need annotation (media / log)",
+    "manualHint": "This file type does not use AI. Please fill manually",
+    "optionalHint": "Documentation file — annotation optional"
   }
 }

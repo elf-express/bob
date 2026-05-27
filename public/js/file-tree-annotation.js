@@ -24,6 +24,169 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+async function callAiAnnotate(filePath, purposeInput, relationsInput) {
+  try {
+    const res = await fetch('/api/files/ai-annotate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: filePath }),
+    });
+    const data = await res.json();
+    if (data.ok && data.generated) {
+      purposeInput.value = data.generated.purpose || '';
+      relationsInput.value = data.generated.relations || '';
+    } else {
+      // Failure: log warning, do not overwrite existing inputs.
+      console.warn('ai-annotate failed:', data.error);
+    }
+  } catch (err) {
+    console.warn('ai-annotate network error:', err);
+  }
+}
+
+function renderAnnotationPanelByMode(filePath, container, annotation) {
+  // Determine mode via client-side policy mirror.
+  const mode = (typeof window.getAnnotationModeClient === 'function')
+    ? window.getAnnotationModeClient(filePath)
+    : 'ai';
+
+  // Clear the placeholder container.
+  while (container.firstChild) container.removeChild(container.firstChild);
+
+  const purpose = safeText(annotation.purpose);
+  const relations = safeText(annotation.relations);
+  const userNote = safeText(annotation.userNote);
+
+  if (mode === 'skip') {
+    // Skip mode: show notice, no inputs needed.
+    const notice = document.createElement('div');
+    notice.style.cssText = 'padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;color:#64748b;font-size:13px;';
+    notice.textContent = annT('annotation.skipNotice', 'This file does not need annotation (media / log)');
+    container.appendChild(notice);
+    return;
+  }
+
+  if (mode === 'manual') {
+    // Manual mode: show hint + simple purpose/relations form (no AI generate button).
+    const hint = document.createElement('div');
+    hint.style.cssText = 'margin-bottom:8px;padding:8px 10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;color:#92400e;font-size:12px;';
+    hint.textContent = annT('annotation.manualHint', 'This file type does not use AI. Please fill manually');
+    container.appendChild(hint);
+
+    _appendPurposeRelationsInputs(container, purpose, relations);
+
+    const userNoteWrap = _buildUserNoteRow(userNote);
+    container.appendChild(userNoteWrap);
+    return;
+  }
+
+  if (mode === 'optional') {
+    // Optional mode: show hint + simplified form (no AI generate button).
+    const hint = document.createElement('div');
+    hint.style.cssText = 'margin-bottom:8px;padding:8px 10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;color:#166534;font-size:12px;';
+    hint.textContent = annT('annotation.optionalHint', 'Documentation file — annotation optional');
+    container.appendChild(hint);
+
+    _appendPurposeRelationsInputs(container, purpose, relations);
+
+    const userNoteWrap = _buildUserNoteRow(userNote);
+    container.appendChild(userNoteWrap);
+    return;
+  }
+
+  // ai mode (default): AI section header + generate button + purpose/relations + user note.
+  const aiHeader = document.createElement('label');
+  aiHeader.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:6px;font-weight:600;font-size:13px;color:#334155;flex-shrink:0;';
+  const aiIcon = document.createElement('span');
+  aiIcon.style.color = '#8b5cf6';
+  aiIcon.textContent = '\u{1F916}';
+  aiHeader.appendChild(aiIcon);
+  const aiLabelText = document.createTextNode(' ' + annT('annotation.aiSection', 'AI Description'));
+  aiHeader.appendChild(aiLabelText);
+  container.appendChild(aiHeader);
+
+  const inputsWrap = document.createElement('div');
+  inputsWrap.style.cssText = 'flex:1;display:flex;flex-direction:column;gap:8px;min-height:0;';
+  _appendPurposeRelationsInputs(inputsWrap, purpose, relations);
+  container.appendChild(inputsWrap);
+
+  // Generate / Regenerate button — only in ai mode.
+  const generateBtn = document.createElement('button');
+  generateBtn.style.cssText = 'margin-top:6px;background:var(--primary,#8b5cf6);color:white;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;align-self:flex-start;transition:all 0.2s;';
+  generateBtn.textContent = annT('annotation.generate', 'Generate / Regenerate');
+  generateBtn.onclick = async () => {
+    const purposeInput = container.querySelector('#meta-purpose-input');
+    const relationsInput = container.querySelector('#meta-relations-input');
+    if (!purposeInput || !relationsInput) return;
+    const origText = generateBtn.textContent;
+    generateBtn.disabled = true;
+    generateBtn.textContent = annT('projectExplorer.loading', 'Loading...');
+    await callAiAnnotate(filePath, purposeInput, relationsInput);
+    generateBtn.textContent = origText;
+    generateBtn.disabled = false;
+  };
+  container.appendChild(generateBtn);
+
+  const userNoteWrap = _buildUserNoteRow(userNote);
+  container.appendChild(userNoteWrap);
+}
+
+function _appendPurposeRelationsInputs(container, purpose, relations) {
+  // Purpose textarea — built with DOM API to prevent XSS.
+  const purposeWrap = document.createElement('div');
+  purposeWrap.style.cssText = 'flex:2;display:flex;flex-direction:column;min-height:0;';
+
+  const purposeLabel = document.createElement('div');
+  purposeLabel.style.cssText = 'font-size:11px;color:#94a3b8;margin-bottom:4px;';
+  purposeLabel.textContent = annT('projectExplorer.purpose', 'Purpose');
+  purposeWrap.appendChild(purposeLabel);
+
+  const purposeInput = document.createElement('textarea');
+  purposeInput.id = 'meta-purpose-input';
+  purposeInput.style.cssText = 'flex:1;width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;resize:none;font-size:13px;font-family:inherit;transition:border-color 0.2s;min-height:60px;box-sizing:border-box;';
+  purposeInput.placeholder = annT('annotation.purposePlaceholder', 'What does this file do?');
+  purposeInput.value = purpose;
+  purposeWrap.appendChild(purposeInput);
+  container.appendChild(purposeWrap);
+
+  // Relations textarea — built with DOM API to prevent XSS.
+  const relationsWrap = document.createElement('div');
+  relationsWrap.style.cssText = 'flex:1;display:flex;flex-direction:column;min-height:0;';
+
+  const relationsLabel = document.createElement('div');
+  relationsLabel.style.cssText = 'font-size:11px;color:#94a3b8;margin-bottom:4px;';
+  relationsLabel.textContent = annT('projectExplorer.relations', 'Relations');
+  relationsWrap.appendChild(relationsLabel);
+
+  const relationsInput = document.createElement('textarea');
+  relationsInput.id = 'meta-relations-input';
+  relationsInput.style.cssText = 'flex:1;width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;resize:none;font-size:13px;font-family:inherit;transition:border-color 0.2s;min-height:48px;box-sizing:border-box;';
+  relationsInput.placeholder = annT('annotation.relationsPlaceholder', 'Related files (comma-separated)');
+  relationsInput.value = relations;
+  relationsWrap.appendChild(relationsInput);
+  container.appendChild(relationsWrap);
+}
+
+function _buildUserNoteRow(userNote) {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'margin-top:8px;display:flex;align-items:center;gap:6px;';
+
+  const noteLabel = document.createElement('div');
+  noteLabel.style.cssText = 'font-size:11px;color:#94a3b8;white-space:nowrap;';
+  noteLabel.textContent = annT('annotation.userNote', 'Your note (optional)');
+  wrap.appendChild(noteLabel);
+
+  const noteInput = document.createElement('input');
+  noteInput.id = 'user-note-input';
+  noteInput.type = 'text';
+  noteInput.style.cssText = 'flex:1;padding:5px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;';
+  noteInput.placeholder = annT('projectExplorer.userNotePlaceholder', 'My note...');
+  noteInput.value = userNote;
+  wrap.appendChild(noteInput);
+
+  return wrap;
+}
+
 async function showFileDetails(item) {
   projectExplorerState.currentFile = item;
   if (typeof window.markPeQuickGuideStep === 'function') {
@@ -65,15 +228,7 @@ async function showFileDetails(item) {
   }
 
   const annotation = safeText(item.annotation);
-  const purpose = safeText(item.purpose);
-  const relations = safeText(item.relations);
-  const userNote = safeText(item.userNote);
-
   const tagsHtml = buildTagsSectionHtml(item);
-
-  const typeLabel = item.isDirectory
-    ? annT('projectExplorer.typeFolder', 'folder')
-    : annT('projectExplorer.typeFile', 'file');
 
   detailsPanel.innerHTML = `
     <div class="file-details-content" style="padding:20px;display:flex;flex-direction:column;height:100%;">
@@ -94,29 +249,25 @@ async function showFileDetails(item) {
 
       ${tagsHtml}
 
-      <div style="flex:1;display:flex;flex-direction:column;min-height:0;margin-bottom:12px;">
-        <label style="display:flex;align-items:center;gap:6px;margin-bottom:6px;font-weight:600;font-size:13px;color:#334155;flex-shrink:0;">
-          <span style="color:#8b5cf6;">&#129302;</span> ${annT('projectExplorer.aiDescription', 'AI Description')}
-        </label>
-        <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-height:0;">
-          <div style="flex:2;display:flex;flex-direction:column;min-height:0;">
-            <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;">${annT('projectExplorer.purpose', 'Purpose')}</div>
-            <textarea id="meta-purpose-input" style="flex:1;width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;resize:none;font-size:13px;font-family:inherit;transition:border-color 0.2s;" placeholder="${escapeHtml(annT('projectExplorer.purposePlaceholder', 'Describe this {type}', { type: typeLabel }))}">${escapeHtml(purpose)}</textarea>
-          </div>
-          <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
-            <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;">${annT('projectExplorer.relations', 'Relations')}</div>
-            <textarea id="meta-relations-input" style="flex:1;width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;resize:none;font-size:13px;font-family:inherit;transition:border-color 0.2s;" placeholder="${escapeHtml(annT('projectExplorer.relationsPlaceholder', 'Describe impacts and dependencies'))}">${escapeHtml(relations)}</textarea>
-          </div>
-        </div>
+      <div id="annotation-mode-panel" style="flex:1;display:flex;flex-direction:column;min-height:0;margin-bottom:12px;">
       </div>
 
       <div style="flex-shrink:0;border-top:1px solid #e2e8f0;padding-top:10px;display:flex;align-items:center;gap:8px;">
-        <input id="user-note-input" type="text" style="flex:1;padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;" placeholder="${escapeHtml(annT('projectExplorer.userNotePlaceholder', 'My note...'))}" value="${escapeHtml(userNote)}">
         <button id="save-annotation-btn" style="background:var(--primary, #3b82f6);color:white;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;transition:all 0.2s;">
           ${annT('projectExplorer.save', 'Save')}
         </button>
       </div>
     </div>`;
+
+  // Inject mode-aware annotation panel via DOM API (XSS-safe, no innerHTML + user content).
+  const modePanel = document.getElementById('annotation-mode-panel');
+  if (modePanel) {
+    renderAnnotationPanelByMode(
+      item.path,
+      modePanel,
+      { purpose: item.purpose, relations: item.relations, userNote: item.userNote }
+    );
+  }
 
   if (typeof lucide !== 'undefined') lucide.createIcons();
 

@@ -4,6 +4,7 @@ const { createRunnerRouter } = require('./runner.js');
 const { createConfigRouter } = require('./config.js');
 const { createFilesRouter } = require('./files.js');
 const { createHistoryRouter } = require('./history.js');
+const { createAiAnnotateRouter } = require('./ai-annotate.js');
 const { createProjectRouter } = require('./project.js');
 const { createScanRouter } = require('./scan.js');
 const { createDependenciesRouter } = require('./dependencies.js');
@@ -12,6 +13,7 @@ const { CommandScanService } = require('../services/command-scan-service.js');
 const { DependencyScanService } = require('../services/dependency-scan-service.js');
 const { ScanRepository } = require('../db/repositories/scan-repository.js');
 const { DependencyRepository } = require('../db/repositories/dependency-repository.js');
+const { AnnotationRepository } = require('../db/repositories/annotation-repository.js');
 
 /**
  * 創建並掛載所有路由
@@ -80,6 +82,14 @@ function setupRoutes(app, options) {
     projectDir,
   });
   app.use('/api/files', historyRouter);
+
+  // AI Annotation 路由
+  const annotationRepo = db ? new AnnotationRepository(db) : null;
+  const aiAnnotateRouter = createAiAnnotateRouter({
+    projectDir,
+    annotationRepo,
+  });
+  app.use('/api/files', aiAnnotateRouter);
 
   if (db && bindingRepo) {
     const projectRouter = createProjectRouter({ bindingRepo, packageManagerProvider });

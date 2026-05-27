@@ -599,5 +599,15 @@
     "empty": "无历史记录",
     "error": "载入失败",
     "phase4Placeholder": "Phase 4 待实作"
+  },
+  "annotation": {
+    "aiSection": "AI 描述",
+    "generate": "生成 / 重新生成",
+    "purposePlaceholder": "这个文件做什么?",
+    "relationsPlaceholder": "关联文件(逗号分隔)",
+    "userNote": "你的备注(选填)",
+    "skipNotice": "此文件不需 annotation(媒体 / log)",
+    "manualHint": "这类文件不走 AI,请手动填写",
+    "optionalHint": "文件类文件 — annotation 选填"
   }
 }

@@ -599,5 +599,15 @@
     "empty": "無歷史記錄",
     "error": "載入失敗",
     "phase4Placeholder": "Phase 4 待實作"
+  },
+  "annotation": {
+    "aiSection": "AI 描述",
+    "generate": "產生 / 重新產生",
+    "purposePlaceholder": "這個檔案做什麼?",
+    "relationsPlaceholder": "關聯檔案(逗號分隔)",
+    "userNote": "你的備註(選填)",
+    "skipNotice": "此檔案不需 annotation(媒體 / log)",
+    "manualHint": "這類檔案不走 AI,請手動填寫",
+    "optionalHint": "文件類檔案 — annotation 選填"
   }
 }
