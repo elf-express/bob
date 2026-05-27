@@ -585,5 +585,15 @@
     "quickScanTree": "掃描樹",
     "quickScanScripts": "掃描 Scripts",
     "quickSelectFile": "選取檔案"
+  },
+  "panels": {
+    "history": "變更歷史",
+    "relations": "關聯檔案",
+    "colDate": "日期",
+    "colAuthor": "作者",
+    "colSubject": "說明",
+    "empty": "無歷史記錄",
+    "error": "載入失敗",
+    "phase4Placeholder": "Phase 4 待實作"
   }
 }

@@ -585,5 +585,15 @@
     "quickScanTree": "扫描树",
     "quickScanScripts": "扫描 Scripts",
     "quickSelectFile": "选中文件"
+  },
+  "panels": {
+    "history": "变更历史",
+    "relations": "关联文件",
+    "colDate": "日期",
+    "colAuthor": "作者",
+    "colSubject": "说明",
+    "empty": "无历史记录",
+    "error": "载入失败",
+    "phase4Placeholder": "Phase 4 待实作"
   }
 }

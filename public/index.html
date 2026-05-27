@@ -143,58 +143,82 @@
         </section>
 
         <section class="view-container" data-view-content="project-explorer">
-          <div class="view-content" style="padding: 0; display: flex; flex-direction: row; height: 100%;">
-            <div id="pe-tree-panel" style="width: fit-content; min-width: 350px; max-width: 70%; border-right: 1px solid var(--border-color); overflow: auto; background: white; padding: 0;">
-              <div id="pe-tree-container" style="padding: 10px; min-width: 100%; box-sizing: border-box;"></div>
-            </div>
-            <div id="pe-details-panel" style="flex: 1; padding: 20px; overflow-y: auto; background: var(--bg-primary);">
-              <div id="pe-empty-state" class="empty-state">
-                <div class="empty-icon"><i data-lucide="folder-open"></i></div>
-                <div class="empty-text" data-i18n="projectExplorer.emptyState">Select a file on the left to view details</div>
-                <div class="pe-empty-guide">
-                  <div class="pe-empty-guide-title" data-i18n="projectExplorer.quickStartTitle">Quick Start</div>
-                  <div class="pe-empty-guide-steps">
-                    <div id="pe-quick-step-refresh" class="pe-quick-step">
-                      <span class="pe-quick-dot">1</span>
-                      <span data-i18n="projectExplorer.quickRefresh">Refresh Tree</span>
+          <div class="view-content" style="padding: 0; display: flex; flex-direction: column; height: 100%;">
+            <div class="pe-main-row" style="display: flex; flex-direction: row; flex: 1; min-height: 0; overflow: hidden;">
+              <div id="pe-tree-panel" style="width: fit-content; min-width: 350px; max-width: 70%; border-right: 1px solid var(--border-color); overflow: auto; background: white; padding: 0;">
+                <div id="pe-tree-container" style="padding: 10px; min-width: 100%; box-sizing: border-box;"></div>
+              </div>
+              <div id="pe-details-panel" style="flex: 1; padding: 20px; overflow-y: auto; background: var(--bg-primary);">
+                <div id="pe-empty-state" class="empty-state">
+                  <div class="empty-icon"><i data-lucide="folder-open"></i></div>
+                  <div class="empty-text" data-i18n="projectExplorer.emptyState">Select a file on the left to view details</div>
+                  <div class="pe-empty-guide">
+                    <div class="pe-empty-guide-title" data-i18n="projectExplorer.quickStartTitle">Quick Start</div>
+                    <div class="pe-empty-guide-steps">
+                      <div id="pe-quick-step-refresh" class="pe-quick-step">
+                        <span class="pe-quick-dot">1</span>
+                        <span data-i18n="projectExplorer.quickRefresh">Refresh Tree</span>
+                      </div>
+                      <div id="pe-quick-step-scanTree" class="pe-quick-step">
+                        <span class="pe-quick-dot">2</span>
+                        <span data-i18n="projectExplorer.quickScanTree">Scan Tree</span>
+                      </div>
+                      <div id="pe-quick-step-selectFile" class="pe-quick-step">
+                        <span class="pe-quick-dot">3</span>
+                        <span data-i18n="projectExplorer.quickSelectFile">Select File</span>
+                      </div>
                     </div>
-                    <div id="pe-quick-step-scanTree" class="pe-quick-step">
-                      <span class="pe-quick-dot">2</span>
-                      <span data-i18n="projectExplorer.quickScanTree">Scan Tree</span>
+                    <div class="pe-empty-guide-actions">
+                      <button class="btn btn-secondary btn-sm" onclick="window.peQuickAction && window.peQuickAction('refresh')" data-i18n="projectExplorer.quickRefresh">Refresh Tree</button>
+                      <button class="btn btn-secondary btn-sm" onclick="window.peQuickAction && window.peQuickAction('scanTree')" data-i18n="projectExplorer.quickScanTree">Scan Tree</button>
+                      <button class="btn btn-secondary btn-sm" onclick="window.peQuickAction && window.peQuickAction('scanScripts')" data-i18n="projectExplorer.quickScanScripts">Scan Scripts</button>
                     </div>
-                    <div id="pe-quick-step-selectFile" class="pe-quick-step">
-                      <span class="pe-quick-dot">3</span>
-                      <span data-i18n="projectExplorer.quickSelectFile">Select File</span>
+                    <div id="pe-quick-status" class="pe-quick-status">Ready</div>
+                  </div>
+                </div>
+                <div id="pe-file-details" style="display: none;">
+                  <div class="detail-header" style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                    <h2 id="pe-file-name" style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                      <span class="name">filename.js</span>
+                    </h2>
+                    <div id="pe-file-path" style="color: var(--text-secondary); font-size: 13px; margin-top: 5px;">src/utils/filename.js</div>
+                  </div>
+
+                  <div class="detail-section" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 15px;" data-i18n="projectExplorer.fileDescription">File Description</h3>
+                    <div class="form-group">
+                      <textarea id="pe-file-description" class="form-control" rows="10" data-i18n-placeholder="projectExplorer.fileDescriptionPlaceholder" placeholder="Enter file purpose, dependencies, or notes..." style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit; resize: vertical;"></textarea>
+                    </div>
+                    <div class="form-actions" style="margin-top: 15px; display: flex; justify-content: flex-end;">
+                      <button id="pe-save-btn" class="btn btn-primary">
+                        <i data-lucide="save" class="btn-icon"></i>
+                        <span data-i18n="projectExplorer.saveDescription">Save Description</span>
+                      </button>
                     </div>
                   </div>
-                  <div class="pe-empty-guide-actions">
-                    <button class="btn btn-secondary btn-sm" onclick="window.peQuickAction && window.peQuickAction('refresh')" data-i18n="projectExplorer.quickRefresh">Refresh Tree</button>
-                    <button class="btn btn-secondary btn-sm" onclick="window.peQuickAction && window.peQuickAction('scanTree')" data-i18n="projectExplorer.quickScanTree">Scan Tree</button>
-                    <button class="btn btn-secondary btn-sm" onclick="window.peQuickAction && window.peQuickAction('scanScripts')" data-i18n="projectExplorer.quickScanScripts">Scan Scripts</button>
-                  </div>
-                  <div id="pe-quick-status" class="pe-quick-status">Ready</div>
                 </div>
               </div>
-              <div id="pe-file-details" style="display: none;">
-                <div class="detail-header" style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-                  <h2 id="pe-file-name" style="margin: 0; display: flex; align-items: center; gap: 6px;">
-                    <span class="name">filename.js</span>
-                  </h2>
-                  <div id="pe-file-path" style="color: var(--text-secondary); font-size: 13px; margin-top: 5px;">src/utils/filename.js</div>
-                </div>
+            </div>
 
-                <div class="detail-section" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                  <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 15px;" data-i18n="projectExplorer.fileDescription">File Description</h3>
-                  <div class="form-group">
-                    <textarea id="pe-file-description" class="form-control" rows="10" data-i18n-placeholder="projectExplorer.fileDescriptionPlaceholder" placeholder="Enter file purpose, dependencies, or notes..." style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit; resize: vertical;"></textarea>
-                  </div>
-                  <div class="form-actions" style="margin-top: 15px; display: flex; justify-content: flex-end;">
-                    <button id="pe-save-btn" class="btn btn-primary">
-                      <i data-lucide="save" class="btn-icon"></i>
-                      <span data-i18n="projectExplorer.saveDescription">Save Description</span>
-                    </button>
-                  </div>
+            <div id="bottom-panels-container" class="bottom-panels" style="display: none;">
+              <div class="panel-history">
+                <h4 class="panel-title" data-i18n="panels.history">變更歷史</h4>
+                <div class="panel-table-wrap">
+                  <table id="file-history-table" class="history-table">
+                    <thead>
+                      <tr>
+                        <th class="col-date" data-i18n="panels.colDate">日期</th>
+                        <th class="col-author" data-i18n="panels.colAuthor">作者</th>
+                        <th class="col-subject" data-i18n="panels.colSubject">說明</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
                 </div>
+              </div>
+              <div class="panel-relations" data-phase="4-pending">
+                <h4 class="panel-title" data-i18n="panels.relations">關聯檔案</h4>
+                <p class="placeholder" data-i18n="panels.phase4Placeholder">Phase 4 待實作</p>
               </div>
             </div>
           </div>
@@ -275,6 +299,7 @@
   <script src="js/file-tree-icons.js?v=10"></script>
   <script src="js/file-tree-tags.js?v=10"></script>
   <script src="js/file-tree-annotation.js?v=10"></script>
+  <script src="js/file-tree-bottom-panels.js?v=1"></script>
   <script src="js/file-tree.js?v=11"></script>
   <script src="js/modern-app.js?v=4"></script>
   <script>

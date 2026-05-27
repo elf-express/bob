@@ -585,5 +585,15 @@
     "quickScanTree": "Scan Tree",
     "quickScanScripts": "Scan Scripts",
     "quickSelectFile": "Select File"
+  },
+  "panels": {
+    "history": "Change History",
+    "relations": "Related Files",
+    "colDate": "Date",
+    "colAuthor": "Author",
+    "colSubject": "Summary",
+    "empty": "No history records",
+    "error": "Failed to load",
+    "phase4Placeholder": "Phase 4 pending"
   }
 }

@@ -3,6 +3,7 @@ const { createLogsRouter } = require('./logs.js');
 const { createRunnerRouter } = require('./runner.js');
 const { createConfigRouter } = require('./config.js');
 const { createFilesRouter } = require('./files.js');
+const { createHistoryRouter } = require('./history.js');
 const { createProjectRouter } = require('./project.js');
 const { createScanRouter } = require('./scan.js');
 const { createDependenciesRouter } = require('./dependencies.js');
@@ -73,6 +74,12 @@ function setupRoutes(app, options) {
     db,
   });
   app.use('/api/files', filesRouter);
+
+  // 文件歷史路由
+  const historyRouter = createHistoryRouter({
+    projectDir,
+  });
+  app.use('/api/files', historyRouter);
 
   if (db && bindingRepo) {
     const projectRouter = createProjectRouter({ bindingRepo, packageManagerProvider });

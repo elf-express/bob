@@ -124,6 +124,13 @@ async function showFileDetails(item) {
   if (saveBtn) saveBtn.onclick = () => handleSaveAnnotation(item);
 
   loadTagDetails(item);
+
+  // T2.2: render bottom panels (history for files; clear for directories).
+  if (typeof window.renderBottomPanels === 'function' && !item.isDirectory) {
+    window.renderBottomPanels(item.path);
+  } else if (typeof window.clearBottomPanels === 'function') {
+    window.clearBottomPanels();
+  }
 }
 
 async function handleSaveAnnotation(item) {
