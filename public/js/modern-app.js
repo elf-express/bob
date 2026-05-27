@@ -1173,7 +1173,7 @@ async function loadLogs() {
           <td class="col-index">${rowNumber}</td>
           <td class="col-time">${time}</td>
           <td class="col-source">
-            <span class="log-source log-source-${sourceCls}" title="${escapeAttr(sourceLabel)}">${escapeHtml(sourceLabel)}</span>
+            <span class="log-source log-source-${sourceCls}" data-testid="log-source-badge" data-source="${sourceCls}" title="${escapeAttr(sourceLabel)}">${escapeHtml(sourceLabel)}</span>
           </td>
           <td class="col-command">
             <span class="log-command" title="${escapeAttr(command)}">${escapeHtml(command)}</span>
