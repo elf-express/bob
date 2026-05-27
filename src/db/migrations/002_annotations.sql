@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS file_annotations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  rel_path TEXT NOT NULL UNIQUE,
+  annotation TEXT NOT NULL DEFAULT '',
+  purpose TEXT NOT NULL DEFAULT '',
+  relations TEXT NOT NULL DEFAULT '',
+  user_note TEXT NOT NULL DEFAULT '',
+  updated_at TEXT NOT NULL
+);

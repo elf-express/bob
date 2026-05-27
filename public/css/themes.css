@@ -1,0 +1,324 @@
+/**
+ * BOB Tools 主題色系統
+ * 靈感來源：Creative Tim UI (https://www.creative-tim.com)
+ * 提供 4 套專業配色主題
+ */
+
+/* ===== 預設主題變量 ===== */
+:root {
+  --primary: #3498db;
+  --primary-hover: #2980b9;
+  --primary-light: rgba(52, 152, 219, 0.1);
+  --secondary: #8392ab;
+  --success: #82d616;
+  --success-hover: #6db013;
+  --success-light: rgba(130, 214, 22, 0.1);
+  --danger: #ea0606;
+  --danger-hover: #c40505;
+  --danger-light: rgba(234, 6, 6, 0.1);
+  --warning: #f53939;
+  --warning-hover: #d32f2f;
+  --info: #17c1e8;
+  --dark: #252f40;
+  --light: #e9ecef;
+  
+  /* 中性色 */
+  --neutral-100: #f8f9fa;
+  --neutral-200: #e9ecef;
+  --neutral-300: #dee2e6;
+  --neutral-400: #ced4da;
+  --neutral-500: #adb5bd;
+  --neutral-600: #6c757d;
+  --neutral-700: #495057;
+  --neutral-800: #343a40;
+  --neutral-900: #212529;
+  
+  /* 背景色 */
+  --bg-primary: #f5f7fa;
+  --bg-secondary: #fafbfc;
+  --bg-hover: #f0f3f7;
+  
+  /* 文字色 */
+  --text-primary: #2c3e50;
+  --text-secondary: #95a5a6;
+  
+  /* 邊框色 */
+  --border-color: #e1e8ed;
+  
+  /* 終端機顏色 */
+  --terminal-bg: #1e1e1e;
+  --terminal-fg: #d4d4d4;
+  --ansi-red: #e74c3c;
+  --ansi-green: #2ecc71;
+  --ansi-yellow: #f39c12;
+  --ansi-blue: #3498db;
+  --ansi-magenta: #9b59b6;
+  --ansi-cyan: #1abc9c;
+}
+
+/* ===== 主題 1：經典藍 (預設) - Soft UI Dashboard ===== */
+[data-theme="classic-blue"] {
+  --primary: #3498db;
+  --primary-hover: #2980b9;
+  --primary-light: rgba(52, 152, 219, 0.1);
+  --secondary: #8392ab;
+  --success: #82d616;
+  --success-hover: #6db013;
+  --success-light: rgba(130, 214, 22, 0.1);
+  --danger: #ea0606;
+  --danger-hover: #c40505;
+  --danger-light: rgba(234, 6, 6, 0.1);
+  --warning: #f53939;
+  --warning-hover: #d32f2f;
+  --info: #17c1e8;
+  --dark: #252f40;
+  --light: #e9ecef;
+  
+  /* 背景色 */
+  --bg-primary: #f5f7fa;
+  --bg-secondary: #ffffff;
+  --bg-hover: #f0f3f7;
+  
+  /* 文字色 */
+  --text-primary: #2c3e50;
+  --text-secondary: #95a5a6;
+  
+  /* 邊框色 */
+  --border-color: #e1e8ed;
+  
+  /* 終端機 - VS Code Dark */
+  --terminal-bg: #1e1e1e;
+  --terminal-fg: #d4d4d4;
+  --ansi-red: #f48771;
+  --ansi-green: #a9dc76;
+  --ansi-yellow: #ffd866;
+  --ansi-blue: #78dce8;
+  --ansi-magenta: #ab9df2;
+  --ansi-cyan: #78dce8;
+}
+
+/* ===== 主題 2：優雅紫 - Material Dashboard ===== */
+[data-theme="elegant-purple"] {
+  --primary: #9c27b0;
+  --primary-hover: #7b1fa2;
+  --primary-light: rgba(156, 39, 176, 0.1);
+  --secondary: #7b809a;
+  --success: #4caf50;
+  --success-hover: #388e3c;
+  --success-light: rgba(76, 175, 80, 0.1);
+  --danger: #f44336;
+  --danger-hover: #d32f2f;
+  --danger-light: rgba(244, 67, 54, 0.1);
+  --warning: #fb8c00;
+  --warning-hover: #e65100;
+  --info: #00bcd4;
+  --dark: #344767;
+  --light: #f0f2f5;
+  
+  /* 背景色 */
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #ffffff;
+  --bg-hover: #f0f1f3;
+  
+  /* 文字色 */
+  --text-primary: #344767;
+  --text-secondary: #7b809a;
+  
+  /* 邊框色 */
+  --border-color: #dee2e6;
+  
+  /* 終端機 - Dracula */
+  --terminal-bg: #282a36;
+  --terminal-fg: #f8f8f2;
+  --ansi-red: #ff5555;
+  --ansi-green: #50fa7b;
+  --ansi-yellow: #f1fa8c;
+  --ansi-blue: #bd93f9;
+  --ansi-magenta: #ff79c6;
+  --ansi-cyan: #8be9fd;
+}
+
+/* ===== 主題 3：科技綠 - Argon Design ===== */
+[data-theme="tech-green"] {
+  --primary: #2dce89;
+  --primary-hover: #24a46d;
+  --primary-light: rgba(45, 206, 137, 0.1);
+  --secondary: #8898aa;
+  --success: #2dce89;
+  --success-hover: #24a46d;
+  --success-light: rgba(45, 206, 137, 0.1);
+  --danger: #f5365c;
+  --danger-hover: #d32f2f;
+  --danger-light: rgba(245, 54, 92, 0.1);
+  --warning: #fb6340;
+  --warning-hover: #ea4e2b;
+  --info: #11cdef;
+  --dark: #172b4d;
+  --light: #f7fafc;
+  
+  /* 背景色 */
+  --bg-primary: #f7fafc;
+  --bg-secondary: #ffffff;
+  --bg-hover: #f0f4f7;
+  
+  /* 文字色 */
+  --text-primary: #172b4d;
+  --text-secondary: #8898aa;
+  
+  /* 邊框色 */
+  --border-color: #e0e5ea;
+  
+  /* 終端機 - Monokai */
+  --terminal-bg: #272822;
+  --terminal-fg: #f8f8f2;
+  --ansi-red: #f92672;
+  --ansi-green: #a6e22e;
+  --ansi-yellow: #e6db74;
+  --ansi-blue: #66d9ef;
+  --ansi-magenta: #ae81ff;
+  --ansi-cyan: #66d9ef;
+}
+
+/* ===== 主題 4：商務橙 - Custom ===== */
+[data-theme="business-orange"] {
+  --primary: #ff6b35;
+  --primary-hover: #e55a2b;
+  --primary-light: rgba(255, 107, 53, 0.1);
+  --secondary: #6c757d;
+  --success: #28a745;
+  --success-hover: #218838;
+  --success-light: rgba(40, 167, 69, 0.1);
+  --danger: #dc3545;
+  --danger-hover: #c82333;
+  --danger-light: rgba(220, 53, 69, 0.1);
+  --warning: #ffc107;
+  --warning-hover: #e0a800;
+  --info: #17a2b8;
+  --dark: #2c3e50;
+  --light: #f5f5f5;
+  
+  /* 背景色 */
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #ffffff;
+  --bg-hover: #f0f1f2;
+  
+  /* 文字色 */
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  
+  /* 邊框色 */
+  --border-color: #dee2e6;
+  
+  /* 終端機 - Solarized Dark */
+  --terminal-bg: #002b36;
+  --terminal-fg: #839496;
+  --ansi-red: #dc322f;
+  --ansi-green: #859900;
+  --ansi-yellow: #b58900;
+  --ansi-blue: #268bd2;
+  --ansi-magenta: #d33682;
+  --ansi-cyan: #2aa198;
+}
+
+/* ===== 通用應用樣式 ===== */
+
+/* 側邊欄 */
+.sidebar {
+  background: var(--sidebar-bg) !important;
+}
+
+/* 注意：nav-item 的 active 和 hover 樣式已在 modern-ui.css 中完整定義
+   包括漸層背景、文字陰影、內發光等立體效果，此處不再覆蓋 */
+
+/* 按鈕 */
+.btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.btn-success {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.btn-success:hover {
+  background: var(--success-hover);
+  border-color: var(--success-hover);
+}
+
+.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-danger:hover {
+  background: var(--danger-hover);
+  border-color: var(--danger-hover);
+}
+
+.btn-warning {
+  background: var(--warning);
+  border-color: var(--warning);
+}
+
+.btn-info {
+  background: var(--info);
+  border-color: var(--info);
+}
+
+/* 分類卡片強調色 */
+.category-card {
+  border-left: 4px solid var(--primary);
+}
+
+.category-card:hover {
+  box-shadow: 0 4px 12px var(--primary-light);
+}
+
+/* 徽章 */
+.badge-primary {
+  background: var(--primary);
+}
+
+.badge-success {
+  background: var(--success);
+}
+
+.badge-danger {
+  background: var(--danger);
+}
+
+.badge-warning {
+  background: var(--warning);
+}
+
+.badge-info {
+  background: var(--info);
+}
+
+/* 連結 */
+a {
+  color: var(--primary);
+}
+
+a:hover {
+  color: var(--primary-hover);
+}
+
+/* 進度條 */
+.progress-bar {
+  background: var(--primary);
+}
+
+/* 表單焦點 */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-light);
+}
