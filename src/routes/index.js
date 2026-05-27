@@ -5,6 +5,7 @@ const { createConfigRouter } = require('./config.js');
 const { createFilesRouter } = require('./files.js');
 const { createHistoryRouter } = require('./history.js');
 const { createAiAnnotateRouter } = require('./ai-annotate.js');
+const { createRelationsRouter } = require('./relations.js');
 const { createProjectRouter } = require('./project.js');
 const { createScanRouter } = require('./scan.js');
 const { createDependenciesRouter } = require('./dependencies.js');
@@ -90,6 +91,10 @@ function setupRoutes(app, options) {
     annotationRepo,
   });
   app.use('/api/files', aiAnnotateRouter);
+
+  // 關聯檔案路由(Phase 4 — outbound from annotation.relations + inbound 反查)
+  const relationsRouter = createRelationsRouter({ annotationRepo });
+  app.use('/api/files', relationsRouter);
 
   if (db && bindingRepo) {
     const projectRouter = createProjectRouter({ bindingRepo, packageManagerProvider });

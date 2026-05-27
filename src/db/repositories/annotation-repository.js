@@ -97,6 +97,40 @@ class AnnotationRepository {
     );
   }
 
+  /**
+   * 反查所有 annotation.relations 欄位含 targetPath 的 row(inbound references)
+   * 用於 GET /api/files/relations 的「被誰依賴」清單
+   *
+   * 實作策略:SQL LIKE 全表掃 — relations 欄位是逗號分隔字串,
+   * 含 targetPath 子字串可能誤抓子路徑(例如查 "foo" 會 hit "foo-bar")。
+   * 用 LIKE '%,<target>,%' 跟邊界 case '%,<target>' / '<target>,%' / '= <target>' 四連集合,
+   * 並過濾自身(避免 self-reference)。
+   * @param {string} targetPath
+   * @returns {Promise<Array<{rel_path: string, relations: string}>>}
+   */
+  async findInboundReferences(targetPath) {
+    if (!this.db) return [];
+    const t = this.normalizePath(targetPath);
+    if (!t) return [];
+    // 邊界:relations="" 或 IS NULL 不可能含 targetPath,跳過
+    // LIKE 用 ',<t>,' 取 sandwich; 也檢查 head/tail/exact 三種 case
+    const rows = await this.db.all(
+      `
+      SELECT rel_path, relations FROM file_annotations
+      WHERE rel_path != ?
+        AND relations IS NOT NULL AND relations != ''
+        AND (
+          relations = ?
+          OR relations LIKE ?
+          OR relations LIKE ?
+          OR relations LIKE ?
+        )
+      `,
+      [t, t, `${t},%`, `%,${t}`, `%,${t},%`]
+    );
+    return rows;
+  }
+
   async getBatch(relPaths) {
     if (!this.db || !Array.isArray(relPaths) || relPaths.length === 0) return {};
     const normalized = relPaths.map((p) => this.normalizePath(p));

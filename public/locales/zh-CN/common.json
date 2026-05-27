@@ -598,7 +598,10 @@
     "colSubject": "说明",
     "empty": "无历史记录",
     "error": "载入失败",
-    "phase4Placeholder": "Phase 4 待实作"
+    "phase4Placeholder": "Phase 4 待实作",
+    "outbound": "↓ 我依赖",
+    "inbound": "↑ 被依赖",
+    "relationsEmpty": "(无)"
   },
   "annotation": {
     "aiSection": "AI 描述",

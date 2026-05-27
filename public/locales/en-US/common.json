@@ -598,7 +598,10 @@
     "colSubject": "Summary",
     "empty": "No history records",
     "error": "Failed to load",
-    "phase4Placeholder": "Phase 4 pending"
+    "phase4Placeholder": "Phase 4 pending",
+    "outbound": "↓ I depend on",
+    "inbound": "↑ Depended by",
+    "relationsEmpty": "(none)"
   },
   "annotation": {
     "aiSection": "AI Description",

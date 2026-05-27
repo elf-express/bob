@@ -598,7 +598,10 @@
     "colSubject": "說明",
     "empty": "無歷史記錄",
     "error": "載入失敗",
-    "phase4Placeholder": "Phase 4 待實作"
+    "phase4Placeholder": "Phase 4 待實作",
+    "outbound": "↓ 我依賴",
+    "inbound": "↑ 被依賴",
+    "relationsEmpty": "(無)"
   },
   "annotation": {
     "aiSection": "AI 描述",
