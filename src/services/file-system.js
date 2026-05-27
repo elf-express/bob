@@ -4,6 +4,31 @@ const path = require('node:path');
 const { AnnotationService } = require('./annotation-service');
 
 /**
+ * 媒體 / log / 二進位類副檔名 — tree scan 自動排除
+ * 規範:docs/superpower/spec/2026-05-27_bob-annotation-and-precommit.md §6.2 N3a
+ * 這些檔案對 AI annotation 無語意,顯示在樹只會干擾,且 annotation panel 也不該處理
+ */
+const TREE_SKIP_EXTENSIONS = new Set([
+  // 圖片
+  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico', '.bmp', '.tiff',
+  // 影音
+  '.mp4', '.webm', '.mov', '.avi', '.mkv', '.mp3', '.wav', '.ogg', '.flac',
+  // 壓縮 / 二進位
+  '.pdf', '.zip', '.tar', '.gz', '.7z', '.rar',
+  // log / lock
+  '.log', '.lock',
+  // 字型
+  '.woff', '.woff2', '.ttf', '.otf', '.eot',
+  // 編譯產物 / 序列化
+  '.exe', '.dll', '.so', '.dylib', '.class', '.pyc', '.pyo',
+]);
+
+function shouldSkipTreeFile(filename) {
+  const ext = path.extname(filename).toLowerCase();
+  return TREE_SKIP_EXTENSIONS.has(ext);
+}
+
+/**
  * 文件系統服務
  * 提供文件列表和整合註解功能
  */
@@ -187,6 +212,10 @@ class FileSystemService {
       const entries = await fs.promises.readdir(dirAbs, { withFileTypes: true });
       for (const entry of entries) {
         if (entry.isDirectory() && ignoredDirs.has(entry.name)) continue;
+
+        // 過濾媒體 / log / 二進位類:對 AI annotation 無意義
+        // (規範 §3.5 + spec §6.2)
+        if (!entry.isDirectory() && shouldSkipTreeFile(entry.name)) continue;
 
         const relPath = relBase ? `${relBase}/${entry.name}` : entry.name;
         const parentPath = relBase || '';
