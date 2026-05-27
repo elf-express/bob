@@ -663,7 +663,13 @@ body {
 }
 
 .bob-table .col-time {
-  width: 140px; /* 縮減寬度 YYYY/MM/DD HH:mm */
+  width: 130px; /* 從 140px 縮減 10px 借給 col-source(YYYY/MM/DD HH:mm 實際只需 ~125px) */
+  white-space: nowrap;
+}
+
+.bob-table .col-source {
+  width: 100px;
+  text-align: center;
   white-space: nowrap;
 }
 
@@ -732,6 +738,41 @@ body {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   color: white;
   box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);
+}
+
+/* 執行者徽章 — 與 status 同等視覺權重,讓 ai/agent/human 一眼分辨
+ * 設計原則:
+ *   - ai     (Claude 主 session) → Anthropic 品牌橘
+ *   - agent  (subagent / 派遣代理) → 紫,提示「來自代理,出錯可能不是主 Claude」
+ *   - human  (使用者在 BOB UI 點按)→ 灰,中性
+ */
+.log-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.log-source-ai {
+  background: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+}
+
+.log-source-agent {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+.log-source-human {
+  background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(100, 116, 139, 0.25);
 }
 
 /* 耗時顯示 */

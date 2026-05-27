@@ -600,6 +600,21 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+/**
+ * 為 HTML attribute context 做 escape — 重點是處理 `"` `'`,
+ * 因為 textContent→innerHTML 的方式不會 escape 引號。
+ * 命令列若含 `grep -E "..."` 之類雙引號,直接塞進 title="..." 會打破 attribute。
+ * 真實案例:row 19 因 `grep -E "(caption|...)" | head` 雙引號破壞 title 屬性,table cell 崩壞。
+ */
+function escapeAttr(text) {
+  return String(text == null ? '' : text)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   if (typeof i18n !== 'undefined') {
     await i18n.init({
@@ -1098,7 +1113,7 @@ async function loadLogs() {
   const emptyState = document.getElementById('logs-empty');
   const table = document.getElementById('logs-table');
   
-  tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px;"><div class="loading">${tr('fileTree.loading', 'Loading...')}</div></td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px;"><div class="loading">${tr('fileTree.loading', 'Loading...')}</div></td></tr>`;
   table.style.display = 'table';
   emptyState.style.display = 'none';
 
@@ -1131,15 +1146,37 @@ async function loadLogs() {
           
       const statusClass = log.exitCode === 0 ? 'success' : 'error';
       const statusText = log.exitCode === 0 ? tr('logs.statusSuccess', 'Success') : tr('logs.statusFailed', 'Failed');
-          
+
+      // 執行者:backend 解析檔名 → 回傳 source (ai/agent/human) + userLabel (動態 username)
+      //   - source=ai/agent → 固定 i18n label,顏色由 .log-source-* 控制
+      //   - source=human    → 若 userLabel 有值用 userLabel(動態 slug,可能是中文/TW199501/等),否則 fallback i18n
+      const sourceRaw = (log.source || 'human').toLowerCase();
+      const userLabel = log.userLabel || '';
+      let sourceLabel;
+      let sourceCls;
+      if (sourceRaw === 'ai') {
+        sourceLabel = tr('logs.sourceAi', 'Claude');
+        sourceCls = 'ai';
+      } else if (sourceRaw === 'agent') {
+        sourceLabel = tr('logs.sourceAgent', 'Agent');
+        sourceCls = 'agent';
+      } else {
+        // human:優先顯示動態 userLabel(實際 username)
+        sourceLabel = userLabel || tr('logs.sourceHuman', 'User');
+        sourceCls = 'human';
+      }
+
       const hasVideo = log.video || false;
-          
+
       return `
         <tr data-log="${log.filename}">
           <td class="col-index">${rowNumber}</td>
           <td class="col-time">${time}</td>
+          <td class="col-source">
+            <span class="log-source log-source-${sourceCls}" title="${escapeAttr(sourceLabel)}">${escapeHtml(sourceLabel)}</span>
+          </td>
           <td class="col-command">
-            <span class="log-command" title="${command}">${command}</span>
+            <span class="log-command" title="${escapeAttr(command)}">${escapeHtml(command)}</span>
           </td>
           <td class="col-status">
             <span class="log-status ${statusClass}">${statusText}</span>
@@ -1182,7 +1219,7 @@ async function loadLogs() {
   } catch (error) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" style="text-align: center; padding: 40px;">
+        <td colspan="6" style="text-align: center; padding: 40px;">
             <div class="empty-state">
             <div class="empty-icon">❌</div>
             <div class="empty-text">${tr('errors.loadLogsFailed', 'Failed to load logs: {message}', { message: error.message })}</div>

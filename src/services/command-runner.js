@@ -2,7 +2,7 @@ const { spawn } = require('node:child_process');
 const process = require('node:process');
 
 const { LogStore } = require('../db/index.js');
-const { countIssues, getLogTimestamp, stripAnsi } = require('../utils/format.js');
+const { countIssues, getLogTimestamp, getUserSlug, stripAnsi } = require('../utils/format.js');
 const { killTree } = require('../utils/process.js');
 
 class CommandRunner {
@@ -197,7 +197,13 @@ class CommandRunner {
       res.socket.setTimeout(0);
     }
 
-    const logFileName = `${getLogTimestamp()}.log`;
+    // log 命名:<timestamp>-<userSlug>.log
+    //   timestamp 在前 → 字典序 = 時間序(BOB UI 列表自動正確排序)
+    //   suffix 是執行者識別,讓人類掃描列表時一眼分辨「是誰跑的」
+    //   userSlug 動態從 BOB_USER env / git config user.name 取,不寫死;
+    //   詳見 utils/format.js getUserSlug() 的優先級規則
+    const userSlug = getUserSlug(this.projectDir);
+    const logFileName = `${getLogTimestamp()}-${userSlug}.log`;
     this.logStream = this.logStore.createWriteStream(logFileName);
 
     this.safeLogWrite(

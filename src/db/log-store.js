@@ -27,14 +27,23 @@ class LogStore {
    * 列出所有 .log 檔案名（降序，最新在前）
    * @param {number} [limit=100] - 最大返回數量
    * @returns {string[]} 檔名陣列
+   *
+   * 排序邏輯:**按檔名內的 timestamp 部分**,不依賴整體字典序。
+   * 原因:前綴 ai-/agent- 會破壞「字典序 = 時間序」假設(g < i 導致 agent 一律排到 ai 之後)。
+   * 提取 YYYY-MM-DD_HH-MM-SS(-mmm 可選)作為排序鍵,所有格式統一。
+   * fallback 用整個 filename(舊檔或非標準命名仍能工作)。
    */
   listFileNames(limit = 100) {
     this.ensureDir();
+    const tsRegex = /(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(?:-\d{3})?)/;
+    const tsKey = (f) => {
+      const m = f.match(tsRegex);
+      return m ? m[1] : f;
+    };
     return fs
       .readdirSync(this.logDir)
       .filter((f) => f.endsWith('.log'))
-      .sort()
-      .reverse()
+      .sort((a, b) => tsKey(b).localeCompare(tsKey(a)))
       .slice(0, limit);
   }
 
