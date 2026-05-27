@@ -89,7 +89,20 @@ class SQLiteClient {
     for (const file of files) {
       const sql = fs.readFileSync(path.join(migrationDir, file), 'utf8');
       if (!sql.trim()) continue;
-      await this.execScript(sql);
+      try {
+        await this.execScript(sql);
+      } catch (err) {
+        // Idempotency fallback:既有 column/index/table 重跑時容忍,避免
+        // 「重啟 BOB 因 migration 跑第二次而 crash」。SQLite 沒有
+        // ALTER TABLE ADD COLUMN IF NOT EXISTS,所以無法在 SQL 層 idempotent。
+        // 長期解法是加 schema_migrations 表追蹤已跑(follow-up)。
+        const msg = String(err && err.message || '');
+        if (/duplicate column name|already exists/i.test(msg)) {
+          console.warn(`[migration] ${file} idempotent skip: ${msg}`);
+          continue;
+        }
+        throw err;
+      }
     }
   }
 
