@@ -23,6 +23,12 @@
 
 - **Auto-scan on startup** — `app.js` 啟動時阻塞式跑 tree → commands → dependencies 三掃描,確保 UI 一打開就是新資料(不再是 fire-and-forget 競態)
 - **新搬入工具** `scripts/find-unused-i18n.mjs` 已適配為 multi-target,可掃 BOB 自己的 locales(同層讀取 `i18n-check.config.mjs`)
+- **背景 daemon 模式** — `pnpm bob:bg` / `bob:stop` / `bob:status`(`scripts/bob-daemon.mjs`)
+  - 解放終端機:背景啟動後立即返回 prompt
+  - PID file `.bob.pid` 管理程序生命週期
+  - 輪詢 `/api/health` 確認 server ready 再返回
+  - Windows `taskkill` fallback(`SIGTERM` 不支援時)
+  - Daemon log 寫入 `scripts/tools/bob/log/daemon.log`,超過 5MB 自動 rotate
 
 ### 已知遺留
 

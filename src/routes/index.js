@@ -39,6 +39,11 @@ function setupRoutes(app, options) {
     projectDir,
   } = options;
 
+  // 健康檢查(daemon liveness 輪詢 + §12 Layer A 稽核 fallback 用)
+  app.get('/api/health', (_req, res) => {
+    res.json({ ok: true, service: 'bob-tools', pid: process.pid });
+  });
+
   // 資料 API 路由
   const apiRouter = createApiRouter({
     config,
