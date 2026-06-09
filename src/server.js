@@ -7,7 +7,7 @@ const { BindingRepository } = require('./db/repositories/binding-repository.js')
 const { ConfigRepository } = require('./db/repositories/config-repository.js');
 const { buildDefaultConfig } = require('./config/default-taxonomy.js');
 
-const DEFAULT_PORT = 3100;
+const DEFAULT_PORT = 3800;
 const PROJECT_NAME = 'BOB-Tools';
 const TOOL_DIR = path.resolve(__dirname, '..');
 const LOG_DIR = path.join(TOOL_DIR, 'log');

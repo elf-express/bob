@@ -18,11 +18,11 @@ function isPortAvailable(port) {
 
 /**
  * 從起始埠開始查找可用埠
- * @param {number} startPort - 起始埠號（預設 3100）
+ * @param {number} startPort - 起始埠號（預設 3800）
  * @param {number} maxAttempts - 最大嘗試次數（預設 10）
  * @returns {Promise<number>} - 可用埠號，若全部佔用返回 0
  */
-async function findAvailablePort(startPort = 3100, maxAttempts = 10) {
+async function findAvailablePort(startPort = 3800, maxAttempts = 10) {
   for (let i = 0; i < maxAttempts; i++) {
     const port = startPort + i;
     if (await isPortAvailable(port)) return port;
