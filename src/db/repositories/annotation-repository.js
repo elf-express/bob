@@ -98,13 +98,15 @@ class AnnotationRepository {
   }
 
   /**
-   * 反查所有 annotation.relations 欄位含 targetPath 的 row(inbound references)
-   * 用於 GET /api/files/relations 的「被誰依賴」清單
+   * 反查所有 annotation.relations 欄位含 targetPath 的 row(inbound references）。
+   * 用於 GET /api/files/relations 的「被誰依賴」清單。
    *
-   * 實作策略:SQL LIKE 全表掃 — relations 欄位是逗號分隔字串,
-   * 含 targetPath 子字串可能誤抓子路徑(例如查 "foo" 會 hit "foo-bar")。
-   * 用 LIKE '%,<target>,%' 跟邊界 case '%,<target>' / '<target>,%' / '= <target>' 四連集合,
-   * 並過濾自身(避免 self-reference)。
+   * 實作策略:這裡只做「粗篩」— SQL LIKE '%<t>%' 把可能含 targetPath 的 row
+   * 全撈出來。精確的逗號分隔成員判定交給呼叫端的 relationsInclude()(重用
+   * parseRelations)。這樣分工的原因:
+   *   - 純 SQL LIKE 無法同時處理「子字串誤抓」(foo vs foo-bar)與
+   *     「逗號後帶空白」("a, foo, b") — 前者要邊界、後者要 tokenize。
+   *   - 粗篩寧可多撈(over-match 安全,後段 filter 會剔除),不可漏撈。
    * @param {string} targetPath
    * @returns {Promise<Array<{rel_path: string, relations: string}>>}
    */
@@ -112,21 +114,14 @@ class AnnotationRepository {
     if (!this.db) return [];
     const t = this.normalizePath(targetPath);
     if (!t) return [];
-    // 邊界:relations="" 或 IS NULL 不可能含 targetPath,跳過
-    // LIKE 用 ',<t>,' 取 sandwich; 也檢查 head/tail/exact 三種 case
     const rows = await this.db.all(
       `
       SELECT rel_path, relations FROM file_annotations
       WHERE rel_path != ?
         AND relations IS NOT NULL AND relations != ''
-        AND (
-          relations = ?
-          OR relations LIKE ?
-          OR relations LIKE ?
-          OR relations LIKE ?
-        )
+        AND relations LIKE '%' || ? || '%'
       `,
-      [t, t, `${t},%`, `%,${t}`, `%,${t},%`]
+      [t, t]
     );
     return rows;
   }

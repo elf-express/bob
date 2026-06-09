@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { generateAnnotation } = require('../services/ai-annotation-service.js');
+const { isUnsafeRelPath } = require('../utils/validation.js');
 
 /**
  * Create AI annotation router
@@ -21,13 +22,8 @@ function createAiAnnotateRouter({ projectDir, annotationRepo }) {
   router.post('/ai-annotate', express.json(), async (req, res) => {
     const relPath = String(req.body?.path || '').trim().replace(/\\/g, '/');
 
-    // Security: prevent path traversal (same strategy as history.js)
-    if (
-      !relPath ||
-      relPath.includes('..') ||
-      path.isAbsolute(relPath) ||
-      relPath.startsWith('/')
-    ) {
+    // Security: prevent path traversal (shared guard, same as history/relations)
+    if (isUnsafeRelPath(relPath)) {
       return res.status(400).json({ ok: false, error: 'invalid path' });
     }
 

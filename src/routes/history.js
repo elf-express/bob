@@ -1,7 +1,7 @@
 const express = require('express');
 const { execFile } = require('node:child_process');
 const { promisify } = require('node:util');
-const path = require('node:path');
+const { isUnsafeRelPath } = require('../utils/validation.js');
 
 const execFileAsync = promisify(execFile);
 
@@ -26,19 +26,9 @@ function createHistoryRouter({ projectDir }) {
     const limitRaw = parseInt(req.query.limit, 10);
     const limit = Math.min(Number.isFinite(limitRaw) && limitRaw > 0 ? limitRaw : 20, 100);
 
-    /*
-     * 安全檢查：防止路徑遍歷攻擊
-     * - 禁止相對路徑 (..)
-     * - 禁止絕對路徑
-     * - 禁止 Unix-style 絕對路徑
-     * - 禁止空路徑
-     */
-    if (
-      !filePath ||
-      filePath.includes('..') ||
-      path.isAbsolute(filePath) ||
-      filePath.startsWith('/')
-    ) {
+    // 安全檢查:防止路徑遍歷攻擊(segment 比對,容忍檔名含 '..';
+    // 拒絕絕對路徑 / 開頭斜線 / 空路徑 / null byte)
+    if (isUnsafeRelPath(filePath)) {
       return res.status(400).json({ ok: false, error: 'invalid path' });
     }
 

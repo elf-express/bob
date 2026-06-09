@@ -195,6 +195,20 @@ function _buildRelationsSection(title, items) {
     a.dataset.path = item.path; // dataset auto-escapes
     a.textContent = item.path; // textContent prevents XSS
 
+    // Clicking a related file selects its node in the tree, reusing the row's
+    // own onclick (selection + showFileDetails + renderBottomPanels). If the
+    // target node isn't currently rendered (collapsed ancestor), this is a no-op.
+    a.onclick = (e) => {
+      e.preventDefault();
+      const row = document.querySelector(
+        `#pe-tree-container .tree-row[data-path="${CSS.escape(item.path)}"]`
+      );
+      if (row) {
+        row.scrollIntoView({ block: 'nearest' });
+        row.click();
+      }
+    };
+
     li.appendChild(a);
     ul.appendChild(li);
   }

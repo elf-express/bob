@@ -81,24 +81,44 @@ class SQLiteClient {
   }
 
   async runMigrations(migrationDir) {
+    // schema_migrations 追蹤「哪些 .sql 已套用」— 取代「每次重跑全部 + try/catch
+    // 容忍 duplicate」的舊作法。新作法下每個 migration 只跑一次,genuine 錯誤
+    // 會直接 throw(不再被 'already exists' 字串靜默吞掉)。
+    await this.execScript(
+      `CREATE TABLE IF NOT EXISTS schema_migrations (
+        filename TEXT PRIMARY KEY,
+        applied_at TEXT NOT NULL
+      )`
+    );
+    const appliedRows = await this.all('SELECT filename FROM schema_migrations');
+    const applied = new Set(appliedRows.map((r) => r.filename));
+
     const files = fs
       .readdirSync(migrationDir)
       .filter((name) => name.endsWith('.sql'))
       .sort();
 
     for (const file of files) {
+      if (applied.has(file)) continue; // 已套用 → 不重跑
       const sql = fs.readFileSync(path.join(migrationDir, file), 'utf8');
       if (!sql.trim()) continue;
       try {
         await this.execScript(sql);
+        await this.run(
+          'INSERT INTO schema_migrations (filename, applied_at) VALUES (?, ?)',
+          [file, new Date().toISOString()]
+        );
       } catch (err) {
-        // Idempotency fallback:既有 column/index/table 重跑時容忍,避免
-        // 「重啟 BOB 因 migration 跑第二次而 crash」。SQLite 沒有
-        // ALTER TABLE ADD COLUMN IF NOT EXISTS,所以無法在 SQL 層 idempotent。
-        // 長期解法是加 schema_migrations 表追蹤已跑(follow-up)。
-        const msg = String(err && err.message || '');
+        // 一次性過渡:DB 在引入 schema_migrations 之前就跑過 001-00N(舊 BOB),
+        // 那些 column/table 已存在但沒被記錄。第一次重跑會撞 duplicate —
+        // 視為「先前已套用」,補登記後繼續。其餘 genuine 錯誤照常 throw。
+        const msg = String((err && err.message) || '');
         if (/duplicate column name|already exists/i.test(msg)) {
-          console.warn(`[migration] ${file} idempotent skip: ${msg}`);
+          console.warn(`[migration] ${file} already applied (pre-tracking); recording: ${msg}`);
+          await this.run(
+            'INSERT OR IGNORE INTO schema_migrations (filename, applied_at) VALUES (?, ?)',
+            [file, new Date().toISOString()]
+          );
           continue;
         }
         throw err;
