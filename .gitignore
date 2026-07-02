@@ -1,0 +1,15 @@
+# ---------- 依賴 ----------
+node_modules/
+
+# ---------- BOB runtime 狀態(每台機器本地,不進版控) ----------
+# data/ 保留 .gitkeep 佔位,但 sqlite / 其他 runtime 產物不追蹤
+data/*
+!data/.gitkeep
+log/
+*.log
+.bob.pid
+
+# ---------- OS / 編輯器 ----------
+.DS_Store
+Thumbs.db
+*.swp

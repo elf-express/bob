@@ -1,0 +1,13 @@
+# 預設:所有文字檔用 LF(跨平台一致,不依賴個人 core.autocrlf)
+* text=auto eol=lf
+
+# 明確二進位(不做 eol 轉換)
+*.png  binary
+*.ico  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.woff  binary
+*.woff2 binary
+*.sqlite binary

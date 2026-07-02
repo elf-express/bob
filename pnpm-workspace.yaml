@@ -1,0 +1,20 @@
+# BOB 為單一套件(非 monorepo),此檔承載 pnpm 11+ 的集中設定。
+# pnpm 11 起,onlyBuiltDependencies / allowBuilds / minimumReleaseAge 等
+# 不再讀 package.json 的 "pnpm" 欄位,必須放這裡
+# (見 team-project-template CLAUDE.md §13.1 踩雷紀錄)。
+
+# 單一專案就只有 . 本身
+packages:
+  - '.'
+
+# 授權 native 套件跑 build script:sqlite3 需編譯 / 下載 prebuilt binary,
+# 否則 require('sqlite3') 找不到 binding。allowBuilds 與 onlyBuiltDependencies
+# 兩者並設,與母 repo 一致。
+allowBuilds:
+  sqlite3: true
+
+onlyBuiltDependencies:
+  - sqlite3
+
+# 範本期關閉最小發布年齡檢查(團隊正式運作可調 10080 = 7 天)。
+minimumReleaseAge: 0

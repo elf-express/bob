@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "@elf-express/bob",
+  "version": "1.0.0",
+  "description": "BOB Tools — 人 ↔ AI ↔ 命令的中間層:專案結構視覺化、指令執行、依賴掃描、AI 標註/執行審計軌跡(本地 Web UI,host tool)",
+  "license": "UNLICENSED",
+  "author": "elf-express",
+  "packageManager": "pnpm@11.3.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "type": "commonjs",
+  "main": "src/server.js",
+  "bin": {
+    "bob": "src/server.js"
+  },
+  "files": [
+    "src",
+    "public",
+    "data/.gitkeep",
+    "README.md",
+    "README.zh-tw.md",
+    "USAGE.zh-TW.md",
+    "skills.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "start": "node src/server.js",
+    "bob": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "multer": "^2.1.1",
+    "sqlite3": "^6.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elf-express/bob.git"
+  },
+  "bugs": {
+    "url": "https://github.com/elf-express/bob/issues"
+  },
+  "homepage": "https://github.com/elf-express/bob#readme",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}
