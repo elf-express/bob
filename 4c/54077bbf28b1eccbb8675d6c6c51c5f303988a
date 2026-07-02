@@ -1,0 +1,19 @@
+docs/specs/2026-07-03-per-project-data-architecture.md
+  s_b5fe1f7212e5ca::t_d9bb8ec6a3fffb 1-81
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.9",
+  "base_commit_sha": "4c54077bbf28b1eccbb8675d6c6c51c5f303988a",
+  "prompts": {},
+  "sessions": {
+    "s_b5fe1f7212e5ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e617e2b3-a39c-466c-aee6-7146eb72d0e1",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "tw199501 <tw199501@elf.tw>"
+    }
+  }
+}
