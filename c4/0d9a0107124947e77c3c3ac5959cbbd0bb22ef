@@ -1,0 +1,32 @@
+LICENSE
+  s_b5fe1f7212e5ca::t_332303138db3d1 1-6
+pnpm-workspace.yaml
+  s_b5fe1f7212e5ca::t_8ea1b08d9d2f6a 1-12,14-20
+  s_b5fe1f7212e5ca::t_e568cd6bf918d7 13
+src/server.js
+  s_b5fe1f7212e5ca::t_802a839ac38911 1
+.gitignore
+  s_b5fe1f7212e5ca::t_53d678af4622f7 1-15
+package.json
+  s_b5fe1f7212e5ca::t_a94f1f5126378d 1-47
+.gitattributes
+  s_b5fe1f7212e5ca::t_1f2ffb40fa6c13 1-13
+pnpm-lock.yaml
+  s_b5fe1f7212e5ca::t_774e7e400f5104 1-1082
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.8",
+  "base_commit_sha": "c40d9a0107124947e77c3c3ac5959cbbd0bb22ef",
+  "prompts": {},
+  "sessions": {
+    "s_b5fe1f7212e5ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e617e2b3-a39c-466c-aee6-7146eb72d0e1",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": null
+    }
+  }
+}
