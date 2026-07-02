@@ -1,0 +1,27 @@
+src/server.js
+  s_b5fe1f7212e5ca::t_802a839ac38911 1
+package.json
+  s_b5fe1f7212e5ca::t_a94f1f5126378d 1-47
+LICENSE
+  s_b5fe1f7212e5ca::t_332303138db3d1 1-6
+.gitattributes
+  s_b5fe1f7212e5ca::t_1f2ffb40fa6c13 1-13
+.gitignore
+  s_b5fe1f7212e5ca::t_53d678af4622f7 1-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.8",
+  "base_commit_sha": "44437ad5a2f79aa68b078fb6adedac7ab7856595",
+  "prompts": {},
+  "sessions": {
+    "s_b5fe1f7212e5ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e617e2b3-a39c-466c-aee6-7146eb72d0e1",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": null
+    }
+  }
+}
