@@ -1,0 +1,25 @@
+src/server.js
+  s_b5fe1f7212e5ca::t_802a839ac38911 1
+LICENSE
+  s_b5fe1f7212e5ca::t_332303138db3d1 1-6
+.gitignore
+  s_b5fe1f7212e5ca::t_53d678af4622f7 1-15
+package.json
+  s_b5fe1f7212e5ca::t_a94f1f5126378d 1-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.8",
+  "base_commit_sha": "38df36d1ec6a2285e04625e3c55fd72ff67f4955",
+  "prompts": {},
+  "sessions": {
+    "s_b5fe1f7212e5ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e617e2b3-a39c-466c-aee6-7146eb72d0e1",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "tw199501 <tw199501@elf.tw>"
+    }
+  }
+}
