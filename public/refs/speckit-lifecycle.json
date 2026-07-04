@@ -1,0 +1,75 @@
+{
+  "id": "speckit-lifecycle",
+  "eyebrow": "github / spec-kit",
+  "title": "Spec Kit 規格驅動生命週期",
+  "subtitle": "每張卡片頂端為可複製的指令,下方為性質與內部流程。顏色:綠＝必經、紫＝二擇一、橘＝按需(含自動)。指令名稱以你本機 / 列表的版本為準。",
+  "legend": [
+    { "type": "need", "label": "必經", "desc": "主幹四步:章程 → 規格 → 計畫 → 任務" },
+    { "type": "pick", "label": "二擇一", "desc": "第 5 步:Claude 自動實作 vs 推 GitHub Issues" },
+    { "type": "opt", "label": "按需", "desc": "夾層 / 自動 hook,看任務大小取捨" }
+  ],
+  "phases": [
+    {
+      "band": "Phase 1 · 基礎建設(只跑一次或修訂)",
+      "commands": [
+        { "num": "1", "cmd": "/speckit-constitution", "name": "確立專案章程", "type": "need", "guard": "地基 · 缺則漏防線",
+          "flow": ["載入既有章程", "蒐集 / 推導 placeholder", "起草更新內容", "一致性傳播檢查", "產生 Sync Impact Report", "寫回 .specify/memory/"] }
+      ]
+    },
+    {
+      "band": "Phase 2 · 規格(可夾 clarify)",
+      "commands": [
+        { "num": "2", "cmd": "/speckit-specify", "name": "建立功能規格", "type": "need",
+          "flow": ["解析自然語言描述", "生成 short-name", "建 specs/NNN-* 目錄", "載 spec 模板 + 章程", "寫 scenarios / requirements / success", "產 spec.md + requirements checklist"] },
+        { "num": "O1", "cmd": "/speckit-clarify", "name": "澄清模糊處", "type": "opt", "guard": "建議 plan 前跑",
+          "flow": ["載入 spec + 章程", "11 類歧義系統掃描", "排序最多 5 題", "逐題互動詢問", "每答完即時 patch spec", "重新驗證品質清單"] }
+      ]
+    },
+    {
+      "band": "Phase 3 · 計畫(可夾 checklist)",
+      "commands": [
+        { "num": "3", "cmd": "/speckit-plan", "name": "產生實作計畫", "type": "need",
+          "flow": ["跑 setup-plan.ps1", "載 spec + 章程 + 模板", "寫 plan.md 主結構", "派 research agent 消 unknowns", "產 data-model.md + contracts/", "產 quickstart.md + 觸發 agent-context"] },
+        { "num": "O2", "cmd": "/speckit-checklist", "name": "產品質檢查清單", "type": "opt", "guard": "把規格當程式做單測",
+          "flow": ["問 3 個情境定義題", "載 feature context", "生需求單元測試項", "套 checklist 模板", "寫到 checklists/<name>.md", "回報新建 / 追加數量"] }
+      ]
+    },
+    {
+      "band": "Phase 4 · 任務(可夾 analyze)",
+      "commands": [
+        { "num": "4", "cmd": "/speckit-tasks", "name": "拆出可執行任務", "type": "need",
+          "flow": ["跑 setup-tasks.ps1", "載 plan + data-model + contracts", "拆 T001/T002... 任務", "標 [P] 可並行 + [Story]", "排依賴執行順序", "寫 tasks.md(含路徑)"] },
+        { "num": "O3", "cmd": "/speckit-analyze", "name": "跨件一致性審查", "type": "opt", "guard": "章程衝突 = CRITICAL",
+          "flow": ["載 spec + plan + tasks + 章程", "跨件對齊掃描", "查覆蓋 / 重疊 / 矛盾", "章程違反 = CRITICAL", "出覆蓋表 + 問題清單", "純讀不改任何檔"] }
+      ]
+    },
+    {
+      "band": "Phase 5 · 執行(5-1 / 5-2 擇一)",
+      "commands": [
+        { "num": "5-1", "cmd": "/speckit-implement", "name": "Claude 自動實作 · 路線 A", "type": "pick",
+          "flow": ["check-prerequisites", "讀 tasks.md + checklists", "Setup 驗證", "依序執行任務", "[P] 任務並行派出", "完成驗證 + 回報"] },
+        { "num": "5-2", "cmd": "/speckit-taskstoissues", "name": "推 GitHub Issues · 路線 B", "type": "pick",
+          "flow": ["載 tasks + plan", "抓依賴順序", "生 issue 標題 + 內文", "掛 label + milestone", "推到 GitHub repo", "分派人類團隊接手"] }
+      ]
+    },
+    {
+      "band": "Phase 6 · 收斂(implement ↔ converge 可循環)",
+      "commands": [
+        { "num": "6", "cmd": "/speckit-converge", "name": "差距結算", "type": "opt", "guard": "收斂前最後一道",
+          "flow": ["載 spec + plan + tasks + 章程", "對比現有 codebase", "找未完工 / 未驗證點", "排 CRITICAL / HIGH", "append Phase N: Convergence", "有缺 → 回 implement;無缺 → 落地"] }
+      ],
+      "support": {
+        "head": "↳ Support · 自動觸發,由 .specify/extensions.yml hook 在 specify/plan 後跑",
+        "commands": [
+          { "num": "S1", "cmd": "/speckit-agent-context-update", "name": "同步 agent context", "type": "opt", "guard": "已掛 after_specify / after_plan",
+            "flow": ["解析最新 spec/plan 產出", "偵測 agent context 檔", "只更新 managed section", "保留其他既有內容", "回報 diff 摘要"] }
+        ]
+      }
+    }
+  ],
+  "notes": [
+    { "title": "章程是地基,不是裝飾。", "body": "specify、plan、checklist、analyze、converge 都會在「IF EXISTS」時讀 .specify/memory/constitution.md。沒填等於這幾道防線各漏一截 — analyze 的「章程衝突=CRITICAL」也因此失效。先填好,哪怕只填 1-2 條 NON-NEGOTIABLE。" },
+    { "title": "O1–O3 不是 phase 是夾層。", "body": "clarify 夾在 specify↔plan、checklist 夾在 plan↔tasks、analyze 夾在 tasks↔implement。任務愈大愈該全跑,hotfix 或單行修正可全省。它們的價值是「把實作期才會爆的不確定性提早消滅」。" },
+    { "title": "implement 與 converge 是循環,不是先後。", "body": "跑完 implement 不等於結束 — 跑一次 converge 看 codebase 與 spec 還差多少,有缺就 append 新的 Convergence Phase 任務,再跑 implement。直到 converge 回報「converged」才算真正落地。把它當「除錯前的 lint 階段」想像就對了。" }
+  ]
+}
