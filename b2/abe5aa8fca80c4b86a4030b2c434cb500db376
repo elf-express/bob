@@ -1,0 +1,41 @@
+public/index.html
+  s_b5fe1f7212e5ca::t_6cc45350256eb5 9
+  s_b5fe1f7212e5ca::t_655f70a318e421 48-51,282-299,329
+public/refs/superpowers-lifecycle.json
+  s_b5fe1f7212e5ca::t_b0af9c7ea8f8b9 1-67
+src/routes/refs.js
+  s_b5fe1f7212e5ca::t_88f44b72116e23 1-37
+public/js/references.js
+  s_b5fe1f7212e5ca::t_3896ba457f9e8a 1-123,125-155,158-178,189-196
+  s_b5fe1f7212e5ca::t_5f3739ababe5d7 156-157
+  s_b5fe1f7212e5ca::t_ffaaa1f9ca728b 124
+  s_b5fe1f7212e5ca::t_8f59338a58a887 179-188
+public/css/refs.css
+  s_b5fe1f7212e5ca::t_41bbb311a7ec00 1-50
+public/js/modern-app.js
+  s_b5fe1f7212e5ca::t_ae56c9b154826e 707-709
+public/locales/en-US/common.json
+  s_b5fe1f7212e5ca::t_b4bdb1aa6e9ff6 45-50
+public/locales/zh-CN/common.json
+  s_b5fe1f7212e5ca::t_c1c26917213aba 45-50
+public/locales/zh-TW/common.json
+  s_b5fe1f7212e5ca::t_24e8c7feda95c2 45-50
+src/routes/index.js
+  s_b5fe1f7212e5ca::t_23417ff429f80c 12,48-50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "b2abe5aa8fca80c4b86a4030b2c434cb500db376",
+  "prompts": {},
+  "sessions": {
+    "s_b5fe1f7212e5ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e617e2b3-a39c-466c-aee6-7146eb72d0e1",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "tw199501 <tw199501@elf.tw>"
+    }
+  }
+}
