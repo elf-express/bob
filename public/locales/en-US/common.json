@@ -42,7 +42,12 @@
     "config": "Run",
     "dependencies": "Dependencies",
     "backups": "Backups",
-    "projectStructure": "Project Structure"
+    "projectStructure": "Project Structure",
+    "references": "Reference"
+  },
+  "references": {
+    "viewTitle": "Reference",
+    "viewDescription": "Command lifecycle & guide — click a command to copy"
   },
   "commands": {
     "title": "Select Commands to Execute",

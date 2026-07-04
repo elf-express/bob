@@ -704,6 +704,9 @@ function renderView(view) {
     case 'dependencies':
       renderDependenciesView();
       break;
+    case 'references':
+      if (typeof renderReferences === 'function') renderReferences();
+      break;
   }
   
   refreshIcons();

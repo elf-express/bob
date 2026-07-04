@@ -1,0 +1,67 @@
+{
+  "id": "superpowers-lifecycle",
+  "eyebrow": "obra / superpowers",
+  "title": "Superpowers 技能生命週期",
+  "subtitle": "每張卡片頂端為可複製的指令,下方為性質與內部流程。顏色:綠＝必經、紫＝二擇一、橘＝按需。指令名稱以你本機 / 列表的版本為準。",
+  "legend": [
+    { "type": "need", "label": "必經", "desc": "幾乎不該省,尤其兩道保險" },
+    { "type": "pick", "label": "二擇一", "desc": "第 4 步選一條執行路線" },
+    { "type": "opt", "label": "按需", "desc": "第 4 步內部觸發,看狀況跑" }
+  ],
+  "phases": [
+    {
+      "band": "Phase 1 · 設計",
+      "commands": [
+        { "num": "1", "cmd": "/superpowers:brainstorming", "name": "設計腦力激盪", "type": "need",
+          "flow": ["探索專案現況", "一次一題問(不跳)", "提 2-3 方案 + 取捨", "分段呈現設計", "自審規格文件", "確認 → 接 writing-plans"] }
+      ]
+    },
+    {
+      "band": "Phase 2 · 準備",
+      "commands": [
+        { "num": "2", "cmd": "/superpowers:using-git-worktrees", "name": "隔離工作區", "type": "need",
+          "flow": ["偵測是否已隔離", "優先 native 工具", "否則建 worktree", "跑基線測試", "確認乾淨才開工"] },
+        { "num": "3", "cmd": "/superpowers:writing-plans", "name": "撰寫實作計畫", "type": "need",
+          "flow": ["精讀設計文件", "探索程式結構", "規劃檔案架構", "拆極小任務附路徑", "附驗證指令", "自審 → 存 plans/ → 詢問執行方式"] }
+      ]
+    },
+    {
+      "band": "Phase 3 · 執行(4-1 / 4-2 擇一)",
+      "commands": [
+        { "num": "4-1", "cmd": "/superpowers:executing-plans", "name": "批次執行 · 路線 A", "type": "pick",
+          "flow": ["載入 + 批判審視", "建 todos 清單", "逐任務執行 → 跑驗證", "標完成或遇阻停問", "全完成 → 接 finishing"] },
+        { "num": "4-2", "cmd": "/superpowers:subagent-driven-development", "name": "派工執行 · 路線 B", "type": "pick",
+          "flow": ["讀計畫 + 建進度帳", "構建任務 context", "派實作 subagent", "產 diff 派任務審查", "Critical 即修再審", "最終分支審查 → 接 finishing"] }
+      ],
+      "support": {
+        "head": "↳ 第 4 步內部 · 按需觸發,貫穿 4–6(寫程式、審查修正、驗證回修都會用到)",
+        "commands": [
+          { "num": "S1", "cmd": "/superpowers:test-driven-development", "name": "紅綠重構循環", "type": "opt",
+            "flow": ["Red - 寫失敗測試", "親見失敗確認", "Green - 最小實作", "親見通過確認", "Refactor - 重構保綠"] },
+          { "num": "S2", "cmd": "/superpowers:systematic-debugging", "name": "四階段根因除錯", "type": "opt",
+            "flow": ["重現 + 蒐集根因證據", "找成功案例對比", "單一假設 → 最小變更", "有反例立即推翻", "建失敗測試 → 修根因", "3 次失敗 → 質疑架構"] },
+          { "num": "S3", "cmd": "/superpowers:dispatching-parallel-agents", "name": "並行派工", "type": "opt",
+            "flow": ["確認任務彼此獨立", "精準構建各自 context", "單一回應同時派出", "確認修改無衝突", "跑完整測試整合"] }
+        ]
+      }
+    },
+    {
+      "band": "Phase 4 · 審查與收尾",
+      "commands": [
+        { "num": "5-1", "cmd": "/superpowers:requesting-code-review", "name": "發起審查", "type": "need", "guard": "保險① 查品質",
+          "flow": ["任務 / 分支完成觸發", "精準構建獨立 context", "派全新審查 agent", "依嚴重度分級回報", "Critical 擋路不繼續"] },
+        { "num": "5-2", "cmd": "/superpowers:receiving-code-review", "name": "回應審查 · 未過則回 5-1", "type": "need",
+          "flow": ["完整讀完不先反應", "有疑問全問清再動", "技術核對現況脈絡", "有誤即據理反駁", "先修 Critical", "逐一實作 + 測試驗證"] },
+        { "num": "6", "cmd": "/superpowers:verification-before-completion", "name": "完成前驗證", "type": "need", "guard": "保險② 查正確性",
+          "flow": ["辨識要驗的主張", "執行完整驗證指令", "讀取並核對輸出", "有證據才宣告完成", "失敗則回除錯"] },
+        { "num": "7", "cmd": "/superpowers:finishing-a-development-branch", "name": "分支收尾", "type": "need",
+          "flow": ["測試全綠才繼續", "偵測環境與基準分支", "呈現 4 選項(merge/PR/keep/discard)", "執行你的選擇", "選 merge/discard 才清理 worktree"] }
+      ]
+    }
+  ],
+  "notes": [
+    { "title": "兩道保險幾乎不該省。", "body": "5-1(查品質)防「程式碼能動但寫得爛」,6(查正確性)防「它說好了其實沒動」。簡單任務想省事,最低限度也要保留這兩道。" },
+    { "title": "S1–S3 不是 4 之後排隊跑的階段。", "body": "它們發生在第 4 步內部:S1 寫每個任務時就在用,S2 遇 bug 才觸發,S3 有可並行任務才用;5-2 修正、6 回修時也會回頭用到它們。" },
+    { "title": "最強的保險在流程之外。", "body": "AI 可以唬爛你,但 dotnet test 的 exit code 不會。把 CI pipeline 那幾個 job 真的跑起來、測試紅就擋 PR,比在流程裡多疊一層 AI 審查更實在。" }
+  ]
+}

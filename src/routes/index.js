@@ -9,6 +9,7 @@ const { createRelationsRouter } = require('./relations.js');
 const { createProjectRouter } = require('./project.js');
 const { createScanRouter } = require('./scan.js');
 const { createDependenciesRouter } = require('./dependencies.js');
+const { createRefsRouter } = require('./refs.js');
 const { FileSystemService } = require('../services/file-system.js');
 const { CommandScanService } = require('../services/command-scan-service.js');
 const { DependencyScanService } = require('../services/dependency-scan-service.js');
@@ -43,6 +44,9 @@ function setupRoutes(app, options) {
   app.get('/api/health', (_req, res) => {
     res.json({ ok: true, service: 'bob-tools', pid: process.pid });
   });
+
+  // 參考手冊路由(掃 public/refs/*.json 列出可用表;純靜態、不依賴 db)
+  app.use('/api/refs', createRefsRouter());
 
   // 資料 API 路由
   const apiRouter = createApiRouter({

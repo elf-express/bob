@@ -6,6 +6,7 @@
   <title>BOB Tools - Development Build Assistant</title>
   <link rel="stylesheet" href="css/themes.css">
   <link rel="stylesheet" href="css/modern-ui.css">
+  <link rel="stylesheet" href="css/refs.css">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -43,6 +44,10 @@
           <div class="nav-item" data-view="dependencies" data-i18n-title="nav.dependencies" title="Dependencies">
             <i data-lucide="boxes" class="nav-icon"></i>
             <span class="nav-label" data-i18n="nav.dependencies">Dependencies</span>
+          </div>
+          <div class="nav-item" data-view="references" data-i18n-title="nav.references" title="參考手冊">
+            <i data-lucide="book-open" class="nav-icon"></i>
+            <span class="nav-label" data-i18n="nav.references">參考手冊</span>
           </div>
         </div>
 
@@ -274,6 +279,24 @@
             </div>
           </div>
         </section>
+
+        <section class="view-container" data-view-content="references">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2 class="view-title">
+                <i data-lucide="book-open" class="title-icon"></i>
+                <span data-i18n="references.viewTitle">參考手冊</span>
+              </h2>
+              <p class="view-description" data-i18n="references.viewDescription">指令生命週期與說明,點指令即可複製</p>
+            </div>
+            <div class="view-actions">
+              <select id="references-select" class="form-select"></select>
+            </div>
+          </div>
+          <div class="view-content">
+            <div id="references-container" class="ref-wrap"></div>
+          </div>
+        </section>
       </main>
     </div>
   </div>
@@ -303,6 +326,7 @@
   <script src="js/file-tree-annotation.js?v=11"></script>
   <script src="js/file-tree-bottom-panels.js?v=1"></script>
   <script src="js/file-tree.js?v=11"></script>
+  <script src="js/references.js?v=1"></script>
   <script src="js/modern-app.js?v=4"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {

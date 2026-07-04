@@ -42,7 +42,12 @@
     "config": "執行",
     "backups": "備份",
     "projectStructure": "專案結構",
-    "dependencies": "套件版本"
+    "dependencies": "套件版本",
+    "references": "參考手冊"
+  },
+  "references": {
+    "viewTitle": "參考手冊",
+    "viewDescription": "指令生命週期與說明,點指令即可複製"
   },
   "commands": {
     "title": "命令列表",
