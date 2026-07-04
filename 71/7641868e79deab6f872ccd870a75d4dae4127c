@@ -1,0 +1,19 @@
+public/refs/speckit-lifecycle.json
+  s_b5fe1f7212e5ca::t_81ed947ee8ecf7 1-75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "717641868e79deab6f872ccd870a75d4dae4127c",
+  "prompts": {},
+  "sessions": {
+    "s_b5fe1f7212e5ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e617e2b3-a39c-466c-aee6-7146eb72d0e1",
+        "model": "unknown"
+      },
+      "human_author": "tw199501 <tw199501@elf.tw>"
+    }
+  }
+}
