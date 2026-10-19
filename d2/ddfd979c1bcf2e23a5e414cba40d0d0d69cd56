@@ -1,0 +1,39 @@
+src/db/config-store.test.js
+  s_6912c3dc7e5715::t_40bd5101306c4d 1-80
+src/db/log-store.test.js
+  s_6912c3dc7e5715::t_c5a3f044878878 1-113
+src/db/repositories/annotation-repository.test.js
+  s_6912c3dc7e5715::t_f49e4978b347b8 1-131
+src/db/repositories/binding-repository.test.js
+  s_6912c3dc7e5715::t_f090d131c50f5b 1-114
+src/db/repositories/config-repository.test.js
+  s_6912c3dc7e5715::t_8e3ba4fb0c18a1 1-73
+src/db/repositories/dependency-repository.test.js
+  s_6912c3dc7e5715::t_f49ace3b3b73fa 1-162
+src/db/repositories/scan-repository.test.js
+  s_6912c3dc7e5715::t_42a89e2d737375 1-115
+src/db/repositories/tag-repository.test.js
+  s_6912c3dc7e5715::t_8ed37b82cfaa3b 1-86
+src/db/sqlite-client.test.js
+  s_6912c3dc7e5715::t_7b93ec24c93de4 1-121
+src/services/annotation-service.test.js
+  s_6912c3dc7e5715::t_e3c67d1608916b 1-89
+src/services/tag-service.test.js
+  s_6912c3dc7e5715::t_03413c4cb680d2 1-65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d2ddfd979c1bcf2e23a5e414cba40d0d0d69cd56",
+  "prompts": {},
+  "sessions": {
+    "s_6912c3dc7e5715": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ad3ca590-46ac-4414-9c88-d11b15a1df74",
+        "model": "unknown"
+      },
+      "human_author": "楊清雲 <41539966+TW199501@users.noreply.github.com>"
+    }
+  }
+}
