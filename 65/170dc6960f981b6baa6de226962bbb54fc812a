@@ -1,0 +1,19 @@
+eslint.config.mjs
+  s_cf2e5d93c8e1b1::t_9632fa9535cdbb 21-28,31-125
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "65170dc6960f981b6baa6de226962bbb54fc812a",
+  "prompts": {},
+  "sessions": {
+    "s_cf2e5d93c8e1b1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5edb3dba-67fb-42ce-83b0-e1ab31274451",
+        "model": "unknown"
+      },
+      "human_author": "unknown"
+    }
+  }
+}
