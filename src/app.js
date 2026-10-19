@@ -1,4 +1,5 @@
 const express = require('express')
+const { rateLimit } = require('express-rate-limit')
 const path = require('path')
 const { detectPackageManager } = require('./config/index.js')
 const { LogStore } = require('./db/index.js')
@@ -15,6 +16,17 @@ async function createApp(options) {
 
   const app = express()
   app.use(localOriginGuard)
+  // /api 每個 IP 每分鐘最多 600 個請求，超過回 429 { error }；靜態檔不計數
+  app.use(
+    '/api',
+    rateLimit({
+      windowMs: 60_000,
+      limit: 600,
+      standardHeaders: 'draft-8',
+      legacyHeaders: false,
+      message: { error: 'Too Many Requests' },
+    }),
+  )
   app.use(express.json())
   app.use((req, res, next) => {
     res.setHeader('Content-Encoding', 'identity')
