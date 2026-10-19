@@ -1,0 +1,67 @@
+name: CI
+
+# One workflow, one file: .github/workflows/ci.yml
+#   web     → owned by elf-cicd-frontend
+#   server  → owned by elf-cicd-backend (paste templates/ci-server-job.yml under `jobs:`)
+#   ci      → aggregate; the only check the org ruleset `elf-require-ci` requires (elf-team-rule E-244)
+#
+# The org ruleset requires only the `ci` job (by name). Keep `name: ci`, and keep its
+# `needs:` listing every other job id — a job left out of `needs:` is not enforced.
+
+on:
+  # PRs target dev (elf-team-rule); release is fast-forwarded from a tested dev.
+  push:
+    branches: [dev, release, 'hotfix/**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: web (format · lint · pack)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      # Must run BEFORE setup-node: `cache: pnpm` asks pnpm for its store path.
+      # No `version:` input — the version comes from `packageManager` in package.json.
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      # --frozen-lockfile: a lockfile that does not match package.json fails here
+      # instead of being silently rewritten in CI.
+      - run: pnpm install --frozen-lockfile
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build
+
+  # server: paste elf-cicd-backend/templates/ci-server-job.yml here
+
+  # Keep `needs:` listing every job above (add `server` when pasted); a job left out is not enforced.
+  ci:
+    name: ci
+    if: always()
+    needs: [web]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every required job succeeded
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          for r in $RESULTS; do
+            case "$r" in
+              success|skipped) ;;
+              *) echo "::error::a job in needs ended with '$r'"; exit 1 ;;
+            esac
+          done
