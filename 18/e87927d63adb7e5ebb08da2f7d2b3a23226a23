@@ -1,0 +1,19 @@
+.gitattributes
+  s_8649bfd4b536c5::t_7064195348947f 1-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "18e87927d63adb7e5ebb08da2f7d2b3a23226a23",
+  "prompts": {},
+  "sessions": {
+    "s_8649bfd4b536c5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14f9b-5306-7ae0-a82d-5dc6495018e9",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "unknown"
+    }
+  }
+}
