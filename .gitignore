@@ -13,3 +13,6 @@ log/
 .DS_Store
 Thumbs.db
 *.swp
+
+# ---------- Orca 自動建立的 worktree ----------
+.ocrca/
