@@ -32,14 +32,22 @@ function writeConfigBackup(backupDir, config) {
   return backupName
 }
 
-function listBackups(backupDir) {
+function listBackupNames(backupDir) {
   ensureBackupDir(backupDir)
-  const files = fs
+  return fs
     .readdirSync(backupDir)
     .filter((f) => f.startsWith('bob.config.') && f.endsWith('.json'))
     .sort()
     .reverse()
-  return files.map((name) => {
+}
+
+// 在備份目錄列表中找出與 name 相同的檔名，找不到時回傳 undefined
+function findBackupName(backupDir, name) {
+  return listBackupNames(backupDir).find((f) => f === name)
+}
+
+function listBackups(backupDir) {
+  return listBackupNames(backupDir).map((name) => {
     const stat = fs.statSync(path.join(backupDir, name))
     return {
       name,
@@ -116,8 +124,12 @@ function createConfigRouter(options) {
     if (!validateFileName(name)) {
       return res.status(400).json({ error: 'Invalid backup name' })
     }
-    const backupPath = path.join(backupDir, name)
-    return res.download(backupPath, name, (err) => {
+    const match = findBackupName(backupDir, name)
+    if (!match) {
+      return res.status(404).json({ error: 'Backup not found' })
+    }
+    const backupPath = path.join(backupDir, match)
+    return res.download(backupPath, match, (err) => {
       if (err) res.status(404).json({ error: 'Backup not found' })
     })
   })
@@ -129,9 +141,9 @@ function createConfigRouter(options) {
     }
     try {
       if (dbMode) {
-        const backupPath = path.join(backupDir, name)
-        if (!fs.existsSync(backupPath)) throw new Error(`Backup not found: ${name}`)
-        const raw = fs.readFileSync(backupPath, 'utf8')
+        const match = findBackupName(backupDir, name)
+        if (!match) throw new Error(`Backup not found: ${name}`)
+        const raw = fs.readFileSync(path.join(backupDir, match), 'utf8')
         const config = JSON.parse(raw)
         const { valid, errors } = validateConfig(config)
         if (!valid) return res.status(400).json({ error: `Invalid configuration: ${errors.join('; ')}` })
@@ -154,9 +166,9 @@ function createConfigRouter(options) {
     }
     try {
       if (dbMode) {
-        const backupPath = path.join(backupDir, name)
-        if (!fs.existsSync(backupPath)) throw new Error(`Backup not found: ${name}`)
-        fs.unlinkSync(backupPath)
+        const match = findBackupName(backupDir, name)
+        if (!match) throw new Error(`Backup not found: ${name}`)
+        fs.unlinkSync(path.join(backupDir, match))
       } else {
         editor.deleteBackup(name)
       }
