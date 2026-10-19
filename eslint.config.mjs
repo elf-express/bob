@@ -11,6 +11,11 @@ export default [
     files: ['src/**/*.js', '*.js'],
     languageOptions: { sourceType: 'commonjs', globals: globals.node },
   },
+  // 單元測試：ESM import 寫法，由 Vitest 轉譯
+  {
+    files: ['src/**/*.test.js'],
+    languageOptions: { sourceType: 'module', globals: globals.node },
+  },
   {
     files: ['*.mjs'],
     languageOptions: { sourceType: 'module', globals: globals.node },
