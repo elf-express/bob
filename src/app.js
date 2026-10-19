@@ -8,11 +8,13 @@ const { setupRoutes } = require('./routes/index.js')
 const { DependencyScanService } = require('./services/dependency-scan-service.js')
 const { CommandScanService } = require('./services/command-scan-service.js')
 const { FileSystemService } = require('./services/file-system.js')
+const { localOriginGuard } = require('./middleware/local-origin-guard.js')
 
 async function createApp(options) {
   const { projectDir, projectName, logDir, publicDir, db, bindingRepo, configRepo } = options
 
   const app = express()
+  app.use(localOriginGuard)
   app.use(express.json())
   app.use((req, res, next) => {
     res.setHeader('Content-Encoding', 'identity')

@@ -6,6 +6,8 @@ const path = require('path')
 const { ConfigEditor, validateConfig } = require('../services/config-editor.js')
 const { validateFileName } = require('../utils/validation.js')
 
+const IMPORT_MAX_FILE_SIZE = 1024 * 1024
+
 function ensureBackupDir(backupDir) {
   if (!fs.existsSync(backupDir)) {
     fs.mkdirSync(backupDir, { recursive: true })
@@ -54,7 +56,7 @@ function listBackups(backupDir) {
  */
 function createConfigRouter(options) {
   const router = express.Router()
-  const upload = multer({ dest: os.tmpdir() })
+  const upload = multer({ dest: os.tmpdir(), limits: { fileSize: IMPORT_MAX_FILE_SIZE } })
 
   const { db, configRepo, configPath, backupDir } = options
   const dbMode = Boolean(db && configRepo)
@@ -164,7 +166,18 @@ function createConfigRouter(options) {
     }
   })
 
-  router.post('/import', upload.single('file'), async (req, res) => {
+  // 上傳檔超過大小上限時回 413，其餘 multer 錯誤回 400
+  const uploadImportFile = (req, res, next) => {
+    upload.single('file')(req, res, (err) => {
+      if (!err) return next()
+      if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({ error: 'File too large' })
+      }
+      return res.status(400).json({ error: err.message })
+    })
+  }
+
+  router.post('/import', uploadImportFile, async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' })
