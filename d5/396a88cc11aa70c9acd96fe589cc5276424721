@@ -1,0 +1,23 @@
+src/app.js
+  s_20cfebeb9a4c3c::t_e2d5ff07f1d98f 11,17
+src/middleware/local-origin-guard.js
+  s_20cfebeb9a4c3c::t_645c601ee68e04 1-32
+src/routes/config.js
+  s_20cfebeb9a4c3c::t_a78ee33708e57b 9-10,59,169-180
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d5396a88cc11aa70c9acd96fe589cc5276424721",
+  "prompts": {},
+  "sessions": {
+    "s_20cfebeb9a4c3c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1545c-4287-7b22-9bc6-58c08ac796ad",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "unknown"
+    }
+  }
+}
