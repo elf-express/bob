@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   web:
-    name: web (format · lint · pack)
+    name: web (format · lint · test · pack)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
@@ -43,8 +43,32 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      # Fails the job when line coverage < 55% (vitest.config.mjs → test.coverage.thresholds).
+      - name: Unit tests + coverage gate (line 55%)
+        run: pnpm test:coverage
+
+      # Branch 50% is advisory: a warning annotation, never a failure.
+      - name: Branch coverage (advisory 50%)
+        if: success() || failure()
+        run: |
+          node -e '
+            const fs = require("node:fs");
+            const f = "coverage/coverage-summary.json";
+            if (!fs.existsSync(f)) { console.log("no coverage summary"); process.exit(0); }
+            const t = JSON.parse(fs.readFileSync(f, "utf8")).total;
+            console.log(`lines ${t.lines.pct}%  branches ${t.branches.pct}%`);
+            if (t.branches.pct < 50) console.log(`::warning::Branch coverage ${t.branches.pct}% is below the advisory 50%`);
+          '
+
       - name: Build
         run: pnpm build
+
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        if: success() || failure()
+        with:
+          name: web-coverage
+          path: coverage
+          retention-days: 7
 
   # server: paste elf-cicd-backend/templates/ci-server-job.yml here
 
