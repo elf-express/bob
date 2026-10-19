@@ -1,0 +1,29 @@
+src/config/default-taxonomy.test.js
+  s_81bfa5fe96ddd8::t_5ce1b9c13cc90c 1-32
+src/config/detect-pm.test.js
+  s_81bfa5fe96ddd8::t_ca25eac6cd396a 1-44
+src/middleware/local-origin-guard.test.js
+  s_81bfa5fe96ddd8::t_f66d9413aeeeab 1-61
+src/services/ai-annotation-service.test.js
+  s_81bfa5fe96ddd8::t_2c3b2d86e53c3f 1-67
+src/services/annotation-policy.test.js
+  s_81bfa5fe96ddd8::t_e94f2dc708ff15 1-25
+src/services/config-command-upgrader.test.js
+  s_81bfa5fe96ddd8::t_30175afe0ceeb5 1-84
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4877f242224fa4cdb3df7bf1b47358590f5b240c",
+  "prompts": {},
+  "sessions": {
+    "s_81bfa5fe96ddd8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e47a2999-3aa7-4f6b-8329-fc2672891189",
+        "model": "unknown"
+      },
+      "human_author": "楊清雲 <41539966+TW199501@users.noreply.github.com>"
+    }
+  }
+}
