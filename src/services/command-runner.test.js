@@ -1,4 +1,4 @@
-import { EventEmitter } from 'node:events'
+import { EventEmitter, once } from 'node:events'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -35,18 +35,73 @@ function parseEvents(res) {
   })
 }
 
+// 寫下自身 PID、stdin 收到 EOF 就結束，最長存活 30 秒；shell 被殺時孫程序也會跟著結束
+const LONG_RUNNING =
+  "node -e \"require('fs').writeFileSync('grandchild.pid', String(process.pid)); " +
+  "process.stdin.on('end', () => process.exit()).resume(); setTimeout(() => process.exit(), 30000)\""
+
+async function withTimeout(promise, ms) {
+  let timer
+  const timeout = new Promise((resolve) => {
+    timer = setTimeout(resolve, ms)
+  })
+  try {
+    await Promise.race([promise.catch(() => {}), timeout])
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 function waitForLogClose(runner) {
   const stream = runner.logStream
   if (!stream || stream.closed) return Promise.resolve()
-  return new Promise((resolve) => stream.once('close', resolve))
+  const closed = once(stream, 'close')
+  if (!stream.writableEnded) stream.end()
+  return withTimeout(closed, 2000)
+}
+
+async function stopChild(child) {
+  child.stdin.destroy()
+  if (child.exitCode !== null || child.signalCode !== null) return
+  const exited = once(child, 'exit')
+  child.kill('SIGKILL')
+  await withTimeout(exited, 3000)
+}
+
+function isAlive(pid) {
+  try {
+    process.kill(pid, 0)
+    return true
+  } catch (error) {
+    return error.code === 'EPERM'
+  }
+}
+
+async function stopGrandchild(pidFile) {
+  if (!fs.existsSync(pidFile)) return
+  const pid = Number(fs.readFileSync(pidFile, 'utf8'))
+  if (!pid) return
+  try {
+    await vi.waitFor(() => expect(isAlive(pid)).toBe(false), { timeout: 3000 })
+  } catch {
+    process.kill(pid, 'SIGKILL')
+  }
 }
 
 describe('CommandRunner', () => {
   let dir
   let runner
   let res
+  let children
+
+  function run(commands) {
+    const logFile = runner.run(commands, res)
+    children.push(runner.currentChild)
+    return logFile
+  }
 
   beforeEach(() => {
+    children = []
     vi.stubEnv('BOB_USER', 'tester')
     vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
     vi.spyOn(process.stderr, 'write').mockImplementation(() => true)
@@ -56,17 +111,23 @@ describe('CommandRunner', () => {
   })
 
   afterEach(async () => {
-    runner.abort()
-    await waitForLogClose(runner)
-    vi.unstubAllEnvs()
-    vi.restoreAllMocks()
-    fs.rmSync(dir, { recursive: true, force: true })
+    try {
+      children.push(runner.currentChild)
+      runner.abort()
+      await Promise.all(children.filter(Boolean).map(stopChild))
+      await stopGrandchild(path.join(dir, 'grandchild.pid'))
+      await waitForLogClose(runner)
+    } finally {
+      vi.unstubAllEnvs()
+      vi.restoreAllMocks()
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
   })
 
   it('sets server-sent event headers', async () => {
     const finished = new Promise((resolve) => res.once('finish', resolve))
 
-    runner.run(['node -e "0"'], res)
+    run(['node -e "0"'])
 
     await finished
     expect(res.headers).toMatchObject({ 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' })
@@ -75,7 +136,7 @@ describe('CommandRunner', () => {
   it('names the log after the timestamp and user slug', async () => {
     const finished = new Promise((resolve) => res.once('finish', resolve))
 
-    const logFile = runner.run(['node -e "0"'], res)
+    const logFile = run(['node -e "0"'])
 
     await finished
     expect(logFile).toMatch(/^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-tester\.log$/)
@@ -84,7 +145,7 @@ describe('CommandRunner', () => {
   it('counts issues in the output and reports them when done', async () => {
     const finished = new Promise((resolve) => res.once('finish', resolve))
 
-    const logFile = runner.run(['node -e "console.log(\'  1:1  error  no-undef\')"'], res)
+    const logFile = run(['node -e "console.log(\'  1:1  error  no-undef\')"'])
 
     await finished
     expect(parseEvents(res).at(-1)).toEqual({
@@ -96,7 +157,7 @@ describe('CommandRunner', () => {
   it('continues with the next command after a failure', async () => {
     const finished = new Promise((resolve) => res.once('finish', resolve))
 
-    runner.run(['node -e "process.exit(3)"', 'node -e "0"'], res)
+    run(['node -e "process.exit(3)"', 'node -e "0"'])
 
     await finished
     const codes = parseEvents(res)
@@ -106,7 +167,7 @@ describe('CommandRunner', () => {
   })
 
   it('stops the running command and ends the response on abort', async () => {
-    runner.run(['node -e "setInterval(() => {}, 1000)"'], res)
+    run([LONG_RUNNING])
     await vi.waitFor(() => expect(res.chunks.join('')).toContain('Child process spawned'), { timeout: 5000 })
 
     runner.abort()
@@ -116,7 +177,7 @@ describe('CommandRunner', () => {
   })
 
   it('aborts when the client disconnects early', async () => {
-    runner.run(['node -e "setInterval(() => {}, 1000)"'], res)
+    run([LONG_RUNNING])
 
     res.emit('close')
 
