@@ -20,6 +20,11 @@ export default [
     files: ['*.mjs'],
     languageOptions: { sourceType: 'module', globals: globals.node },
   },
+  // 版號與發版腳本、腳本測試：Node ESM
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: { sourceType: 'module', globals: globals.node },
+  },
   // 前端：瀏覽器一般 script
   {
     files: ['public/js/**/*.js'],

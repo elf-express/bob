@@ -36,7 +36,11 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "build": "pnpm pack --dry-run",
-    "verify": "pnpm format:check && pnpm lint && pnpm test:coverage && pnpm build"
+    "verify": "pnpm format:check && pnpm lint && pnpm test:coverage && pnpm build",
+    "version:show": "node scripts/version.mjs",
+    "version:patch": "node scripts/version.mjs patch",
+    "version:minor": "node scripts/version.mjs minor",
+    "version:major": "node scripts/version.mjs major"
   },
   "dependencies": {
     "express": "^5.2.1",
