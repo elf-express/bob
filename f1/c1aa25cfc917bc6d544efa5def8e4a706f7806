@@ -1,0 +1,27 @@
+src/services/command-runner.test.js
+  s_296988be007b37::t_c244abf99022d9 1-139
+src/services/command-scan-service.test.js
+  s_296988be007b37::t_ed331f1a740625 1-179
+src/services/config-editor.test.js
+  s_296988be007b37::t_01a38443d03818 1-164
+src/services/dependency-scan-service.test.js
+  s_296988be007b37::t_5999ff7f496a31 1-127
+src/services/file-system.test.js
+  s_296988be007b37::t_d7e236e00e27d3 1-155
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f1c1aa25cfc917bc6d544efa5def8e4a706f7806",
+  "prompts": {},
+  "sessions": {
+    "s_296988be007b37": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1bcee95e-3d36-485c-91c1-d434e4a04261",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "楊清雲 <41539966+TW199501@users.noreply.github.com>"
+    }
+  }
+}
