@@ -538,7 +538,7 @@ function showAlert({ title, message, type = 'info' }) {
 
   showModal({
     title: `${icons[type]} ${title}`,
-    html: `<p style="font-size: 15px; line-height: 1.6; color: #475569;">${message}</p>`,
+    html: `<p style="font-size: 15px; line-height: 1.6; color: #475569;">${escapeHtml(message)}</p>`,
     buttons: [
       {
         text: tr('common.confirm', 'Confirm'),

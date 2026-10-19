@@ -366,7 +366,10 @@ async function handleSearch(query, rootLi) {
         const li = createTreeItemDOM(item)
         const textSpan = li.querySelector('.tree-text')
         if (textSpan) {
-          textSpan.innerHTML = `${item.name} <span style="color:#94a3b8;font-size:10px;margin-left:4px;">(${item.path})</span>`
+          const pathSpan = document.createElement('span')
+          pathSpan.style.cssText = 'color:#94a3b8;font-size:10px;margin-left:4px;'
+          pathSpan.textContent = `(${item.path})`
+          textSpan.replaceChildren(`${item.name} `, pathSpan)
           textSpan.title = item.path
         }
         rootUl.appendChild(li)
@@ -376,7 +379,10 @@ async function handleSearch(query, rootLi) {
       if (typeof lucide !== 'undefined') lucide.createIcons()
     } catch (error) {
       console.error(error)
-      rootUl.innerHTML = `<li style="color:red;padding:8px;">${peT('fileTree.loadFailed', 'Load failed:')} ${error.message}</li>`
+      const errorLi = document.createElement('li')
+      errorLi.style.cssText = 'color:red;padding:8px;'
+      errorLi.textContent = `${peT('fileTree.loadFailed', 'Load failed:')} ${error.message}`
+      rootUl.replaceChildren(errorLi)
     }
   }, 300)
 }
@@ -407,7 +413,11 @@ async function loadProjectRoot() {
     renderTree(rootNode, container)
     await refreshProjectExplorerScanStatus()
   } catch (error) {
-    container.innerHTML = `<div class="file-tree-loading" style="color:var(--danger)">${peT('fileTree.loadFailed', 'Load failed:')} ${error.message}</div>`
+    const errorDiv = document.createElement('div')
+    errorDiv.className = 'file-tree-loading'
+    errorDiv.style.color = 'var(--danger)'
+    errorDiv.textContent = `${peT('fileTree.loadFailed', 'Load failed:')} ${error.message}`
+    container.replaceChildren(errorDiv)
   }
 }
 
@@ -610,11 +620,45 @@ function createTreeItemDOM(item) {
   rowDiv.innerHTML = `
     <span class="tree-toggle">${toggleContent}</span>
     ${iconHtml}
-    <span class="tree-text" title="${item.path}" style="flex: 0 1 auto;">${item.displayName || item.name}</span><span class="tree-copy-btn" title="${i18n.t('fileTree.copyName')}" onclick="event.stopPropagation(); navigator.clipboard.writeText('${item.name.replace(/'/g, "\\'")}').then(() => { const btn = this; btn.classList.add('copied'); const icon = btn.querySelector('i'); if(icon) { icon.setAttribute('data-lucide', 'check'); if(typeof lucide!=='undefined')lucide.createIcons(); setTimeout(() => { icon.setAttribute('data-lucide', 'copy'); btn.classList.remove('copied'); if(typeof lucide!=='undefined')lucide.createIcons(); }, 1000); } });"><i data-lucide="copy" style="width:14px;height:14px;"></i></span>
-    ${item.purpose ? `<span class="tree-purpose-text" title="${item.purpose.replace(/"/g, '&quot;')}">${item.purpose.length > 20 ? `${item.purpose.substring(0, 20)}...` : item.purpose}</span>` : ''}
+    <span class="tree-text" style="flex: 0 1 auto;"></span><span class="tree-copy-btn"><i data-lucide="copy" style="width:14px;height:14px;"></i></span>
+    ${item.purpose ? '<span class="tree-purpose-text"></span>' : ''}
     <span style="flex:1;"></span>
     ${hasAnnotation ? '<i data-lucide="message-square" style="width:12px;height:12px;color:#3b82f6;margin-left:auto;"></i>' : ''}
   `
+
+  const textSpan = rowDiv.querySelector('.tree-text')
+  textSpan.title = item.path
+  // displayName 只由前端組成（根節點的檔案數徽章），其餘一律以純文字顯示檔名
+  if (item.displayName) {
+    textSpan.innerHTML = item.displayName
+  } else {
+    textSpan.textContent = item.name
+  }
+
+  const copyBtn = rowDiv.querySelector('.tree-copy-btn')
+  copyBtn.title = i18n.t('fileTree.copyName')
+  copyBtn.addEventListener('click', (event) => {
+    event.stopPropagation()
+    navigator.clipboard.writeText(item.name).then(() => {
+      copyBtn.classList.add('copied')
+      const icon = copyBtn.querySelector('i')
+      if (icon) {
+        icon.setAttribute('data-lucide', 'check')
+        if (typeof lucide !== 'undefined') lucide.createIcons()
+        setTimeout(() => {
+          icon.setAttribute('data-lucide', 'copy')
+          copyBtn.classList.remove('copied')
+          if (typeof lucide !== 'undefined') lucide.createIcons()
+        }, 1000)
+      }
+    })
+  })
+
+  if (item.purpose) {
+    const purposeSpan = rowDiv.querySelector('.tree-purpose-text')
+    purposeSpan.title = item.purpose
+    purposeSpan.textContent = item.purpose.length > 20 ? `${item.purpose.substring(0, 20)}...` : item.purpose
+  }
 
   if (iconConfig.type === 'image') {
     const img = rowDiv.querySelector('span.tree-icon > img')
@@ -844,7 +888,11 @@ async function loadDirectoryContent(item, li) {
     if (typeof lucide !== 'undefined') lucide.createIcons()
   } catch (error) {
     console.error(error)
-    ul.innerHTML = `<li class="error" style="padding:8px 0 8px 24px;color:red;font-size:12px;">${i18n.t('fileTree.loadFailed')} ${error.message}</li>`
+    const errorLi = document.createElement('li')
+    errorLi.className = 'error'
+    errorLi.style.cssText = 'padding:8px 0 8px 24px;color:red;font-size:12px;'
+    errorLi.textContent = `${i18n.t('fileTree.loadFailed')} ${error.message}`
+    ul.replaceChildren(errorLi)
   }
 }
 
