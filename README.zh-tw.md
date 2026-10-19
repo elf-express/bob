@@ -15,27 +15,28 @@ BOB Tools 已改為 **DB-first（SQLite）**，執行期不再依賴 `bob.config
 
 ## 快速開始
 
+在 bob 的 repo 根目錄執行（開發用；全域安裝見下一節）：
+
 ```bash
-cd .bob-tools
-npm install
+pnpm install
 ```
 
-首次綁定並啟動：
+首次綁定並啟動（`--target` 指向目標專案，相對路徑以 bob repo 根目錄為準）：
 
 ```bash
-npm run start:bind
+pnpm start --target <目標專案路徑>
 ```
 
 已綁定後一般啟動：
 
 ```bash
-npm start
+pnpm start
 ```
 
-預設網址：
+預設網址（3800 被占用時依序往後找，最多到 3809）：
 
 ```text
-http://127.0.0.1:3100
+http://127.0.0.1:3800
 ```
 
 ---
@@ -72,7 +73,7 @@ http://127.0.0.1:3100
 
 BOB Tools 採單專案綁定：
 
-- 第一次啟動必須提供目標專案（`start:bind` 已內含 `--target ..`）
+- 第一次啟動必須提供目標專案（`--target <路徑>`）
 - 若已綁定，改用不同 target 啟動會被拒絕
 - 開發期可用 `--rebind` 強制重綁
 

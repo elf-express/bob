@@ -15,27 +15,28 @@ BOB Tools is now **DB-first (SQLite)**. Runtime no longer depends on `bob.config
 
 ## Quick Start
 
+Run from the bob repo root (for development; for a global install see the next section):
+
 ```bash
-cd .bob-tools
-npm install
+pnpm install
 ```
 
-First-time bind + start:
+First-time bind + start (`--target` points at the target project; a relative path is resolved from the bob repo root):
 
 ```bash
-npm run start:bind
+pnpm start --target <target project path>
 ```
 
 Normal start (after binding):
 
 ```bash
-npm start
+pnpm start
 ```
 
-Default URL:
+Default URL (if 3800 is taken, the next free port up to 3809 is used):
 
 ```text
-http://127.0.0.1:3100
+http://127.0.0.1:3800
 ```
 
 ---
@@ -72,7 +73,7 @@ http://127.0.0.1:3100
 
 BOB Tools uses single-project binding:
 
-- First run must provide a target project (`start:bind` already includes `--target ..`)
+- First run must provide a target project (`--target <path>`)
 - If already bound, starting with a different target is rejected
 - In development, use `--rebind` to force rebind
 

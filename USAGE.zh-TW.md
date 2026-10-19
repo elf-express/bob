@@ -8,25 +8,26 @@
 
 ## 1. 先決條件
 
-- 目標專案存在（例如本 monorepo 根目錄）
-- `node` / `npm` 可用
+- 目標專案存在
+- Node 24.18 以上、pnpm（全域安裝改用 npm，見 `README.zh-tw.md`「從 GitHub Packages 安裝」）
+
+在 bob 的 repo 根目錄：
 
 ```bash
-cd .bob-tools
-npm install
+pnpm install
 ```
 
 ## 2. 第一次啟動（綁定目標專案）
 
 ```bash
-npm run start:bind
+pnpm start --target <目標專案路徑>
 ```
 
-`start:bind` 內建 `--target ..`，代表把 BOB Tools 綁到上層專案目錄。  
-啟動後預設網址：
+`--target` 指定要綁定的目標專案，相對路徑以 bob repo 根目錄為準（全域安裝時在目標專案根目錄執行 `bob --target .`）。  
+啟動後預設網址（3800 被占用時依序往後找，最多到 3809）：
 
 ```text
-http://127.0.0.1:3100
+http://127.0.0.1:3800
 ```
 
 ## 3. 一般啟動
@@ -34,7 +35,7 @@ http://127.0.0.1:3100
 綁定完成後直接：
 
 ```bash
-npm start
+pnpm start
 ```
 
 ## 4. 重新綁定（換專案）

@@ -47,7 +47,7 @@ async function resolveBoundProject({ bindingRepo, cliTarget, rebind }) {
   }
   if (!existing) {
     if (!cliTarget) {
-      throw new Error('No project binding found. Start with: npm run start:bind')
+      throw new Error('No project binding found. Start with: --target <project path>')
     }
     const binding = await bindingRepo.upsertBinding(cliTarget, 1, existing?.package_manager_override || null)
     return binding.target_path
