@@ -1,0 +1,101 @@
+name: Release
+
+# Publishes @elf-express/bob to GitHub Packages (elf-cicd-versioning).
+#   verify  → the tag equals package.json's version, and its commit is on origin/release
+#   publish → pnpm verify, then pnpm publish (a version already published is skipped)
+# Tags are pushed by a person; a tag pushed with GITHUB_TOKEN would not trigger this.
+
+on:
+  # A tag pushed by a person on the release branch.
+  push:
+    tags: ['v*']
+  # Build an existing tag by hand.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to build (e.g. v0.0.1)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: verify tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          # Full history, so origin/release is there to compare against.
+          fetch-depth: 0
+
+      - name: Tag must match the version and sit on release
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "v$version" != "$TAG" ]; then
+            echo "::error::tag $TAG does not match package.json version $version"
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$(git rev-parse "$TAG^{commit}")" origin/release; then
+            echo "::error::$TAG is not on release. Fast-forward release first, then tag the commit it points to."
+            exit 1
+          fi
+
+  publish:
+    name: publish to GitHub Packages
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    # One run per tag at a time; never cancel a publish half-way.
+    concurrency:
+      group: release-${{ inputs.tag || github.ref_name }}
+      cancel-in-progress: false
+    env:
+      # Read by the .npmrc that setup-node writes; used by npm view and pnpm publish.
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      # Must run BEFORE setup-node: `cache: pnpm` asks pnpm for its store path.
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          registry-url: https://npm.pkg.github.com
+          scope: '@elf-express'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Verify (format · lint · test · pack)
+        run: pnpm verify
+
+      - name: Publish unless this version is already published
+        run: |
+          version=$(node -p "require('./package.json').version")
+          # stdout is compared with the version; stderr (warn/notice lines) is only searched for E404.
+          err=$(mktemp)
+          if published=$(npm view "@elf-express/bob@$version" version 2>"$err"); then
+            # Exit 0 with empty output: the package exists but not this version.
+            if [ "$published" = "$version" ]; then
+              echo "::notice::@elf-express/bob@$version is already published; skipping."
+              exit 0
+            fi
+          elif ! grep -q E404 "$err"; then
+            cat "$err"
+            echo "::error::npm view failed for a reason other than E404; not publishing."
+            exit 1
+          fi
+          # A tag checkout is a detached HEAD, which pnpm's git checks reject.
+          pnpm publish --no-git-checks
