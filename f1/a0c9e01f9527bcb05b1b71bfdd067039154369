@@ -1,0 +1,23 @@
+AGENTS.md
+  s_8649bfd4b536c5::t_3f9ab89d0610ff 1-3
+BRANCHING.md
+  s_8649bfd4b536c5::t_758d91dcb7e32e 1-88
+CLAUDE.md
+  s_8649bfd4b536c5::t_eb22146de29530 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f1a0c9e01f9527bcb05b1b71bfdd067039154369",
+  "prompts": {},
+  "sessions": {
+    "s_8649bfd4b536c5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14f9b-5306-7ae0-a82d-5dc6495018e9",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "unknown"
+    }
+  }
+}
