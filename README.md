@@ -40,6 +40,34 @@ http://127.0.0.1:3100
 
 ---
 
+## Install from GitHub Packages
+
+`@elf-express/bob` is published to GitHub Packages. Installing it needs GitHub authentication even though the package is public.
+
+1. GitHub → Settings → Developer settings → Personal access tokens → **Tokens (classic)**: create a token with only the `read:packages` scope (GitHub Packages accepts classic tokens only).
+2. Store it as the user environment variable `NODE_AUTH_TOKEN`, then reopen the terminal (PowerShell):
+
+   ```powershell
+   [Environment]::SetEnvironmentVariable('NODE_AUTH_TOKEN', '<your token>', 'User')
+   ```
+
+3. Add these two lines to `~/.npmrc` (Windows: `%USERPROFILE%\.npmrc`). Leave the token to the environment variable; never write the real value:
+
+   ```ini
+   @elf-express:registry=https://npm.pkg.github.com
+   //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+   ```
+
+4. Install, then bind and start from the target project's root the first time:
+
+   ```bash
+   npm i -g @elf-express/bob
+   cd <target project>
+   bob --target .
+   ```
+
+---
+
 ## Single-Project Binding Mode
 
 BOB Tools uses single-project binding:

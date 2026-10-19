@@ -40,6 +40,34 @@ http://127.0.0.1:3100
 
 ---
 
+## 從 GitHub Packages 安裝
+
+`@elf-express/bob` 發佈在 GitHub Packages。套件即使是公開的，安裝也需要 GitHub 認證。
+
+1. GitHub → Settings → Developer settings → Personal access tokens → **Tokens (classic)** 建立 token，scope 只勾 `read:packages`（GitHub Packages 只接受 classic token）。
+2. 把 token 存成使用者環境變數 `NODE_AUTH_TOKEN`，設定後重開終端機（PowerShell）：
+
+   ```powershell
+   [Environment]::SetEnvironmentVariable('NODE_AUTH_TOKEN', '<你的 token>', 'User')
+   ```
+
+3. 在 `~/.npmrc`（Windows：`%USERPROFILE%\.npmrc`）加入下面兩行，token 留給環境變數，不要寫實際值：
+
+   ```ini
+   @elf-express:registry=https://npm.pkg.github.com
+   //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+   ```
+
+4. 安裝，並在目標專案根目錄第一次綁定啟動：
+
+   ```bash
+   npm i -g @elf-express/bob
+   cd <目標專案>
+   bob --target .
+   ```
+
+---
+
 ## 單專案綁定模式
 
 BOB Tools 採單專案綁定：
@@ -144,3 +172,14 @@ npm run test:coverage
 - 不自動回寫目標專案的 `package.json`
 - 工具執行資料集中在 SQLite
 - 掃描快照使用覆蓋策略，避免資料無限制膨脹
+
+---
+
+## 發版步驟
+
+分支怎麼走見 `BRANCHING.md`，版號與 tag 的規則見 elf-cicd-versioning；這裡只寫 bob 專屬的部分。
+
+- 套件：`@elf-express/bob`，由 `.github/workflows/release.yml`（Actions 名稱 Release）發佈到 GitHub Packages。
+- 版號：只用 `pnpm version:patch`／`version:minor`／`version:major` 改，`pnpm version:show` 查目前版號。
+- 發版後驗收：該 tag 的 Release run 裡 `verify`、`publish` 都成功；套件頁出現新版本；本機 `npm i -g @elf-express/bob@<版號>` 後 `bob` 能啟動。
+- 重建既有 tag：Actions → Release → Run workflow，輸入 `vX.Y.Z`；已發佈的版本會跳過發佈，run 仍為成功。
