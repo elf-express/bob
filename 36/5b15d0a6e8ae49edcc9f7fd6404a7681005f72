@@ -1,0 +1,19 @@
+.git-blame-ignore-revs
+  s_3c65437434eeec::t_c50b1d658f58cc 1-2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "365b15d0a6e8ae49edcc9f7fd6404a7681005f72",
+  "prompts": {},
+  "sessions": {
+    "s_3c65437434eeec": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "df0f70c3-bfd9-4518-bc18-7f5c02aeb678",
+        "model": "unknown"
+      },
+      "human_author": "unknown"
+    }
+  }
+}
