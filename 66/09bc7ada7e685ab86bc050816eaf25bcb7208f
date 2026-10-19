@@ -1,0 +1,16 @@
+.github/workflows/release.yml
+  h_be8240d2cfaa4b 1-101
+scripts/release-workflow.test.mjs
+  h_be8240d2cfaa4b 1-73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6609bc7ada7e685ab86bc050816eaf25bcb7208f",
+  "prompts": {},
+  "humans": {
+    "h_be8240d2cfaa4b": {
+      "author": "楊清雲 <41539966+TW199501@users.noreply.github.com>"
+    }
+  }
+}
