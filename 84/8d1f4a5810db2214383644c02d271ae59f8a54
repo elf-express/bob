@@ -1,0 +1,19 @@
+src/app.js
+  s_94fae05fa89f60::t_c7154bf3564961 2,19-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "848d1f4a5810db2214383644c02d271ae59f8a54",
+  "prompts": {},
+  "sessions": {
+    "s_94fae05fa89f60": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "62534f43-2afb-475c-9aa1-7f7876e5cd4a",
+        "model": "unknown"
+      },
+      "human_author": "unknown"
+    }
+  }
+}
