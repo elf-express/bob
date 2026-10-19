@@ -9,30 +9,30 @@
  * @param {string} filePath - Relative or absolute path of the selected file.
  */
 async function renderBottomPanels(filePath) {
-  const container = document.getElementById('bottom-panels-container');
-  if (!container) return;
+  const container = document.getElementById('bottom-panels-container')
+  if (!container) return
 
   // Show the panel section when a file is selected.
-  container.style.display = 'grid';
+  container.style.display = 'grid'
 
   // Fetch history and relations in parallel
   const [historyRes, relationsRes] = await Promise.all([
-    fetchHistory(filePath).catch(e => ({ ok: false, error: e.message })),
-    fetchRelations(filePath).catch(e => ({ ok: false, error: e.message })),
-  ]);
+    fetchHistory(filePath).catch((e) => ({ ok: false, error: e.message })),
+    fetchRelations(filePath).catch((e) => ({ ok: false, error: e.message })),
+  ])
 
   // Render history panel
   if (historyRes.ok) {
-    renderHistoryTable(Array.isArray(historyRes.history) ? historyRes.history : []);
+    renderHistoryTable(Array.isArray(historyRes.history) ? historyRes.history : [])
   } else {
-    renderHistoryError();
+    renderHistoryError()
   }
 
   // Render relations panel
   if (relationsRes.ok) {
-    renderRelationsTwoLists(relationsRes);
+    renderRelationsTwoLists(relationsRes)
   } else {
-    renderRelationsError();
+    renderRelationsError()
   }
 }
 
@@ -42,11 +42,9 @@ async function renderBottomPanels(filePath) {
  * @returns {Promise<Object>}
  */
 async function fetchHistory(filePath) {
-  const res = await fetch(
-    '/api/files/history?path=' + encodeURIComponent(filePath) + '&limit=20'
-  );
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
+  const res = await fetch('/api/files/history?path=' + encodeURIComponent(filePath) + '&limit=20')
+  if (!res.ok) throw new Error('HTTP ' + res.status)
+  return res.json()
 }
 
 /**
@@ -55,9 +53,9 @@ async function fetchHistory(filePath) {
  * @returns {Promise<Object>}
  */
 async function fetchRelations(filePath) {
-  const res = await fetch('/api/files/relations?path=' + encodeURIComponent(filePath));
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
+  const res = await fetch('/api/files/relations?path=' + encodeURIComponent(filePath))
+  if (!res.ok) throw new Error('HTTP ' + res.status)
+  return res.json()
 }
 
 /**
@@ -66,40 +64,40 @@ async function fetchRelations(filePath) {
  * @param {Array} history
  */
 function renderHistoryTable(history) {
-  const tbody = document.querySelector('#file-history-table tbody');
-  if (!tbody) return;
+  const tbody = document.querySelector('#file-history-table tbody')
+  if (!tbody) return
 
-  tbody.replaceChildren();
+  tbody.replaceChildren()
 
   if (!history.length) {
-    const tr = document.createElement('tr');
-    const td = document.createElement('td');
-    td.colSpan = 3;
-    td.className = 'history-empty-cell';
-    td.textContent = annT('panels.empty', '無歷史記錄');
-    tr.appendChild(td);
-    tbody.appendChild(tr);
-    return;
+    const tr = document.createElement('tr')
+    const td = document.createElement('td')
+    td.colSpan = 3
+    td.className = 'history-empty-cell'
+    td.textContent = annT('panels.empty', '無歷史記錄')
+    tr.appendChild(td)
+    tbody.appendChild(tr)
+    return
   }
 
   for (const h of history) {
-    const tr = document.createElement('tr');
-    tr.title = h.sha || '';
+    const tr = document.createElement('tr')
+    tr.title = h.sha || ''
 
-    const tdDate = document.createElement('td');
-    tdDate.className = 'col-date';
-    tdDate.textContent = (h.date || '').slice(0, 10);
+    const tdDate = document.createElement('td')
+    tdDate.className = 'col-date'
+    tdDate.textContent = (h.date || '').slice(0, 10)
 
-    const tdAuthor = document.createElement('td');
-    tdAuthor.className = 'col-author';
-    tdAuthor.textContent = h.author || '';
+    const tdAuthor = document.createElement('td')
+    tdAuthor.className = 'col-author'
+    tdAuthor.textContent = h.author || ''
 
-    const tdSubject = document.createElement('td');
-    tdSubject.className = 'col-subject';
-    tdSubject.textContent = h.subject || '';
+    const tdSubject = document.createElement('td')
+    tdSubject.className = 'col-subject'
+    tdSubject.textContent = h.subject || ''
 
-    tr.append(tdDate, tdAuthor, tdSubject);
-    tbody.appendChild(tr);
+    tr.append(tdDate, tdAuthor, tdSubject)
+    tbody.appendChild(tr)
   }
 }
 
@@ -107,18 +105,18 @@ function renderHistoryTable(history) {
  * Show an error row in the history table when the API call fails.
  */
 function renderHistoryError() {
-  const tbody = document.querySelector('#file-history-table tbody');
-  if (!tbody) return;
+  const tbody = document.querySelector('#file-history-table tbody')
+  if (!tbody) return
 
-  tbody.replaceChildren();
+  tbody.replaceChildren()
 
-  const tr = document.createElement('tr');
-  const td = document.createElement('td');
-  td.colSpan = 3;
-  td.className = 'history-error-cell';
-  td.textContent = annT('panels.error', '載入失敗');
-  tr.appendChild(td);
-  tbody.appendChild(tr);
+  const tr = document.createElement('tr')
+  const td = document.createElement('td')
+  td.colSpan = 3
+  td.className = 'history-error-cell'
+  td.textContent = annT('panels.error', '載入失敗')
+  tr.appendChild(td)
+  tbody.appendChild(tr)
 }
 
 /**
@@ -127,33 +125,23 @@ function renderHistoryError() {
  * @param {Object} data - Response from /api/files/relations
  */
 function renderRelationsTwoLists(data) {
-  const panel = document.querySelector('.panel-relations');
-  if (!panel) return;
+  const panel = document.querySelector('.panel-relations')
+  if (!panel) return
 
   // Clear existing content
-  panel.replaceChildren();
+  panel.replaceChildren()
 
   // Create h4 title (reuse existing)
-  const h4 = document.createElement('h4');
-  h4.className = 'panel-title';
-  h4.textContent = annT('panels.relations', 'Related Files');
-  panel.appendChild(h4);
+  const h4 = document.createElement('h4')
+  h4.className = 'panel-title'
+  h4.textContent = annT('panels.relations', 'Related Files')
+  panel.appendChild(h4)
 
   // Outbound section: files I depend on
-  panel.appendChild(
-    _buildRelationsSection(
-      annT('panels.outbound', '↓ I depend on'),
-      data.outbound || []
-    )
-  );
+  panel.appendChild(_buildRelationsSection(annT('panels.outbound', '↓ I depend on'), data.outbound || []))
 
   // Inbound section: files that depend on me
-  panel.appendChild(
-    _buildRelationsSection(
-      annT('panels.inbound', '↑ Depended by'),
-      data.inbound || []
-    )
-  );
+  panel.appendChild(_buildRelationsSection(annT('panels.inbound', '↑ Depended by'), data.inbound || []))
 }
 
 /**
@@ -163,78 +151,76 @@ function renderRelationsTwoLists(data) {
  * @returns {HTMLElement} section element
  */
 function _buildRelationsSection(title, items) {
-  const section = document.createElement('section');
-  section.className = 'relations-section';
+  const section = document.createElement('section')
+  section.className = 'relations-section'
 
   // Title
-  const h5 = document.createElement('h5');
-  h5.className = 'relations-title';
-  h5.textContent = title;
-  section.appendChild(h5);
+  const h5 = document.createElement('h5')
+  h5.className = 'relations-title'
+  h5.textContent = title
+  section.appendChild(h5)
 
   // Check for empty state
   if (!items || !items.length) {
-    const empty = document.createElement('p');
-    empty.className = 'relations-empty';
-    empty.textContent = annT('panels.relationsEmpty', '(none)');
-    section.appendChild(empty);
-    return section;
+    const empty = document.createElement('p')
+    empty.className = 'relations-empty'
+    empty.textContent = annT('panels.relationsEmpty', '(none)')
+    section.appendChild(empty)
+    return section
   }
 
   // File list
-  const ul = document.createElement('ul');
-  ul.className = 'relations-list';
+  const ul = document.createElement('ul')
+  ul.className = 'relations-list'
 
   for (const item of items) {
-    const li = document.createElement('li');
-    li.className = 'relations-item';
+    const li = document.createElement('li')
+    li.className = 'relations-item'
 
-    const a = document.createElement('a');
-    a.href = '#';
-    a.className = 'relations-link';
-    a.dataset.path = item.path; // dataset auto-escapes
-    a.textContent = item.path; // textContent prevents XSS
+    const a = document.createElement('a')
+    a.href = '#'
+    a.className = 'relations-link'
+    a.dataset.path = item.path // dataset auto-escapes
+    a.textContent = item.path // textContent prevents XSS
 
     // Clicking a related file selects its node in the tree, reusing the row's
     // own onclick (selection + showFileDetails + renderBottomPanels). If the
     // target node isn't currently rendered (collapsed ancestor), this is a no-op.
     a.onclick = (e) => {
-      e.preventDefault();
-      const row = document.querySelector(
-        `#pe-tree-container .tree-row[data-path="${CSS.escape(item.path)}"]`
-      );
+      e.preventDefault()
+      const row = document.querySelector(`#pe-tree-container .tree-row[data-path="${CSS.escape(item.path)}"]`)
       if (row) {
-        row.scrollIntoView({ block: 'nearest' });
-        row.click();
+        row.scrollIntoView({ block: 'nearest' })
+        row.click()
       }
-    };
+    }
 
-    li.appendChild(a);
-    ul.appendChild(li);
+    li.appendChild(a)
+    ul.appendChild(li)
   }
 
-  section.appendChild(ul);
-  return section;
+  section.appendChild(ul)
+  return section
 }
 
 /**
  * Show an error state in the relations panel.
  */
 function renderRelationsError() {
-  const panel = document.querySelector('.panel-relations');
-  if (!panel) return;
+  const panel = document.querySelector('.panel-relations')
+  if (!panel) return
 
-  panel.replaceChildren();
+  panel.replaceChildren()
 
-  const h4 = document.createElement('h4');
-  h4.className = 'panel-title';
-  h4.textContent = annT('panels.relations', 'Related Files');
-  panel.appendChild(h4);
+  const h4 = document.createElement('h4')
+  h4.className = 'panel-title'
+  h4.textContent = annT('panels.relations', 'Related Files')
+  panel.appendChild(h4)
 
-  const err = document.createElement('div');
-  err.className = 'relations-error';
-  err.textContent = annT('panels.error', 'Failed to load');
-  panel.appendChild(err);
+  const err = document.createElement('div')
+  err.className = 'relations-error'
+  err.textContent = annT('panels.error', 'Failed to load')
+  panel.appendChild(err)
 }
 
 /**
@@ -242,15 +228,15 @@ function renderRelationsError() {
  * Called when no file is selected (e.g., a directory node is clicked).
  */
 function clearBottomPanels() {
-  const container = document.getElementById('bottom-panels-container');
-  if (container) container.style.display = 'none';
+  const container = document.getElementById('bottom-panels-container')
+  if (container) container.style.display = 'none'
 
-  const tbody = document.querySelector('#file-history-table tbody');
-  if (tbody) tbody.replaceChildren();
+  const tbody = document.querySelector('#file-history-table tbody')
+  if (tbody) tbody.replaceChildren()
 
-  const relationsPanel = document.querySelector('.panel-relations');
-  if (relationsPanel) relationsPanel.replaceChildren();
+  const relationsPanel = document.querySelector('.panel-relations')
+  if (relationsPanel) relationsPanel.replaceChildren()
 }
 
-window.renderBottomPanels = renderBottomPanels;
-window.clearBottomPanels = clearBottomPanels;
+window.renderBottomPanels = renderBottomPanels
+window.clearBottomPanels = clearBottomPanels

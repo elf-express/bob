@@ -1,4 +1,4 @@
-const net = require('node:net');
+const net = require('node:net')
 
 /**
  * 檢查指定埠是否可用
@@ -7,13 +7,13 @@ const net = require('node:net');
  */
 function isPortAvailable(port) {
   return new Promise((resolve) => {
-    const server = net.createServer();
+    const server = net.createServer()
     server.listen(port, '127.0.0.1', () => {
-      server.once('close', () => resolve(true));
-      server.close();
-    });
-    server.on('error', () => resolve(false));
-  });
+      server.once('close', () => resolve(true))
+      server.close()
+    })
+    server.on('error', () => resolve(false))
+  })
 }
 
 /**
@@ -24,13 +24,13 @@ function isPortAvailable(port) {
  */
 async function findAvailablePort(startPort = 3800, maxAttempts = 10) {
   for (let i = 0; i < maxAttempts; i++) {
-    const port = startPort + i;
-    if (await isPortAvailable(port)) return port;
+    const port = startPort + i
+    if (await isPortAvailable(port)) return port
   }
-  return 0;
+  return 0
 }
 
 module.exports = {
   isPortAvailable,
   findAvailablePort,
-};
+}

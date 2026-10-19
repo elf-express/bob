@@ -1,6 +1,7 @@
 # BOB Tools 使用說明（快速版）
 
 這個工具的定位可以直接理解成「附著式工具」：
+
 - 它不自己產生專案內容，而是綁在一個既有專案上
 - 它主要幫你「少打指令、少記語法、快速看懂專案」
 - 它依賴目標專案的 `package.json scripts`、檔案結構、既有程式碼來運作
@@ -48,20 +49,24 @@ node src/server.js --target <新目標路徑> --rebind
 ## 5. 你會用到的主要能力
 
 1. 指令掃描與執行
+
 - 掃描目標專案根目錄 `package.json` 的 `scripts`
 - 透過 UI/後端執行命令並即時看輸出（SSE）
 - 執行紀錄寫入 `.bob-tools/log`
 
 2. 專案檔案掃描與瀏覽
+
 - 快速建立檔案樹快照（排除 `node_modules`、`.git` 等）
 - 可搜尋檔名、統計檔案數
 
 3. 檔案理解輔助（重點）
+
 - 幫檔案加 `tag`（系統建議 + 自訂）
 - 記錄 `annotation / purpose / relations / userNote`
 - 目的就是減少人工記憶成本，讓新加入的人更快看懂專案
 
 4. 設定管理
+
 - 左側選單（groups/categories/commands）存在 SQLite
 - 支援驗證、備份、還原、匯入/匯出
 

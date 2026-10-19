@@ -139,7 +139,7 @@ function buildDefaultConfig(projectName = 'BOB-Tools') {
         ],
       },
     ],
-  };
+  }
 }
 
-module.exports = { buildDefaultConfig };
+module.exports = { buildDefaultConfig }

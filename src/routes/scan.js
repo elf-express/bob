@@ -1,29 +1,35 @@
-const express = require('express');
-const { upgradeConfigCommandsFromScripts } = require('../services/config-command-upgrader.js');
+const express = require('express')
+const { upgradeConfigCommandsFromScripts } = require('../services/config-command-upgrader.js')
 
-function createScanRouter({ commandScanService, packageManagerProvider, fileSystemService, scanRepo, configRepo }) {
-  const router = express.Router();
+function createScanRouter({
+  commandScanService,
+  packageManagerProvider,
+  fileSystemService,
+  scanRepo,
+  configRepo,
+}) {
+  const router = express.Router()
 
   router.post('/commands', async (_req, res) => {
-    const scanId = await scanRepo.startRun('commands');
-    const startedAt = new Date().toISOString();
+    const scanId = await scanRepo.startRun('commands')
+    const startedAt = new Date().toISOString()
     try {
       if (packageManagerProvider && commandScanService?.setPackageManager) {
-        commandScanService.setPackageManager(await packageManagerProvider());
+        commandScanService.setPackageManager(await packageManagerProvider())
       }
-      const { sourceFile, scripts } = commandScanService.scanRootPackageScripts();
-      await scanRepo.replaceCommandSnapshot(scanId, scripts, sourceFile);
+      const { sourceFile, scripts } = commandScanService.scanRootPackageScripts()
+      await scanRepo.replaceCommandSnapshot(scanId, scripts, sourceFile)
 
-      let configSync = { attempted: false, changed: false, updated: 0, deduped: 0 };
+      let configSync = { attempted: false, changed: false, updated: 0, deduped: 0 }
       if (configRepo?.getConfig && configRepo?.upsertConfig) {
-        configSync.attempted = true;
+        configSync.attempted = true
         try {
-          const currentConfig = await configRepo.getConfig();
+          const currentConfig = await configRepo.getConfig()
           if (currentConfig) {
-            const upgraded = upgradeConfigCommandsFromScripts(currentConfig, scripts);
-            configSync = { attempted: true, ...upgraded };
+            const upgraded = upgradeConfigCommandsFromScripts(currentConfig, scripts)
+            configSync = { attempted: true, ...upgraded }
             if (upgraded.changed) {
-              await configRepo.upsertConfig(currentConfig);
+              await configRepo.upsertConfig(currentConfig)
             }
           }
         } catch (error) {
@@ -33,11 +39,11 @@ function createScanRouter({ commandScanService, packageManagerProvider, fileSyst
             updated: 0,
             deduped: 0,
             error: error.message,
-          };
+          }
         }
       }
 
-      await scanRepo.finishRunSuccess(scanId);
+      await scanRepo.finishRunSuccess(scanId)
       return res.json({
         success: true,
         data: {
@@ -51,9 +57,9 @@ function createScanRouter({ commandScanService, packageManagerProvider, fileSyst
           scripts,
           configSync,
         },
-      });
+      })
     } catch (error) {
-      await scanRepo.finishRunFailed(scanId, error.message);
+      await scanRepo.finishRunFailed(scanId, error.message)
       return res.status(500).json({
         success: false,
         data: {
@@ -62,17 +68,17 @@ function createScanRouter({ commandScanService, packageManagerProvider, fileSyst
           status: 'failed',
         },
         message: error.message,
-      });
+      })
     }
-  });
+  })
 
   router.post('/tree', async (_req, res) => {
-    const scanId = await scanRepo.startRun('tree');
-    const startedAt = new Date().toISOString();
+    const scanId = await scanRepo.startRun('tree')
+    const startedAt = new Date().toISOString()
     try {
-      const nodes = await fileSystemService.scanTreeSnapshot();
-      await scanRepo.replaceTreeSnapshot(scanId, nodes);
-      await scanRepo.finishRunSuccess(scanId);
+      const nodes = await fileSystemService.scanTreeSnapshot()
+      await scanRepo.replaceTreeSnapshot(scanId, nodes)
+      await scanRepo.finishRunSuccess(scanId)
       return res.json({
         success: true,
         data: {
@@ -83,9 +89,9 @@ function createScanRouter({ commandScanService, packageManagerProvider, fileSyst
           finishedAt: new Date().toISOString(),
           count: nodes.length,
         },
-      });
+      })
     } catch (error) {
-      await scanRepo.finishRunFailed(scanId, error.message);
+      await scanRepo.finishRunFailed(scanId, error.message)
       return res.status(500).json({
         success: false,
         data: {
@@ -95,20 +101,20 @@ function createScanRouter({ commandScanService, packageManagerProvider, fileSyst
           startedAt,
         },
         message: error.message,
-      });
+      })
     }
-  });
+  })
 
   router.get('/latest', async (_req, res) => {
     try {
-      const summary = await scanRepo.getLatestSummary();
-      return res.json({ success: true, data: summary });
+      const summary = await scanRepo.getLatestSummary()
+      return res.json({ success: true, data: summary })
     } catch (error) {
-      return res.status(500).json({ success: false, message: error.message });
+      return res.status(500).json({ success: false, message: error.message })
     }
-  });
+  })
 
-  return router;
+  return router
 }
 
-module.exports = { createScanRouter };
+module.exports = { createScanRouter }

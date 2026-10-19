@@ -9,14 +9,14 @@
  */
 async function fetchFiles(path) {
   try {
-    const url = `/api/files?path=${encodeURIComponent(path)}`;
-    const res = await fetch(url);
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error || 'Unknown error');
-    return json.data;
+    const url = `/api/files?path=${encodeURIComponent(path)}`
+    const res = await fetch(url)
+    const json = await res.json()
+    if (!json.success) throw new Error(json.error || 'Unknown error')
+    return json.data
   } catch (error) {
-    console.error('Fetch files error:', error);
-    throw error;
+    console.error('Fetch files error:', error)
+    throw error
   }
 }
 
@@ -28,16 +28,16 @@ async function fetchFiles(path) {
  */
 async function searchFilesApi(query) {
   try {
-    const response = await fetch(`/api/files/search?q=${encodeURIComponent(query)}`);
-    const result = await response.json();
+    const response = await fetch(`/api/files/search?q=${encodeURIComponent(query)}`)
+    const result = await response.json()
     if (result.success) {
-      return result.data;
+      return result.data
     } else {
-      throw new Error(result.message);
+      throw new Error(result.message)
     }
   } catch (error) {
-    console.error('Search failed:', error);
-    throw error;
+    console.error('Search failed:', error)
+    throw error
   }
 }
 
@@ -48,12 +48,12 @@ async function searchFilesApi(query) {
  */
 async function fetchProjectStats() {
   try {
-    const res = await fetch('/api/files/stats');
-    const json = await res.json();
-    return json.success ? json.data : { fileCount: 0 };
+    const res = await fetch('/api/files/stats')
+    const json = await res.json()
+    return json.success ? json.data : { fileCount: 0 }
   } catch (e) {
-    console.error(e);
-    return { fileCount: 0 };
+    console.error(e)
+    return { fileCount: 0 }
   }
 }
 
@@ -71,22 +71,22 @@ async function fetchProjectStats() {
  */
 async function saveAnnotationApi(file, content, extra = {}) {
   try {
-    const body = { file, content };
-    if (extra.purpose !== undefined) body.purpose = extra.purpose;
-    if (extra.relations !== undefined) body.relations = extra.relations;
-    if (extra.userNote !== undefined) body.userNote = extra.userNote;
+    const body = { file, content }
+    if (extra.purpose !== undefined) body.purpose = extra.purpose
+    if (extra.relations !== undefined) body.relations = extra.relations
+    if (extra.userNote !== undefined) body.userNote = extra.userNote
 
     const res = await fetch('/api/files/annotate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    const json = await res.json();
-    if (!json.success) throw new Error(json.message || 'Save failed');
-    return json.data;
+      body: JSON.stringify(body),
+    })
+    const json = await res.json()
+    if (!json.success) throw new Error(json.message || 'Save failed')
+    return json.data
   } catch (error) {
-    console.error('Save annotation error:', error);
-    throw error;
+    console.error('Save annotation error:', error)
+    throw error
   }
 }
 
@@ -102,15 +102,15 @@ async function createFileApi(type, path, content = '') {
   const res = await fetch('/api/files/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type, path, content })
-  });
-  const json = await res.json();
+    body: JSON.stringify({ type, path, content }),
+  })
+  const json = await res.json()
   if (!json.success) {
-    const error = new Error(json.message || 'Create failed');
-    error.code = json.code;
-    throw error;
+    const error = new Error(json.message || 'Create failed')
+    error.code = json.code
+    throw error
   }
-  return json;
+  return json
 }
 
 /**
@@ -124,15 +124,15 @@ async function deleteApi(path) {
   const res = await fetch('/api/files/delete', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ path })
-  });
-  const json = await res.json();
+    body: JSON.stringify({ path }),
+  })
+  const json = await res.json()
   if (!json.success) {
-    const error = new Error(json.message || 'Delete failed');
-    error.code = json.code;
-    throw error;
+    const error = new Error(json.message || 'Delete failed')
+    error.code = json.code
+    throw error
   }
-  return json;
+  return json
 }
 
 /**
@@ -146,55 +146,55 @@ async function renameApi(oldPath, newPath) {
   const res = await fetch('/api/files/rename', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ oldPath, newPath })
-  });
-  const json = await res.json();
+    body: JSON.stringify({ oldPath, newPath }),
+  })
+  const json = await res.json()
   if (!json.success) {
-    const error = new Error(json.message || 'Rename failed');
-    error.code = json.code;
-    throw error;
+    const error = new Error(json.message || 'Rename failed')
+    error.code = json.code
+    throw error
   }
-  return json;
+  return json
 }
 
 /**
  * API: 專案綁定狀態
  */
 async function fetchProjectBindingStatus() {
-  const res = await fetch('/api/project/status');
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message || 'Fetch project status failed');
-  return json.data;
+  const res = await fetch('/api/project/status')
+  const json = await res.json()
+  if (!json.success) throw new Error(json.message || 'Fetch project status failed')
+  return json.data
 }
 
 /**
  * API: 掃描根 package scripts
  */
 async function scanCommandsApi() {
-  const res = await fetch('/api/scan/commands', { method: 'POST' });
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message || 'Scan commands failed');
-  return json.data;
+  const res = await fetch('/api/scan/commands', { method: 'POST' })
+  const json = await res.json()
+  if (!json.success) throw new Error(json.message || 'Scan commands failed')
+  return json.data
 }
 
 /**
  * API: 掃描檔案樹快照
  */
 async function scanTreeApi() {
-  const res = await fetch('/api/scan/tree', { method: 'POST' });
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message || 'Scan tree failed');
-  return json.data;
+  const res = await fetch('/api/scan/tree', { method: 'POST' })
+  const json = await res.json()
+  if (!json.success) throw new Error(json.message || 'Scan tree failed')
+  return json.data
 }
 
 /**
  * API: 取得最新掃描摘要
  */
 async function fetchLatestScanSummary() {
-  const res = await fetch('/api/scan/latest');
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message || 'Fetch latest scan failed');
-  return json.data;
+  const res = await fetch('/api/scan/latest')
+  const json = await res.json()
+  if (!json.success) throw new Error(json.message || 'Fetch latest scan failed')
+  return json.data
 }
 
 /**
@@ -203,8 +203,8 @@ async function fetchLatestScanSummary() {
  * @returns {Promise<Object>}
  */
 async function fetchFileMetadataApi(path) {
-  const res = await fetch(`/api/files/metadata?path=${encodeURIComponent(path)}`);
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message || 'Fetch metadata failed');
-  return json.data || {};
+  const res = await fetch(`/api/files/metadata?path=${encodeURIComponent(path)}`)
+  const json = await res.json()
+  if (!json.success) throw new Error(json.message || 'Fetch metadata failed')
+  return json.data || {}
 }

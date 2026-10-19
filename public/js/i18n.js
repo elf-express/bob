@@ -7,11 +7,11 @@
 
 class I18n {
   constructor() {
-    this.supportedLanguages = ['en-US', 'zh-CN', 'zh-TW'];
-    this.defaultLanguage = 'en-US';
-    this.currentLanguage = '';
-    this.messages = {};
-    this.fallbackMessages = {};
+    this.supportedLanguages = ['en-US', 'zh-CN', 'zh-TW']
+    this.defaultLanguage = 'en-US'
+    this.currentLanguage = ''
+    this.messages = {}
+    this.fallbackMessages = {}
   }
 
   /**
@@ -22,26 +22,23 @@ class I18n {
    * @returns {Promise<void>}
    */
   async init(options = {}) {
-    const {
-      defaultLanguage = 'en-US',
-      detectBrowserLanguage = true,
-    } = options;
+    const { defaultLanguage = 'en-US', detectBrowserLanguage = true } = options
 
-    this.defaultLanguage = defaultLanguage;
+    this.defaultLanguage = defaultLanguage
 
     // Detect language priority:
     // 1. URL parameter (?lang=en-US)
     // 2. localStorage saved preference
     // 3. Browser language
     // 4. Default language
-    const urlLang = this.getLanguageFromUrl();
-    const savedLang = this.getLanguageFromStorage();
-    const browserLang = detectBrowserLanguage ? this.detectBrowserLanguage() : null;
+    const urlLang = this.getLanguageFromUrl()
+    const savedLang = this.getLanguageFromStorage()
+    const browserLang = detectBrowserLanguage ? this.detectBrowserLanguage() : null
 
-    const targetLang = urlLang || savedLang || browserLang || defaultLanguage;
+    const targetLang = urlLang || savedLang || browserLang || defaultLanguage
 
     // Load language
-    await this.setLanguage(targetLang);
+    await this.setLanguage(targetLang)
   }
 
   /**
@@ -50,33 +47,33 @@ class I18n {
    */
   detectBrowserLanguage() {
     // Get browser language
-    const browserLang = navigator.language || navigator.userLanguage;
+    const browserLang = navigator.language || navigator.userLanguage
 
     // Map browser language to supported language
     const langMap = {
-      'en': 'en-US',
+      en: 'en-US',
       'en-US': 'en-US',
       'en-GB': 'en-US',
-      'zh': 'zh-CN',
+      zh: 'zh-CN',
       'zh-CN': 'zh-CN',
       'zh-Hans': 'zh-CN',
       'zh-TW': 'zh-TW',
       'zh-HK': 'zh-TW',
       'zh-Hant': 'zh-TW',
-    };
+    }
 
     // Try exact match first
     if (langMap[browserLang]) {
-      return langMap[browserLang];
+      return langMap[browserLang]
     }
 
     // Try partial match (e.g., 'zh-SG' → 'zh-CN')
-    const langPrefix = browserLang.split('-')[0];
+    const langPrefix = browserLang.split('-')[0]
     if (langMap[langPrefix]) {
-      return langMap[langPrefix];
+      return langMap[langPrefix]
     }
 
-    return null;
+    return null
   }
 
   /**
@@ -84,9 +81,9 @@ class I18n {
    * @returns {string|null}
    */
   getLanguageFromUrl() {
-    const params = new URLSearchParams(window.location.search);
-    const lang = params.get('lang');
-    return lang && this.supportedLanguages.includes(lang) ? lang : null;
+    const params = new URLSearchParams(window.location.search)
+    const lang = params.get('lang')
+    return lang && this.supportedLanguages.includes(lang) ? lang : null
   }
 
   /**
@@ -95,10 +92,10 @@ class I18n {
    */
   getLanguageFromStorage() {
     try {
-      const lang = localStorage.getItem('bob-tools-language');
-      return lang && this.supportedLanguages.includes(lang) ? lang : null;
+      const lang = localStorage.getItem('bob-tools-language')
+      return lang && this.supportedLanguages.includes(lang) ? lang : null
     } catch {
-      return null;
+      return null
     }
   }
 
@@ -108,9 +105,9 @@ class I18n {
    */
   saveLanguageToStorage(lang) {
     try {
-      localStorage.setItem('bob-tools-language', lang);
+      localStorage.setItem('bob-tools-language', lang)
     } catch (error) {
-      console.warn('[i18n] Failed to save language preference:', error);
+      console.warn('[i18n] Failed to save language preference:', error)
     }
   }
 
@@ -122,48 +119,50 @@ class I18n {
   async setLanguage(lang) {
     // Validate language
     if (!this.supportedLanguages.includes(lang)) {
-      console.warn(`[i18n] Unsupported language: ${lang}, falling back to ${this.defaultLanguage}`);
-      lang = this.defaultLanguage;
+      console.warn(`[i18n] Unsupported language: ${lang}, falling back to ${this.defaultLanguage}`)
+      lang = this.defaultLanguage
     }
 
     // Skip if already loaded
     if (this.currentLanguage === lang && Object.keys(this.messages).length > 0) {
-      return true;
+      return true
     }
 
     try {
       // Load messages
-      const messages = await this.loadMessages(lang);
-      this.messages = messages;
-      this.currentLanguage = lang;
+      const messages = await this.loadMessages(lang)
+      this.messages = messages
+      this.currentLanguage = lang
 
       // Load fallback messages (default language)
       if (lang !== this.defaultLanguage) {
-        this.fallbackMessages = await this.loadMessages(this.defaultLanguage);
+        this.fallbackMessages = await this.loadMessages(this.defaultLanguage)
       }
 
       // Save preference
-      this.saveLanguageToStorage(lang);
+      this.saveLanguageToStorage(lang)
 
       // Update HTML lang attribute
-      document.documentElement.setAttribute('lang', lang);
+      document.documentElement.setAttribute('lang', lang)
 
       // Emit language changed event
-      window.dispatchEvent(new CustomEvent('languageChanged', {
-        detail: { language: lang },
-      }));
+      window.dispatchEvent(
+        new CustomEvent('languageChanged', {
+          detail: { language: lang },
+        }),
+      )
 
-      return true;
+      return true
     } catch (error) {
-      console.error('[i18n] Failed to load language:', error);
+      console.error('[i18n] Failed to load language:', error)
 
       // Try fallback to default language
       if (lang !== this.defaultLanguage) {
-        console.warn(`[i18n] Falling back to ${this.defaultLanguage}`);
-        return await this.setLanguage(this.defaultLanguage);
+        console.warn(`[i18n] Falling back to ${this.defaultLanguage}`)
+        return await this.setLanguage(this.defaultLanguage)
       }
 
-      return false;
+      return false
     }
   }
 
@@ -173,13 +172,13 @@ class I18n {
    * @returns {Promise<Object>}
    */
   async loadMessages(lang) {
-    const response = await fetch(`/locales/${lang}/common.json`);
+    const response = await fetch(`/locales/${lang}/common.json`)
 
     if (!response.ok) {
-      throw new Error(`Failed to load messages for ${lang}: ${response.statusText}`);
+      throw new Error(`Failed to load messages for ${lang}: ${response.statusText}`)
     }
 
-    return await response.json();
+    return await response.json()
   }
 
   /**
@@ -190,31 +189,30 @@ class I18n {
    */
   t(key, params = {}) {
     // Get value from messages
-    let value = this.getNestedValue(this.messages, key);
+    let value = this.getNestedValue(this.messages, key)
 
     // Fallback to default language
     if (value === undefined && this.fallbackMessages) {
-      value = this.getNestedValue(this.fallbackMessages, key);
+      value = this.getNestedValue(this.fallbackMessages, key)
     }
 
     // Treat undefined-like placeholders as missing values
     if (
       value === null ||
       value === undefined ||
-      (typeof value === 'string' &&
-        ['undefined', 'null', ''].includes(value.trim().toLowerCase()))
+      (typeof value === 'string' && ['undefined', 'null', ''].includes(value.trim().toLowerCase()))
     ) {
-      value = undefined;
+      value = undefined
     }
 
     // Fallback to key itself
     if (value === undefined) {
-      console.warn(`[i18n] Missing translation for key: ${key}`);
-      return key;
+      console.warn(`[i18n] Missing translation for key: ${key}`)
+      return key
     }
 
     // Interpolate parameters
-    return this.interpolate(value, params);
+    return this.interpolate(value, params)
   }
 
   /**
@@ -224,7 +222,7 @@ class I18n {
    * @returns {*}
    */
   getNestedValue(obj, path) {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
+    return path.split('.').reduce((current, key) => current?.[key], obj)
   }
 
   /**
@@ -235,8 +233,8 @@ class I18n {
    */
   interpolate(str, params) {
     return String(str).replace(/\{(\w+)\}/g, (match, key) => {
-      return params[key] !== undefined ? String(params[key]) : match;
-    });
+      return params[key] !== undefined ? String(params[key]) : match
+    })
   }
 
   /**
@@ -244,7 +242,7 @@ class I18n {
    * @returns {string}
    */
   getLanguage() {
-    return this.currentLanguage;
+    return this.currentLanguage
   }
 
   /**
@@ -252,7 +250,7 @@ class I18n {
    * @returns {Array<string>}
    */
   getSupportedLanguages() {
-    return this.supportedLanguages;
+    return this.supportedLanguages
   }
 
   /**
@@ -265,18 +263,18 @@ class I18n {
       'en-US': 'English',
       'zh-CN': 'Simplified Chinese',
       'zh-TW': 'Traditional Chinese',
-    };
-    return names[lang] || lang;
+    }
+    return names[lang] || lang
   }
 }
 
 // Create global instance
-const i18n = new I18n();
+const i18n = new I18n()
 
 // Shorthand function
-const $t = (key, params) => i18n.t(key, params);
+const $t = (key, params) => i18n.t(key, params)
 
 // Export for modules
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { i18n, $t };
+  module.exports = { i18n, $t }
 }

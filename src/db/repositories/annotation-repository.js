@@ -1,48 +1,50 @@
 class AnnotationRepository {
   constructor(db) {
-    this.db = db;
+    this.db = db
   }
 
   normalizePath(p) {
-    return String(p || '').split('\\').join('/');
+    return String(p || '')
+      .split('\\')
+      .join('/')
   }
 
   async getAll() {
-    if (!this.db) return [];
+    if (!this.db) return []
     return await this.db.all(
       `
       SELECT rel_path, annotation, purpose, relations, user_note, updated_at, mode, annotated_by, annotated_at
       FROM file_annotations
-      `
-    );
+      `,
+    )
   }
 
   async getByPath(relPath) {
-    if (!this.db) return null;
-    const normalized = this.normalizePath(relPath);
+    if (!this.db) return null
+    const normalized = this.normalizePath(relPath)
     return await this.db.get(
       `
       SELECT rel_path, annotation, purpose, relations, user_note, updated_at, mode, annotated_by, annotated_at
       FROM file_annotations
       WHERE rel_path = ?
       `,
-      [normalized]
-    );
+      [normalized],
+    )
   }
 
   async upsert(relPath, data) {
-    if (!this.db) return;
-    const normalized = this.normalizePath(relPath);
-    const now = new Date().toISOString();
-    const annotation = String(data.annotation || '');
-    const purpose = String(data.purpose || '');
-    const relations = String(data.relations || '');
-    const userNote = String(data.userNote || '');
+    if (!this.db) return
+    const normalized = this.normalizePath(relPath)
+    const now = new Date().toISOString()
+    const annotation = String(data.annotation || '')
+    const purpose = String(data.purpose || '')
+    const relations = String(data.relations || '')
+    const userNote = String(data.userNote || '')
 
-    const isEmpty = !annotation.trim() && !purpose.trim() && !relations.trim() && !userNote.trim();
+    const isEmpty = !annotation.trim() && !purpose.trim() && !relations.trim() && !userNote.trim()
     if (isEmpty) {
-      await this.db.run('DELETE FROM file_annotations WHERE rel_path = ?', [normalized]);
-      return;
+      await this.db.run('DELETE FROM file_annotations WHERE rel_path = ?', [normalized])
+      return
     }
 
     await this.db.run(
@@ -56,30 +58,30 @@ class AnnotationRepository {
         user_note = excluded.user_note,
         updated_at = excluded.updated_at
       `,
-      [normalized, annotation, purpose, relations, userNote, now]
-    );
+      [normalized, annotation, purpose, relations, userNote, now],
+    )
   }
 
   async setMode(relPath, mode) {
-    if (!this.db) return;
-    const normalized = this.normalizePath(relPath);
-    const now = new Date().toISOString();
+    if (!this.db) return
+    const normalized = this.normalizePath(relPath)
+    const now = new Date().toISOString()
     await this.db.run(
       `
       INSERT INTO file_annotations (rel_path, mode, updated_at)
       VALUES (?, ?, ?)
       ON CONFLICT(rel_path) DO UPDATE SET mode = excluded.mode
       `,
-      [normalized, mode, now]
-    );
+      [normalized, mode, now],
+    )
   }
 
   async setAiAnnotation(relPath, data) {
-    if (!this.db) return;
-    const normalized = this.normalizePath(relPath);
-    const now = new Date().toISOString();
-    const purpose = String(data.purpose || '');
-    const relations = String(data.relations || '');
+    if (!this.db) return
+    const normalized = this.normalizePath(relPath)
+    const now = new Date().toISOString()
+    const purpose = String(data.purpose || '')
+    const relations = String(data.relations || '')
     await this.db.run(
       `
       INSERT INTO file_annotations
@@ -93,8 +95,8 @@ class AnnotationRepository {
         annotated_by = excluded.annotated_by,
         annotated_at = excluded.annotated_at
       `,
-      [normalized, purpose, relations, now, now]
-    );
+      [normalized, purpose, relations, now, now],
+    )
   }
 
   /**
@@ -111,9 +113,9 @@ class AnnotationRepository {
    * @returns {Promise<Array<{rel_path: string, relations: string}>>}
    */
   async findInboundReferences(targetPath) {
-    if (!this.db) return [];
-    const t = this.normalizePath(targetPath);
-    if (!t) return [];
+    if (!this.db) return []
+    const t = this.normalizePath(targetPath)
+    if (!t) return []
     const rows = await this.db.all(
       `
       SELECT rel_path, relations FROM file_annotations
@@ -121,29 +123,29 @@ class AnnotationRepository {
         AND relations IS NOT NULL AND relations != ''
         AND relations LIKE '%' || ? || '%'
       `,
-      [t, t]
-    );
-    return rows;
+      [t, t],
+    )
+    return rows
   }
 
   async getBatch(relPaths) {
-    if (!this.db || !Array.isArray(relPaths) || relPaths.length === 0) return {};
-    const normalized = relPaths.map((p) => this.normalizePath(p));
-    const placeholders = normalized.map(() => '?').join(',');
+    if (!this.db || !Array.isArray(relPaths) || relPaths.length === 0) return {}
+    const normalized = relPaths.map((p) => this.normalizePath(p))
+    const placeholders = normalized.map(() => '?').join(',')
     const rows = await this.db.all(
       `
       SELECT rel_path, annotation, purpose, relations, user_note, mode, annotated_by, annotated_at, updated_at
       FROM file_annotations
       WHERE rel_path IN (${placeholders})
       `,
-      normalized
-    );
-    const result = {};
+      normalized,
+    )
+    const result = {}
     for (const r of rows) {
-      result[r.rel_path] = r;
+      result[r.rel_path] = r
     }
-    return result;
+    return result
   }
 }
 
-module.exports = { AnnotationRepository };
+module.exports = { AnnotationRepository }
