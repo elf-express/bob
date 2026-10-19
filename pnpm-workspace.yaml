@@ -18,3 +18,6 @@ onlyBuiltDependencies:
 
 # 範本期關閉最小發布年齡檢查(團隊正式運作可調 10080 = 7 天)。
 minimumReleaseAge: 0
+
+# Node 版本不符 engines 時直接報錯(elf-cicd-frontend 規則 2)。
+engineStrict: true

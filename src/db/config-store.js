@@ -1,5 +1,5 @@
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require('node:fs')
+const path = require('node:path')
 
 /**
  * ConfigStore (file-mode only)
@@ -11,8 +11,8 @@ class ConfigStore {
    * @param {string} backupDir - backup directory path
    */
   constructor(configPath, backupDir) {
-    this.configPath = configPath;
-    this.backupDir = backupDir;
+    this.configPath = configPath
+    this.backupDir = backupDir
   }
 
   /**
@@ -20,8 +20,8 @@ class ConfigStore {
    * @returns {object}
    */
   loadConfig() {
-    const raw = fs.readFileSync(this.configPath, 'utf8');
-    return JSON.parse(raw);
+    const raw = fs.readFileSync(this.configPath, 'utf8')
+    return JSON.parse(raw)
   }
 
   /**
@@ -29,14 +29,14 @@ class ConfigStore {
    * @param {object} config
    */
   saveConfig(config) {
-    fs.writeFileSync(this.configPath, JSON.stringify(config, null, 2), 'utf-8');
+    fs.writeFileSync(this.configPath, JSON.stringify(config, null, 2), 'utf-8')
   }
 
   /**
    * @returns {boolean}
    */
   configExists() {
-    return fs.existsSync(this.configPath);
+    return fs.existsSync(this.configPath)
   }
 
   /**
@@ -44,7 +44,7 @@ class ConfigStore {
    */
   ensureBackupDir() {
     if (!fs.existsSync(this.backupDir)) {
-      fs.mkdirSync(this.backupDir, { recursive: true });
+      fs.mkdirSync(this.backupDir, { recursive: true })
     }
   }
 
@@ -53,8 +53,8 @@ class ConfigStore {
    * @param {string} backupName
    */
   createBackup(backupName) {
-    const backupPath = path.join(this.backupDir, backupName);
-    fs.copyFileSync(this.configPath, backupPath);
+    const backupPath = path.join(this.backupDir, backupName)
+    fs.copyFileSync(this.configPath, backupPath)
   }
 
   /**
@@ -62,23 +62,23 @@ class ConfigStore {
    * @returns {Array<{name: string, size: number, time: string}>}
    */
   listBackups() {
-    this.ensureBackupDir();
+    this.ensureBackupDir()
 
     const files = fs
       .readdirSync(this.backupDir)
       .filter((f) => f.startsWith('bob.config.') && f.endsWith('.json'))
       .sort()
-      .reverse();
+      .reverse()
 
     return files.map((name) => {
-      const filePath = path.join(this.backupDir, name);
-      const stat = fs.statSync(filePath);
+      const filePath = path.join(this.backupDir, name)
+      const stat = fs.statSync(filePath)
       return {
         name,
         size: stat.size,
         time: stat.mtime.toISOString(),
-      };
-    });
+      }
+    })
   }
 
   /**
@@ -86,11 +86,11 @@ class ConfigStore {
    * @param {string} backupName
    */
   restoreBackup(backupName) {
-    const backupPath = path.join(this.backupDir, backupName);
+    const backupPath = path.join(this.backupDir, backupName)
     if (!fs.existsSync(backupPath)) {
-      throw new Error(`Backup not found: ${backupName}`);
+      throw new Error(`Backup not found: ${backupName}`)
     }
-    fs.copyFileSync(backupPath, this.configPath);
+    fs.copyFileSync(backupPath, this.configPath)
   }
 
   /**
@@ -98,12 +98,12 @@ class ConfigStore {
    * @param {string} backupName
    */
   deleteBackup(backupName) {
-    const backupPath = path.join(this.backupDir, backupName);
+    const backupPath = path.join(this.backupDir, backupName)
     if (!fs.existsSync(backupPath)) {
-      throw new Error(`Backup not found: ${backupName}`);
+      throw new Error(`Backup not found: ${backupName}`)
     }
-    fs.unlinkSync(backupPath);
+    fs.unlinkSync(backupPath)
   }
 }
 
-module.exports = { ConfigStore };
+module.exports = { ConfigStore }

@@ -4,7 +4,7 @@
  * @returns {string} - 移除顏色碼後的文本
  */
 function stripAnsi(text) {
-  return text.replaceAll(/\u001B\[[0-9;]*m/g, '');
+  return text.replaceAll(/\u001B\[[0-9;]*m/g, '')
 }
 
 /**
@@ -13,18 +13,18 @@ function stripAnsi(text) {
  * @returns {{errors: number, warnings: number}} - 錯誤和警告計數
  */
 function countIssues(text) {
-  let errors = 0;
-  let warnings = 0;
+  let errors = 0
+  let warnings = 0
 
   for (const line of text.split('\n')) {
     if (/\d+:\d+\s+error\b/.test(line) || /\berror TS\d+/.test(line)) {
-      errors++;
+      errors++
     } else if (/\d+:\d+\s+warn/.test(line) || /\[warn\]/.test(line)) {
-      warnings++;
+      warnings++
     }
   }
 
-  return { errors, warnings };
+  return { errors, warnings }
 }
 
 /**
@@ -33,9 +33,9 @@ function countIssues(text) {
  * @returns {string} - 時間戳字串
  */
 function getLogTimestamp(date = new Date()) {
-  const d = date;
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
+  const d = date
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`
 }
 
 /**
@@ -50,17 +50,17 @@ function getLogTimestamp(date = new Date()) {
  * @returns {string} - filename-safe slug,可能為空字串
  */
 function toFileSlug(input, maxLen = 40) {
-  if (input == null) return '';
-  let s = String(input).trim();
+  if (input == null) return ''
+  let s = String(input).trim()
   // 空白統一為底線
-  s = s.replaceAll(/\s+/g, '_');
+  s = s.replaceAll(/\s+/g, '_')
   // 移除 filename 不允許的字元(路徑分隔符、Windows 保留、控制字元、null byte)
-  s = s.replaceAll(/[/\\:*?"<>|\0\x00-\x1F]/g, '');
+  s = s.replaceAll(/[/\\:*?"<>|\0\x00-\x1F]/g, '')
   // trim 開頭/結尾的點與底線(避免 `.hiddenfile` 或 `_name`)
-  s = s.replaceAll(/^[._-]+|[._-]+$/g, '');
+  s = s.replaceAll(/^[._-]+|[._-]+$/g, '')
   // 截斷
-  if (s.length > maxLen) s = s.slice(0, maxLen);
-  return s;
+  if (s.length > maxLen) s = s.slice(0, maxLen)
+  return s
 }
 
 /**
@@ -79,26 +79,26 @@ function toFileSlug(input, maxLen = 40) {
  */
 function getUserSlug(projectDir) {
   // 1. 環境變數最高優先
-  const envUser = toFileSlug(process.env.BOB_USER);
-  if (envUser) return envUser;
+  const envUser = toFileSlug(process.env.BOB_USER)
+  if (envUser) return envUser
 
   // 2. git config user.name
   try {
-    const { execFileSync } = require('node:child_process');
+    const { execFileSync } = require('node:child_process')
     const raw = execFileSync('git', ['config', 'user.name'], {
       cwd: projectDir,
       encoding: 'utf8',
       timeout: 2000,
       stdio: ['ignore', 'pipe', 'ignore'],
-    });
-    const gitUser = toFileSlug(raw);
-    if (gitUser) return gitUser;
+    })
+    const gitUser = toFileSlug(raw)
+    if (gitUser) return gitUser
   } catch {
     // git not installed / not a repo / config 未設 → 走 fallback
   }
 
   // 3. fallback
-  return 'human';
+  return 'human'
 }
 
 module.exports = {
@@ -107,4 +107,4 @@ module.exports = {
   getLogTimestamp,
   toFileSlug,
   getUserSlug,
-};
+}

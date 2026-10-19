@@ -1,4 +1,4 @@
-const { isUnsafeRelPath } = require('../utils/validation.js');
+const { isUnsafeRelPath } = require('../utils/validation.js')
 
 /**
  * 創建關聯檔案路由
@@ -17,50 +17,52 @@ function createRelationsRouter({ annotationRepo }) {
   // lazy require:只在實際建立 router 時才載入 express。
   // 讓 anti-hallucination verifier 能 require 本檔的純函式(parseRelations /
   // relationsInclude)而不需安裝 express —— CI basics job 不跑 pnpm install。
-  const express = require('express');
-  const router = express.Router();
+  const express = require('express')
+  const router = express.Router()
 
   /**
    * GET /api/files/relations?path=<filepath>
    * @returns {{ ok: boolean, path: string, outbound: Array<{path, via}>, inbound: Array<{path, via}> }}
    */
   router.get('/relations', async (req, res) => {
-    const filePath = String(req.query.path || '').trim().replace(/\\/g, '/');
+    const filePath = String(req.query.path || '')
+      .trim()
+      .replace(/\\/g, '/')
 
     // 安全:防止 path traversal(segment 比對,容忍檔名含 '..')
     if (isUnsafeRelPath(filePath)) {
-      return res.status(400).json({ ok: false, error: 'invalid path' });
+      return res.status(400).json({ ok: false, error: 'invalid path' })
     }
 
     if (!annotationRepo) {
-      return res.json({ ok: true, path: filePath, outbound: [], inbound: [] });
+      return res.json({ ok: true, path: filePath, outbound: [], inbound: [] })
     }
 
     try {
       // outbound: 解析自身 annotation.relations(逗號分隔)
-      const self = await annotationRepo.getByPath(filePath);
+      const self = await annotationRepo.getByPath(filePath)
       const outbound = parseRelations(self && self.relations).map((p) => ({
         path: p,
         via: 'annotation.relations',
-      }));
+      }))
 
       // inbound: 反查全表(coarse SQL prefilter)後,用 relationsInclude 做
       // 逗號分隔的精確比對 — 同時排除「子字串誤抓」與「逗號後帶空白漏抓」
-      const inboundRows = await annotationRepo.findInboundReferences(filePath);
+      const inboundRows = await annotationRepo.findInboundReferences(filePath)
       const inbound = inboundRows
         .filter((r) => relationsInclude(r.relations, filePath))
         .map((r) => ({
           path: r.rel_path,
           via: 'annotation.relations',
-        }));
+        }))
 
-      res.json({ ok: true, path: filePath, outbound, inbound });
+      res.json({ ok: true, path: filePath, outbound, inbound })
     } catch (err) {
-      res.status(500).json({ ok: false, error: err.message });
+      res.status(500).json({ ok: false, error: err.message })
     }
-  });
+  })
 
-  return router;
+  return router
 }
 
 /**
@@ -70,11 +72,11 @@ function createRelationsRouter({ annotationRepo }) {
  * @returns {string[]}
  */
 function parseRelations(raw) {
-  if (!raw) return [];
+  if (!raw) return []
   return String(raw)
     .split(',')
     .map((s) => s.trim())
-    .filter(Boolean);
+    .filter(Boolean)
 }
 
 /**
@@ -86,9 +88,11 @@ function parseRelations(raw) {
  * @returns {boolean}
  */
 function relationsInclude(raw, target) {
-  const t = String(target || '').trim().replace(/\\/g, '/');
-  if (!t) return false;
-  return parseRelations(raw).some((p) => p.replace(/\\/g, '/') === t);
+  const t = String(target || '')
+    .trim()
+    .replace(/\\/g, '/')
+  if (!t) return false
+  return parseRelations(raw).some((p) => p.replace(/\\/g, '/') === t)
 }
 
-module.exports = { createRelationsRouter, parseRelations, relationsInclude };
+module.exports = { createRelationsRouter, parseRelations, relationsInclude }

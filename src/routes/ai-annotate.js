@@ -1,8 +1,8 @@
-const express = require('express');
-const fs = require('node:fs/promises');
-const path = require('node:path');
-const { generateAnnotation } = require('../services/ai-annotation-service.js');
-const { isUnsafeRelPath } = require('../utils/validation.js');
+const express = require('express')
+const fs = require('node:fs/promises')
+const path = require('node:path')
+const { generateAnnotation } = require('../services/ai-annotation-service.js')
+const { isUnsafeRelPath } = require('../utils/validation.js')
 
 /**
  * Create AI annotation router
@@ -12,7 +12,7 @@ const { isUnsafeRelPath } = require('../utils/validation.js');
  * @returns {express.Router}
  */
 function createAiAnnotateRouter({ projectDir, annotationRepo }) {
-  const router = express.Router();
+  const router = express.Router()
 
   /**
    * POST /api/files/ai-annotate
@@ -20,30 +20,32 @@ function createAiAnnotateRouter({ projectDir, annotationRepo }) {
    * Return generated result
    */
   router.post('/ai-annotate', express.json(), async (req, res) => {
-    const relPath = String(req.body?.path || '').trim().replace(/\\/g, '/');
+    const relPath = String(req.body?.path || '')
+      .trim()
+      .replace(/\\/g, '/')
 
     // Security: prevent path traversal (shared guard, same as history/relations)
     if (isUnsafeRelPath(relPath)) {
-      return res.status(400).json({ ok: false, error: 'invalid path' });
+      return res.status(400).json({ ok: false, error: 'invalid path' })
     }
 
-    const absPath = path.join(projectDir, relPath);
-    let content;
+    const absPath = path.join(projectDir, relPath)
+    let content
     try {
-      content = await fs.readFile(absPath, 'utf8');
+      content = await fs.readFile(absPath, 'utf8')
     } catch (err) {
       if (err.code === 'ENOENT') {
-        return res.status(404).json({ ok: false, error: 'file not found' });
+        return res.status(404).json({ ok: false, error: 'file not found' })
       }
-      return res.status(500).json({ ok: false, error: err.message });
+      return res.status(500).json({ ok: false, error: err.message })
     }
 
     // Skip files too large for generator (avoid OOM / meaningless parsing)
     if (content.length > 500000) {
-      return res.status(413).json({ ok: false, error: 'file too large for ai-annotate' });
+      return res.status(413).json({ ok: false, error: 'file too large for ai-annotate' })
     }
 
-    const generated = generateAnnotation(relPath, content);
+    const generated = generateAnnotation(relPath, content)
 
     try {
       if (annotationRepo) {
@@ -51,7 +53,7 @@ function createAiAnnotateRouter({ projectDir, annotationRepo }) {
           purpose: generated.purpose,
           relations: generated.relations,
           tags: generated.tags,
-        });
+        })
       }
     } catch (err) {
       // DB write failure does not block response (return generated to frontend; frontend can retry)
@@ -60,13 +62,13 @@ function createAiAnnotateRouter({ projectDir, annotationRepo }) {
         path: relPath,
         generated,
         warning: `db write failed: ${err.message}`,
-      });
+      })
     }
 
-    res.json({ ok: true, path: relPath, generated });
-  });
+    res.json({ ok: true, path: relPath, generated })
+  })
 
-  return router;
+  return router
 }
 
-module.exports = { createAiAnnotateRouter };
+module.exports = { createAiAnnotateRouter }

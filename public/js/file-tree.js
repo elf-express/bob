@@ -10,52 +10,52 @@ const projectExplorerState = {
     scanTree: false,
     selectFile: false,
   },
-};
+}
 
 function peT(key, fallback = '', params = {}) {
   if (typeof i18n !== 'undefined') {
-    const value = i18n.t(key, params);
+    const value = i18n.t(key, params)
     if (value && value !== key && !['undefined', 'null'].includes(String(value).trim().toLowerCase())) {
-      return value;
+      return value
     }
   }
-  return fallback || key;
+  return fallback || key
 }
 
 function formatStatusDate(isoLike) {
-  if (!isoLike) return '-';
-  const d = new Date(isoLike);
-  if (Number.isNaN(d.getTime())) return '-';
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  const hh = String(d.getHours()).padStart(2, '0');
-  const min = String(d.getMinutes()).padStart(2, '0');
-  return `${yyyy}/${mm}/${dd} ${hh}:${min}`;
+  if (!isoLike) return '-'
+  const d = new Date(isoLike)
+  if (Number.isNaN(d.getTime())) return '-'
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  const hh = String(d.getHours()).padStart(2, '0')
+  const min = String(d.getMinutes()).padStart(2, '0')
+  return `${yyyy}/${mm}/${dd} ${hh}:${min}`
 }
 
 function hideFileTreeContextMenu() {
   if (projectExplorerState.contextMenuEl) {
-    projectExplorerState.contextMenuEl.remove();
-    projectExplorerState.contextMenuEl = null;
-    return;
+    projectExplorerState.contextMenuEl.remove()
+    projectExplorerState.contextMenuEl = null
+    return
   }
-  const menu = document.querySelector('.file-tree-context-menu');
-  if (menu) menu.remove();
+  const menu = document.querySelector('.file-tree-context-menu')
+  if (menu) menu.remove()
 }
 
 function peQuickAction(action) {
   if (action === 'refresh') {
-    const btn = document.getElementById('pe-refresh-btn');
-    if (btn) btn.click();
-    return;
+    const btn = document.getElementById('pe-refresh-btn')
+    if (btn) btn.click()
+    return
   }
   if (action === 'scanTree') {
-    runScanTreeAction();
-    return;
+    runScanTreeAction()
+    return
   }
   if (action === 'scanScripts') {
-    runScanScriptsAction();
+    runScanScriptsAction()
   }
 }
 
@@ -64,118 +64,108 @@ function updatePeQuickGuide(message = '') {
     refresh: document.getElementById('pe-quick-step-refresh'),
     scanTree: document.getElementById('pe-quick-step-scanTree'),
     selectFile: document.getElementById('pe-quick-step-selectFile'),
-  };
-  Object.entries(steps).forEach(([key, el]) => {
-    if (!el) return;
-    el.classList.toggle('done', Boolean(projectExplorerState.quickGuide[key]));
-  });
-
-  const statusEl = document.getElementById('pe-quick-status');
-  const doneCount = Object.values(projectExplorerState.quickGuide).filter(Boolean).length;
-  const progressText = doneCount === 3
-    ? peT('projectExplorer.quickAllDone', 'Done. You can now read and annotate files.')
-    : peT('projectExplorer.quickProgress', 'Completed {done}/3 steps', { done: doneCount });
-
-  if (!statusEl) return;
-  if (message) {
-    statusEl.textContent = message;
-    return;
   }
-  statusEl.textContent = progressText;
+  Object.entries(steps).forEach(([key, el]) => {
+    if (!el) return
+    el.classList.toggle('done', Boolean(projectExplorerState.quickGuide[key]))
+  })
+
+  const statusEl = document.getElementById('pe-quick-status')
+  const doneCount = Object.values(projectExplorerState.quickGuide).filter(Boolean).length
+  const progressText =
+    doneCount === 3
+      ? peT('projectExplorer.quickAllDone', 'Done. You can now read and annotate files.')
+      : peT('projectExplorer.quickProgress', 'Completed {done}/3 steps', { done: doneCount })
+
+  if (!statusEl) return
+  if (message) {
+    statusEl.textContent = message
+    return
+  }
+  statusEl.textContent = progressText
 }
 
 function markPeQuickGuideStep(step, message = '') {
-  if (!Object.hasOwn(projectExplorerState.quickGuide, step)) return;
-  projectExplorerState.quickGuide[step] = true;
-  updatePeQuickGuide(message);
+  if (!Object.hasOwn(projectExplorerState.quickGuide, step)) return
+  projectExplorerState.quickGuide[step] = true
+  updatePeQuickGuide(message)
 }
 
 function showProjectExplorerGuidePanel() {
-  const emptyState = document.getElementById('pe-empty-state');
-  const detailsPanel = document.getElementById('pe-file-details');
-  if (detailsPanel) detailsPanel.style.display = 'none';
-  if (emptyState) emptyState.style.display = 'flex';
+  const emptyState = document.getElementById('pe-empty-state')
+  const detailsPanel = document.getElementById('pe-file-details')
+  if (detailsPanel) detailsPanel.style.display = 'none'
+  if (emptyState) emptyState.style.display = 'flex'
 }
 
 async function runScanScriptsAction() {
-  const statusEl = document.getElementById('pe-scan-status');
-  if (statusEl) statusEl.textContent = peT('projectExplorer.scanInProgress', 'Scanning...');
+  const statusEl = document.getElementById('pe-scan-status')
+  if (statusEl) statusEl.textContent = peT('projectExplorer.scanInProgress', 'Scanning...')
   try {
-    const scanResult = await scanCommandsApi();
-    let merged = null;
+    const scanResult = await scanCommandsApi()
+    let merged = null
 
     // Keep command config in sync even when scanning from Project Explorer.
     if (typeof mergeScannedScriptsIntoConfig === 'function' && typeof autoSaveConfig === 'function') {
-      merged = mergeScannedScriptsIntoConfig((scanResult && scanResult.scripts) || []);
-      const saved = await autoSaveConfig();
+      merged = mergeScannedScriptsIntoConfig((scanResult && scanResult.scripts) || [])
+      const saved = await autoSaveConfig()
       if (!saved) {
-        throw new Error(peT('errors.scanSaveFailed', 'Failed to save scan result'));
+        throw new Error(peT('errors.scanSaveFailed', 'Failed to save scan result'))
       }
-      if (typeof renderDynamicNavigation === 'function') renderDynamicNavigation();
-      if (typeof renderCommands === 'function') renderCommands();
     }
 
-    await refreshProjectExplorerScanStatus();
+    await refreshProjectExplorerScanStatus()
     if (statusEl && merged) {
       statusEl.textContent = peT(
         'projectExplorer.scanScriptsMerged',
         'Scripts synced: added {added}, updated {updated}, skipped {skipped}',
-        merged
-      );
-      statusEl.title = statusEl.textContent;
+        merged,
+      )
+      statusEl.title = statusEl.textContent
     }
   } catch (error) {
     if (statusEl) {
-      statusEl.textContent = peT(
-        'projectExplorer.scanFailedReason',
-        'Scan failed: {message}',
-        { message: error?.message || peT('errors.unknown', 'Unknown error') }
-      );
+      statusEl.textContent = peT('projectExplorer.scanFailedReason', 'Scan failed: {message}', {
+        message: error?.message || peT('errors.unknown', 'Unknown error'),
+      })
     }
   }
 }
 
 async function runScanTreeAction() {
-  const statusEl = document.getElementById('pe-scan-status');
-  if (statusEl) statusEl.textContent = peT('projectExplorer.scanInProgress', 'Scanning...');
+  const statusEl = document.getElementById('pe-scan-status')
+  if (statusEl) statusEl.textContent = peT('projectExplorer.scanInProgress', 'Scanning...')
   try {
-    await scanTreeApi();
-    await loadProjectRoot();
-    await refreshProjectExplorerScanStatus();
-    markPeQuickGuideStep('scanTree', peT('projectExplorer.quickDoneScanTree', 'Tree scan completed'));
+    await scanTreeApi()
+    await loadProjectRoot()
+    await refreshProjectExplorerScanStatus()
+    markPeQuickGuideStep('scanTree', peT('projectExplorer.quickDoneScanTree', 'Tree scan completed'))
   } catch (error) {
     if (statusEl) {
-      statusEl.textContent = peT(
-        'projectExplorer.scanFailedReason',
-        'Scan failed: {message}',
-        { message: error?.message || peT('errors.unknown', 'Unknown error') }
-      );
+      statusEl.textContent = peT('projectExplorer.scanFailedReason', 'Scan failed: {message}', {
+        message: error?.message || peT('errors.unknown', 'Unknown error'),
+      })
     }
   }
 }
 
 async function refreshProjectExplorerScanStatus() {
-  const statusEl = document.getElementById('pe-scan-status');
-  if (!statusEl) return;
+  const statusEl = document.getElementById('pe-scan-status')
+  if (!statusEl) return
 
   try {
-    const scan = await fetchLatestScanSummary();
-    const updatedAt = formatStatusDate(scan?.counts?.updatedAt);
-    const statusText = peT(
-      'projectExplorer.scanStatusUpdatedAt',
-      'Updated: {updatedAt}',
-      { updatedAt }
-    );
-    statusEl.textContent = statusText;
-    statusEl.title = statusText;
+    const scan = await fetchLatestScanSummary()
+    const updatedAt = formatStatusDate(scan?.counts?.updatedAt)
+    const statusText = peT('projectExplorer.scanStatusUpdatedAt', 'Updated: {updatedAt}', { updatedAt })
+    statusEl.textContent = statusText
+    statusEl.title = statusText
   } catch (error) {
-    statusEl.textContent = `${peT('fileTree.loadFailed', 'Load failed:')} ${error.message}`;
-    statusEl.title = statusEl.textContent;
+    statusEl.textContent = `${peT('fileTree.loadFailed', 'Load failed:')} ${error.message}`
+    statusEl.title = statusEl.textContent
   }
 }
 
-
-const style = document.createElement('style');
+const style = document.createElement('style')
 style.textContent = `
   .file-tree-context-menu {
     position: absolute;
@@ -299,8 +289,8 @@ style.textContent = `
     background: #ecfdf5;
     border-color: #6ee7b7;
   }
-`;
-document.head.appendChild(style);
+`
+document.head.appendChild(style)
 
 /**
  * Initialize project explorer and bind one-time global listeners.
@@ -308,87 +298,87 @@ document.head.appendChild(style);
  * @returns {Promise<void>}
  */
 function initProjectExplorer() {
-  const container = document.getElementById('pe-tree-container');
-  if (!container) return;
+  const container = document.getElementById('pe-tree-container')
+  if (!container) return
 
   if (!projectExplorerState.listenersBound) {
     document.addEventListener('mousedown', (event) => {
-      if (event.button !== 0) return;
-      if (event.target.closest('.file-tree-context-menu')) return;
-      hideFileTreeContextMenu();
-    });
+      if (event.button !== 0) return
+      if (event.target.closest('.file-tree-context-menu')) return
+      hideFileTreeContextMenu()
+    })
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') hideFileTreeContextMenu();
-    });
-    window.addEventListener('scroll', hideFileTreeContextMenu, true);
-    window.addEventListener('wheel', hideFileTreeContextMenu, { passive: true });
-    projectExplorerState.listenersBound = true;
+      if (event.key === 'Escape') hideFileTreeContextMenu()
+    })
+    window.addEventListener('scroll', hideFileTreeContextMenu, true)
+    window.addEventListener('wheel', hideFileTreeContextMenu, { passive: true })
+    projectExplorerState.listenersBound = true
   }
 
-  loadProjectRoot();
-  refreshProjectExplorerScanStatus();
-  updatePeQuickGuide();
+  loadProjectRoot()
+  refreshProjectExplorerScanStatus()
+  updatePeQuickGuide()
 }
 
-const FOLDER_OPEN_ICON = '\u{1F4C2}';
-const FOLDER_CLOSED_ICON = '\u{1F4C1}';
+const FOLDER_OPEN_ICON = '\u{1F4C2}'
+const FOLDER_CLOSED_ICON = '\u{1F4C1}'
 
 /**
  * Debounced search over the project tree root.
  */
-let searchTimeout;
+let searchTimeout
 async function handleSearch(query, rootLi) {
-  const rootUl = rootLi.querySelector('ul');
-  if (!rootUl) return;
+  const rootUl = rootLi.querySelector('ul')
+  if (!rootUl) return
 
-  if (searchTimeout) clearTimeout(searchTimeout);
+  if (searchTimeout) clearTimeout(searchTimeout)
 
   if (!query) {
     searchTimeout = setTimeout(async () => {
       try {
-        rootUl.innerHTML = `<li class="loading">${i18n.t('fileTree.loading')}</li>`;
-        const data = await fetchFiles('');
-        rootUl.innerHTML = '';
+        rootUl.innerHTML = `<li class="loading">${i18n.t('fileTree.loading')}</li>`
+        const data = await fetchFiles('')
+        rootUl.innerHTML = ''
         data.forEach((childItem) => {
-          const childLi = createTreeItemDOM(childItem);
-          rootUl.appendChild(childLi);
-        });
+          const childLi = createTreeItemDOM(childItem)
+          rootUl.appendChild(childLi)
+        })
       } catch (error) {
-        console.error(error);
+        console.error(error)
       }
-    }, 200);
-    return;
+    }, 200)
+    return
   }
 
   searchTimeout = setTimeout(async () => {
     try {
-      rootUl.innerHTML = `<li style="padding:8px 0 8px 24px;color:#94a3b8;font-size:12px;">${i18n.t('fileTree.searching')}</li>`;
+      rootUl.innerHTML = `<li style="padding:8px 0 8px 24px;color:#94a3b8;font-size:12px;">${i18n.t('fileTree.searching')}</li>`
 
-      const results = await searchFilesApi(query);
-      rootUl.innerHTML = '';
+      const results = await searchFilesApi(query)
+      rootUl.innerHTML = ''
 
       if (results.length === 0) {
-        rootUl.innerHTML = `<li style="padding:8px 0 8px 24px;color:#94a3b8;font-size:12px;">${i18n.t('fileTree.noFilesFound')}</li>`;
-        return;
+        rootUl.innerHTML = `<li style="padding:8px 0 8px 24px;color:#94a3b8;font-size:12px;">${i18n.t('fileTree.noFilesFound')}</li>`
+        return
       }
 
       results.forEach((item) => {
-        const li = createTreeItemDOM(item);
-        const textSpan = li.querySelector('.tree-text');
+        const li = createTreeItemDOM(item)
+        const textSpan = li.querySelector('.tree-text')
         if (textSpan) {
-          textSpan.innerHTML = `${item.name} <span style="color:#94a3b8;font-size:10px;margin-left:4px;">(${item.path})</span>`;
-          textSpan.title = item.path;
+          textSpan.innerHTML = `${item.name} <span style="color:#94a3b8;font-size:10px;margin-left:4px;">(${item.path})</span>`
+          textSpan.title = item.path
         }
-        rootUl.appendChild(li);
-      });
+        rootUl.appendChild(li)
+      })
 
-      rootUl.style.display = 'block';
-      if (typeof lucide !== 'undefined') lucide.createIcons();
+      rootUl.style.display = 'block'
+      if (typeof lucide !== 'undefined') lucide.createIcons()
     } catch (error) {
-      console.error(error);
-      rootUl.innerHTML = `<li style="color:red;padding:8px;">${peT('fileTree.loadFailed', 'Load failed:')} ${error.message}</li>`;
+      console.error(error)
+      rootUl.innerHTML = `<li style="color:red;padding:8px;">${peT('fileTree.loadFailed', 'Load failed:')} ${error.message}</li>`
     }
-  }, 300);
+  }, 300)
 }
 
 /**
@@ -397,13 +387,13 @@ async function handleSearch(query, rootLi) {
  * @returns {Promise<void>}
  */
 async function loadProjectRoot() {
-  const container = document.getElementById('pe-tree-container');
-  if (!container) return;
+  const container = document.getElementById('pe-tree-container')
+  if (!container) return
 
-  container.innerHTML = `<div class="file-tree-loading">${peT('fileTree.loading', 'Loading...')}</div>`;
+  container.innerHTML = `<div class="file-tree-loading">${peT('fileTree.loading', 'Loading...')}</div>`
 
   try {
-    const [data, stats] = await Promise.all([fetchFiles(''), fetchProjectStats()]);
+    const [data, stats] = await Promise.all([fetchFiles(''), fetchProjectStats()])
 
     const rootNode = {
       name: i18n.t('fileTree.root'),
@@ -412,12 +402,12 @@ async function loadProjectRoot() {
       isDirectory: true,
       children: data,
       isRoot: true,
-    };
+    }
 
-    renderTree(rootNode, container);
-    await refreshProjectExplorerScanStatus();
+    renderTree(rootNode, container)
+    await refreshProjectExplorerScanStatus()
   } catch (error) {
-    container.innerHTML = `<div class="file-tree-loading" style="color:var(--danger)">${peT('fileTree.loadFailed', 'Load failed:')} ${error.message}</div>`;
+    container.innerHTML = `<div class="file-tree-loading" style="color:var(--danger)">${peT('fileTree.loadFailed', 'Load failed:')} ${error.message}</div>`
   }
 }
 
@@ -429,37 +419,37 @@ async function loadProjectRoot() {
  */
 function renderTree(rootItem, container) {
   if (!rootItem) {
-    container.innerHTML = `<div class="file-tree-loading">${peT('fileTree.loading', 'Loading...')}</div>`;
-    return;
+    container.innerHTML = `<div class="file-tree-loading">${peT('fileTree.loading', 'Loading...')}</div>`
+    return
   }
 
-  container.innerHTML = '';
-  const ul = document.createElement('ul');
-  ul.className = 'file-tree config-tree';
-  ul.style.marginLeft = '0';
+  container.innerHTML = ''
+  const ul = document.createElement('ul')
+  ul.className = 'file-tree config-tree'
+  ul.style.marginLeft = '0'
 
   if (rootItem.isRoot) {
-    const rootLi = createTreeItemDOM(rootItem);
+    const rootLi = createTreeItemDOM(rootItem)
 
-    const rootRow = rootLi.querySelector('.tree-row');
+    const rootRow = rootLi.querySelector('.tree-row')
     if (rootRow) {
-      rootRow.style.position = 'sticky';
-      rootRow.style.top = '0';
-      rootRow.style.zIndex = '10';
-      rootRow.style.backgroundColor = '#fff';
-      rootRow.style.borderBottom = '1px solid #e2e8f0';
-      rootRow.style.width = '100%';
+      rootRow.style.position = 'sticky'
+      rootRow.style.top = '0'
+      rootRow.style.zIndex = '10'
+      rootRow.style.backgroundColor = '#fff'
+      rootRow.style.borderBottom = '1px solid #e2e8f0'
+      rootRow.style.width = '100%'
 
-      const searchContainer = document.createElement('div');
-      searchContainer.style.marginLeft = 'auto';
-      searchContainer.style.display = 'flex';
-      searchContainer.style.alignItems = 'center';
-      searchContainer.onclick = (e) => e.stopPropagation();
+      const searchContainer = document.createElement('div')
+      searchContainer.style.marginLeft = 'auto'
+      searchContainer.style.display = 'flex'
+      searchContainer.style.alignItems = 'center'
+      searchContainer.onclick = (e) => e.stopPropagation()
 
-      const searchInput = document.createElement('input');
-      searchInput.type = 'text';
-      searchInput.placeholder = i18n.t('fileTree.searchPlaceholder');
-      searchInput.className = 'tree-search-input';
+      const searchInput = document.createElement('input')
+      searchInput.type = 'text'
+      searchInput.placeholder = i18n.t('fileTree.searchPlaceholder')
+      searchInput.className = 'tree-search-input'
       Object.assign(searchInput.style, {
         padding: '2px 6px',
         fontSize: '12px',
@@ -471,117 +461,117 @@ function renderTree(rootItem, container) {
         transition: 'all 0.2s',
         color: '#475569',
         marginRight: '4px',
-      });
+      })
 
       searchInput.onfocus = () => {
-        searchInput.style.width = '160px';
-        searchInput.style.borderColor = '#3b82f6';
-        searchInput.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.1)';
-      };
+        searchInput.style.width = '160px'
+        searchInput.style.borderColor = '#3b82f6'
+        searchInput.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.1)'
+      }
       searchInput.onblur = () => {
         if (!searchInput.value) {
-          searchInput.style.width = '100px';
-          searchInput.style.borderColor = '#e2e8f0';
-          searchInput.style.boxShadow = 'none';
+          searchInput.style.width = '100px'
+          searchInput.style.borderColor = '#e2e8f0'
+          searchInput.style.boxShadow = 'none'
         }
-      };
+      }
       searchInput.oninput = (e) => {
-        const q = e.target.value.trim();
-        handleSearch(q, rootLi);
-      };
-      searchContainer.appendChild(searchInput);
+        const q = e.target.value.trim()
+        handleSearch(q, rootLi)
+      }
+      searchContainer.appendChild(searchInput)
 
-      const refreshBtn = document.createElement('div');
-      refreshBtn.id = 'pe-refresh-btn';
-      refreshBtn.className = 'tree-refresh-btn';
-      refreshBtn.innerHTML = '<i data-lucide="refresh-cw"></i>';
-      refreshBtn.title = i18n.t('fileTree.refresh');
+      const refreshBtn = document.createElement('div')
+      refreshBtn.id = 'pe-refresh-btn'
+      refreshBtn.className = 'tree-refresh-btn'
+      refreshBtn.innerHTML = '<i data-lucide="refresh-cw"></i>'
+      refreshBtn.title = i18n.t('fileTree.refresh')
       refreshBtn.onclick = (e) => {
-        e.stopPropagation();
-        searchInput.value = '';
-        showProjectExplorerGuidePanel();
+        e.stopPropagation()
+        searchInput.value = ''
+        showProjectExplorerGuidePanel()
 
-        const icon = refreshBtn.querySelector('i');
+        const icon = refreshBtn.querySelector('i')
         if (icon) {
-          icon.style.transition = 'transform 0.5s';
-          icon.style.transform = 'rotate(180deg)';
+          icon.style.transition = 'transform 0.5s'
+          icon.style.transform = 'rotate(180deg)'
         }
 
         setTimeout(async () => {
-          await loadProjectRoot();
-          markPeQuickGuideStep('refresh', peT('projectExplorer.quickDoneRefresh', 'Tree refreshed'));
-        }, 300);
-      };
+          await loadProjectRoot()
+          markPeQuickGuideStep('refresh', peT('projectExplorer.quickDoneRefresh', 'Tree refreshed'))
+        }, 300)
+      }
 
-      refreshBtn.style.marginRight = '8px';
-      refreshBtn.style.cursor = 'pointer';
-      refreshBtn.style.display = 'flex';
-      refreshBtn.style.alignItems = 'center';
-      refreshBtn.style.justifyContent = 'center';
-      refreshBtn.style.width = '24px';
-      refreshBtn.style.height = '24px';
-      refreshBtn.style.borderRadius = '4px';
-      refreshBtn.style.color = '#64748b';
+      refreshBtn.style.marginRight = '8px'
+      refreshBtn.style.cursor = 'pointer'
+      refreshBtn.style.display = 'flex'
+      refreshBtn.style.alignItems = 'center'
+      refreshBtn.style.justifyContent = 'center'
+      refreshBtn.style.width = '24px'
+      refreshBtn.style.height = '24px'
+      refreshBtn.style.borderRadius = '4px'
+      refreshBtn.style.color = '#64748b'
       refreshBtn.onmouseover = () => {
-        refreshBtn.style.backgroundColor = '#f1f5f9';
-        refreshBtn.style.color = '#3b82f6';
-      };
+        refreshBtn.style.backgroundColor = '#f1f5f9'
+        refreshBtn.style.color = '#3b82f6'
+      }
       refreshBtn.onmouseout = () => {
-        refreshBtn.style.backgroundColor = 'transparent';
-        refreshBtn.style.color = '#64748b';
-      };
-      searchContainer.appendChild(refreshBtn);
+        refreshBtn.style.backgroundColor = 'transparent'
+        refreshBtn.style.color = '#64748b'
+      }
+      searchContainer.appendChild(refreshBtn)
 
-      const statusText = document.createElement('span');
-      statusText.id = 'pe-scan-status';
-      statusText.style.fontSize = '11px';
-      statusText.style.color = '#64748b';
-      statusText.style.marginLeft = '8px';
-      statusText.style.whiteSpace = 'nowrap';
-      statusText.style.display = 'inline-block';
-      statusText.style.maxWidth = '360px';
-      statusText.style.overflow = 'hidden';
-      statusText.style.textOverflow = 'ellipsis';
-      statusText.textContent = peT('projectExplorer.scanStatusLoading', 'Loading scan status...');
-      searchContainer.appendChild(statusText);
+      const statusText = document.createElement('span')
+      statusText.id = 'pe-scan-status'
+      statusText.style.fontSize = '11px'
+      statusText.style.color = '#64748b'
+      statusText.style.marginLeft = '8px'
+      statusText.style.whiteSpace = 'nowrap'
+      statusText.style.display = 'inline-block'
+      statusText.style.maxWidth = '360px'
+      statusText.style.overflow = 'hidden'
+      statusText.style.textOverflow = 'ellipsis'
+      statusText.textContent = peT('projectExplorer.scanStatusLoading', 'Loading scan status...')
+      searchContainer.appendChild(statusText)
 
-      rootRow.appendChild(searchContainer);
+      rootRow.appendChild(searchContainer)
 
-      const icon = refreshBtn.querySelector('i');
+      const icon = refreshBtn.querySelector('i')
       if (icon) {
-        icon.style.width = '14px';
-        icon.style.height = '14px';
+        icon.style.width = '14px'
+        icon.style.height = '14px'
       }
     }
 
-    projectExplorerState.expandedPaths.add(rootItem.path);
-    rootLi.classList.remove('collapsed');
-    const rowDiv = rootLi.querySelector('.tree-row');
-    const toggleSpan = rowDiv.querySelector('.tree-toggle');
-    if (toggleSpan) toggleSpan.textContent = '-';
+    projectExplorerState.expandedPaths.add(rootItem.path)
+    rootLi.classList.remove('collapsed')
+    const rowDiv = rootLi.querySelector('.tree-row')
+    const toggleSpan = rowDiv.querySelector('.tree-toggle')
+    if (toggleSpan) toggleSpan.textContent = '-'
 
-    const childUl = document.createElement('ul');
-    childUl.className = 'config-tree';
-    childUl.style.display = 'block';
+    const childUl = document.createElement('ul')
+    childUl.className = 'config-tree'
+    childUl.style.display = 'block'
     if (rootItem.children && rootItem.children.length > 0) {
       rootItem.children.forEach((child) => {
-        childUl.appendChild(createTreeItemDOM(child));
-      });
+        childUl.appendChild(createTreeItemDOM(child))
+      })
     }
 
-    rootLi.appendChild(childUl);
-    ul.appendChild(rootLi);
+    rootLi.appendChild(childUl)
+    ul.appendChild(rootLi)
   } else if (Array.isArray(rootItem)) {
     rootItem.forEach((item) => {
-      ul.appendChild(createTreeItemDOM(item));
-    });
+      ul.appendChild(createTreeItemDOM(item))
+    })
   } else {
-    ul.appendChild(createTreeItemDOM(rootItem));
+    ul.appendChild(createTreeItemDOM(rootItem))
   }
 
-  container.appendChild(ul);
+  container.appendChild(ul)
   if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
+    lucide.createIcons()
   }
 }
 
@@ -592,29 +582,29 @@ function renderTree(rootItem, container) {
  * @returns {HTMLLIElement}
  */
 function createTreeItemDOM(item) {
-  const li = document.createElement('li');
+  const li = document.createElement('li')
   if (!item.isDirectory) {
-    li.classList.add('tree-item-file');
+    li.classList.add('tree-item-file')
   }
-  const isExpanded = projectExplorerState.expandedPaths.has(item.path);
+  const isExpanded = projectExplorerState.expandedPaths.has(item.path)
 
-  const rowDiv = document.createElement('div');
-  rowDiv.className = `tree-row ${item.isDirectory ? 'tree-group' : 'tree-command'}`;
-  rowDiv.dataset.path = item.path;
+  const rowDiv = document.createElement('div')
+  rowDiv.className = `tree-row ${item.isDirectory ? 'tree-group' : 'tree-command'}`
+  rowDiv.dataset.path = item.path
 
-  const hasAnnotation = item.annotation && item.annotation.trim().length > 0;
-  const iconConfig = getFileIconConfig(item, isExpanded);
-  const toggleContent = item.isDirectory ? (isExpanded ? '-' : '+') : '';
+  const hasAnnotation = item.annotation && item.annotation.trim().length > 0
+  const iconConfig = getFileIconConfig(item, isExpanded)
+  const toggleContent = item.isDirectory ? (isExpanded ? '-' : '+') : ''
 
-  let iconHtml = '';
+  let iconHtml = ''
   if (iconConfig.type === 'image') {
-    iconHtml = `<span class="tree-icon"><img src="${iconConfig.value}" style="width:20px;height:20px;"></span>`;
+    iconHtml = `<span class="tree-icon"><img src="${iconConfig.value}" style="width:20px;height:20px;"></span>`
   } else if (iconConfig.type === 'devicon') {
-    iconHtml = `<span class="tree-icon"><i class="${iconConfig.value}"></i></span>`;
+    iconHtml = `<span class="tree-icon"><i class="${iconConfig.value}"></i></span>`
   } else if (iconConfig.type === 'emoji') {
-    iconHtml = `<span class="tree-icon" style="font-size:18px;">${iconConfig.value}</span>`;
+    iconHtml = `<span class="tree-icon" style="font-size:18px;">${iconConfig.value}</span>`
   } else {
-    iconHtml = `<span class="tree-icon"><i data-lucide="${iconConfig.value}" style="${iconConfig.color ? `color:${iconConfig.color};` : ''}"></i></span>`;
+    iconHtml = `<span class="tree-icon"><i data-lucide="${iconConfig.value}" style="${iconConfig.color ? `color:${iconConfig.color};` : ''}"></i></span>`
   }
 
   rowDiv.innerHTML = `
@@ -624,53 +614,53 @@ function createTreeItemDOM(item) {
     ${item.purpose ? `<span class="tree-purpose-text" title="${item.purpose.replace(/"/g, '&quot;')}">${item.purpose.length > 20 ? `${item.purpose.substring(0, 20)}...` : item.purpose}</span>` : ''}
     <span style="flex:1;"></span>
     ${hasAnnotation ? '<i data-lucide="message-square" style="width:12px;height:12px;color:#3b82f6;margin-left:auto;"></i>' : ''}
-  `;
+  `
 
   if (iconConfig.type === 'image') {
-    const img = rowDiv.querySelector('span.tree-icon > img');
+    const img = rowDiv.querySelector('span.tree-icon > img')
     if (img) {
       img.onerror = function onIconError() {
-        const fallback = document.createElement('i');
-        fallback.setAttribute('data-lucide', 'file');
-        fallback.style.color = '#94a3b8';
-        fallback.style.width = '20px';
-        fallback.style.height = '20px';
-        this.replaceWith(fallback);
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-      };
+        const fallback = document.createElement('i')
+        fallback.setAttribute('data-lucide', 'file')
+        fallback.style.color = '#94a3b8'
+        fallback.style.width = '20px'
+        fallback.style.height = '20px'
+        this.replaceWith(fallback)
+        if (typeof lucide !== 'undefined') lucide.createIcons()
+      }
     }
   }
 
   rowDiv.onclick = async (e) => {
-    e.stopPropagation();
-    document.querySelectorAll('#pe-tree-container .tree-row').forEach((el) => el.classList.remove('selected'));
-    rowDiv.classList.add('selected');
-    showFileDetails(item);
+    e.stopPropagation()
+    document.querySelectorAll('#pe-tree-container .tree-row').forEach((el) => el.classList.remove('selected'))
+    rowDiv.classList.add('selected')
+    showFileDetails(item)
 
     if (item.isDirectory) {
-      await toggleDirectory(item, li, rowDiv);
+      await toggleDirectory(item, li, rowDiv)
     }
-  };
-
-  rowDiv.oncontextmenu = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    document.querySelectorAll('#pe-tree-container .tree-row').forEach((el) => el.classList.remove('selected'));
-    rowDiv.classList.add('selected');
-    showFileDetails(item);
-    showFileTreeContextMenu(e, item, li);
-  };
-
-  li.appendChild(rowDiv);
-
-  if (isExpanded && item.isDirectory && !item.isRoot) {
-    loadDirectoryContent(item, li);
-  } else if (item.isDirectory && !isExpanded) {
-    li.classList.add('collapsed');
   }
 
-  return li;
+  rowDiv.oncontextmenu = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    document.querySelectorAll('#pe-tree-container .tree-row').forEach((el) => el.classList.remove('selected'))
+    rowDiv.classList.add('selected')
+    showFileDetails(item)
+    showFileTreeContextMenu(e, item, li)
+  }
+
+  li.appendChild(rowDiv)
+
+  if (isExpanded && item.isDirectory && !item.isRoot) {
+    loadDirectoryContent(item, li)
+  } else if (item.isDirectory && !isExpanded) {
+    li.classList.add('collapsed')
+  }
+
+  return li
 }
 
 /**
@@ -678,54 +668,54 @@ function createTreeItemDOM(item) {
  * @param {MouseEvent} e
  * @returns {void}
  */
-function showFileTreeContextMenu(e, _item, _li) {
+function showFileTreeContextMenu(e) {
   try {
-    hideFileTreeContextMenu();
+    hideFileTreeContextMenu()
 
-    const menu = document.createElement('div');
-    menu.className = 'file-tree-context-menu';
-    menu.style.left = `${e.clientX}px`;
-    menu.style.top = `${e.clientY}px`;
+    const menu = document.createElement('div')
+    menu.className = 'file-tree-context-menu'
+    menu.style.left = `${e.clientX}px`
+    menu.style.top = `${e.clientY}px`
 
     const createItem = (icon, text, onClick) => {
-      const div = document.createElement('div');
-      div.className = 'file-tree-context-menu-item';
-      div.innerHTML = `<i data-lucide="${icon}" style="width:14px;height:14px;"></i> ${text}`;
+      const div = document.createElement('div')
+      div.className = 'file-tree-context-menu-item'
+      div.innerHTML = `<i data-lucide="${icon}" style="width:14px;height:14px;"></i> ${text}`
       div.onclick = (ev) => {
-        ev.stopPropagation();
-        hideFileTreeContextMenu();
-        onClick();
-      };
-      return div;
-    };
+        ev.stopPropagation()
+        hideFileTreeContextMenu()
+        onClick()
+      }
+      return div
+    }
 
     menu.appendChild(
       createItem(
         'shield-alert',
         peT('projectExplorer.fsWriteDisabled', 'File operations are disabled in project explorer'),
-        () => showReadOnlyFsAlert()
-      )
-    );
+        () => showReadOnlyFsAlert(),
+      ),
+    )
 
-    document.body.appendChild(menu);
-    projectExplorerState.contextMenuEl = menu;
+    document.body.appendChild(menu)
+    projectExplorerState.contextMenuEl = menu
 
-    const rect = menu.getBoundingClientRect();
+    const rect = menu.getBoundingClientRect()
     if (rect.right > window.innerWidth) {
-      menu.style.left = `${Math.max(8, window.innerWidth - rect.width - 8)}px`;
+      menu.style.left = `${Math.max(8, window.innerWidth - rect.width - 8)}px`
     }
     if (rect.bottom > window.innerHeight) {
-      menu.style.top = `${Math.max(8, window.innerHeight - rect.height - 8)}px`;
+      menu.style.top = `${Math.max(8, window.innerHeight - rect.height - 8)}px`
     }
     if (typeof lucide !== 'undefined') {
       try {
-        lucide.createIcons();
-      } catch (_error) {
+        lucide.createIcons()
+      } catch {
         // Keep menu usable even if icon refresh fails.
       }
     }
-  } catch (_error) {
-    hideFileTreeContextMenu();
+  } catch {
+    hideFileTreeContextMenu()
   }
 }
 
@@ -733,54 +723,54 @@ function showFileTreeContextMenu(e, _item, _li) {
  * Notify that file operations are disabled in read-only mode.
  */
 function showReadOnlyFsAlert() {
-  alert(peT('projectExplorer.fsWriteDisabled', 'File operations are disabled in project explorer'));
+  alert(peT('projectExplorer.fsWriteDisabled', 'File operations are disabled in project explorer'))
 }
 
-async function handleCreate(_parentItem, _type) {
-  showReadOnlyFsAlert();
+async function handleCreate() {
+  showReadOnlyFsAlert()
 }
 
-async function handleDelete(_item) {
-  showReadOnlyFsAlert();
+async function handleDelete() {
+  showReadOnlyFsAlert()
 }
 
-async function handleRename(_item) {
-  showReadOnlyFsAlert();
+async function handleRename() {
+  showReadOnlyFsAlert()
 }
 
 async function refreshNode(item) {
   if (item.isRoot || item.path === '') {
-    loadProjectRoot();
-    return;
+    loadProjectRoot()
+    return
   }
 
-  const selector = `.tree-row[data-path="${item.path}"]`;
-  const rowDiv = document.querySelector(selector);
-  if (!rowDiv) return;
+  const selector = `.tree-row[data-path="${item.path}"]`
+  const rowDiv = document.querySelector(selector)
+  if (!rowDiv) return
 
-  const li = rowDiv.parentNode;
-  const oldUl = li.querySelector('ul');
-  if (oldUl) oldUl.remove();
+  const li = rowDiv.parentNode
+  const oldUl = li.querySelector('ul')
+  if (oldUl) oldUl.remove()
 
-  projectExplorerState.expandedPaths.add(item.path);
-  li.classList.remove('collapsed');
-  const toggleSpan = rowDiv.querySelector('.tree-toggle');
-  if (toggleSpan) toggleSpan.textContent = '-';
+  projectExplorerState.expandedPaths.add(item.path)
+  li.classList.remove('collapsed')
+  const toggleSpan = rowDiv.querySelector('.tree-toggle')
+  if (toggleSpan) toggleSpan.textContent = '-'
 
-  await loadDirectoryContent(item, li);
+  await loadDirectoryContent(item, li)
 
-  const icon = rowDiv.querySelector('.tree-icon');
+  const icon = rowDiv.querySelector('.tree-icon')
   if (icon && item.isDirectory) {
     if (icon.tagName === 'SPAN') {
-      icon.textContent = FOLDER_OPEN_ICON;
+      icon.textContent = FOLDER_OPEN_ICON
     } else {
-      const newIcon = document.createElement('span');
-      newIcon.className = 'tree-icon';
-      newIcon.textContent = FOLDER_OPEN_ICON;
-      icon.replaceWith(newIcon);
+      const newIcon = document.createElement('span')
+      newIcon.className = 'tree-icon'
+      newIcon.textContent = FOLDER_OPEN_ICON
+      icon.replaceWith(newIcon)
     }
   }
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons()
 }
 
 /**
@@ -789,37 +779,37 @@ async function refreshNode(item) {
  * @returns {Promise<void>}
  */
 async function toggleDirectory(item, li, rowDiv) {
-  const isExpanded = projectExplorerState.expandedPaths.has(item.path);
-  const toggleSpan = rowDiv.querySelector('.tree-toggle');
-  const icon = rowDiv.querySelector('.tree-icon');
+  const isExpanded = projectExplorerState.expandedPaths.has(item.path)
+  const toggleSpan = rowDiv.querySelector('.tree-toggle')
+  const icon = rowDiv.querySelector('.tree-icon')
 
   if (isExpanded) {
-    projectExplorerState.expandedPaths.delete(item.path);
-    li.classList.add('collapsed');
-    if (toggleSpan) toggleSpan.textContent = '+';
-    const childUl = li.querySelector('ul');
-    if (childUl) childUl.style.display = 'none';
+    projectExplorerState.expandedPaths.delete(item.path)
+    li.classList.add('collapsed')
+    if (toggleSpan) toggleSpan.textContent = '+'
+    const childUl = li.querySelector('ul')
+    if (childUl) childUl.style.display = 'none'
 
     if (icon && icon.tagName === 'SPAN') {
-      icon.textContent = FOLDER_CLOSED_ICON;
+      icon.textContent = FOLDER_CLOSED_ICON
     }
   } else {
-    projectExplorerState.expandedPaths.add(item.path);
-    li.classList.remove('collapsed');
-    if (toggleSpan) toggleSpan.textContent = '-';
+    projectExplorerState.expandedPaths.add(item.path)
+    li.classList.remove('collapsed')
+    if (toggleSpan) toggleSpan.textContent = '-'
 
-    const childUl = li.querySelector('ul');
+    const childUl = li.querySelector('ul')
     if (!childUl) {
-      await loadDirectoryContent(item, li);
+      await loadDirectoryContent(item, li)
     } else {
-      childUl.style.display = 'block';
+      childUl.style.display = 'block'
     }
 
     if (icon && icon.tagName === 'SPAN') {
-      icon.textContent = FOLDER_OPEN_ICON;
+      icon.textContent = FOLDER_OPEN_ICON
     }
   }
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons()
 }
 
 /**
@@ -828,38 +818,36 @@ async function toggleDirectory(item, li, rowDiv) {
  * @returns {Promise<void>}
  */
 async function loadDirectoryContent(item, li) {
-  let ul = li.querySelector('ul');
+  let ul = li.querySelector('ul')
   if (!ul) {
-    ul = document.createElement('ul');
-    ul.className = 'config-tree';
-    li.appendChild(ul);
+    ul = document.createElement('ul')
+    ul.className = 'config-tree'
+    li.appendChild(ul)
   }
 
-  ul.innerHTML = `<li class="loading" style="padding:8px 0 8px 24px;color:#94a3b8;font-size:12px;">${i18n.t('fileTree.loading')}</li>`;
+  ul.innerHTML = `<li class="loading" style="padding:8px 0 8px 24px;color:#94a3b8;font-size:12px;">${i18n.t('fileTree.loading')}</li>`
 
   try {
-    const children = await fetchFiles(item.path);
+    const children = await fetchFiles(item.path)
 
-    ul.innerHTML = '';
+    ul.innerHTML = ''
     if (children.length === 0) {
-      ul.innerHTML = `<li class="empty-dir" style="padding:8px 0 8px 24px;color:#94a3b8;font-size:12px;">${i18n.t('fileTree.emptyDir')}</li>`;
+      ul.innerHTML = `<li class="empty-dir" style="padding:8px 0 8px 24px;color:#94a3b8;font-size:12px;">${i18n.t('fileTree.emptyDir')}</li>`
     } else {
       children.forEach((child) => {
-        const childLi = createTreeItemDOM(child);
-        ul.appendChild(childLi);
-      });
+        const childLi = createTreeItemDOM(child)
+        ul.appendChild(childLi)
+      })
     }
 
-    ul.style.display = 'block';
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    ul.style.display = 'block'
+    if (typeof lucide !== 'undefined') lucide.createIcons()
   } catch (error) {
-    console.error(error);
-    ul.innerHTML = `<li class="error" style="padding:8px 0 8px 24px;color:red;font-size:12px;">${i18n.t('fileTree.loadFailed')} ${error.message}</li>`;
+    console.error(error)
+    ul.innerHTML = `<li class="error" style="padding:8px 0 8px 24px;color:red;font-size:12px;">${i18n.t('fileTree.loadFailed')} ${error.message}</li>`
   }
 }
 
-
-window.initProjectExplorer = initProjectExplorer;
-window.peQuickAction = peQuickAction;
-window.markPeQuickGuideStep = markPeQuickGuideStep;
-
+window.initProjectExplorer = initProjectExplorer
+window.peQuickAction = peQuickAction
+window.markPeQuickGuideStep = markPeQuickGuideStep

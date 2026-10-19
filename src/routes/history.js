@@ -1,9 +1,9 @@
-const express = require('express');
-const { execFile } = require('node:child_process');
-const { promisify } = require('node:util');
-const { isUnsafeRelPath } = require('../utils/validation.js');
+const express = require('express')
+const { execFile } = require('node:child_process')
+const { promisify } = require('node:util')
+const { isUnsafeRelPath } = require('../utils/validation.js')
 
-const execFileAsync = promisify(execFile);
+const execFileAsync = promisify(execFile)
 
 /**
  * 創建檔案歷史路由
@@ -12,7 +12,7 @@ const execFileAsync = promisify(execFile);
  * @returns {express.Router}
  */
 function createHistoryRouter({ projectDir }) {
-  const router = express.Router();
+  const router = express.Router()
 
   /**
    * GET /api/files/history
@@ -22,22 +22,24 @@ function createHistoryRouter({ projectDir }) {
    * @returns {Object} 包含歷史記錄的 JSON
    */
   router.get('/history', async (req, res) => {
-    const filePath = String(req.query.path || '').trim().replace(/\\/g, '/');
-    const limitRaw = parseInt(req.query.limit, 10);
-    const limit = Math.min(Number.isFinite(limitRaw) && limitRaw > 0 ? limitRaw : 20, 100);
+    const filePath = String(req.query.path || '')
+      .trim()
+      .replace(/\\/g, '/')
+    const limitRaw = parseInt(req.query.limit, 10)
+    const limit = Math.min(Number.isFinite(limitRaw) && limitRaw > 0 ? limitRaw : 20, 100)
 
     // 安全檢查:防止路徑遍歷攻擊(segment 比對,容忍檔名含 '..';
     // 拒絕絕對路徑 / 開頭斜線 / 空路徑 / null byte)
     if (isUnsafeRelPath(filePath)) {
-      return res.status(400).json({ ok: false, error: 'invalid path' });
+      return res.status(400).json({ ok: false, error: 'invalid path' })
     }
 
     try {
       const { stdout } = await execFileAsync(
         'git',
         ['log', `-n${limit}`, '--pretty=format:%H|%an|%ae|%aI|%s', '--', filePath],
-        { cwd: projectDir, timeout: 5000 }
-      );
+        { cwd: projectDir, timeout: 5000 },
+      )
 
       /*
        * 解析 git log 輸出
@@ -47,7 +49,7 @@ function createHistoryRouter({ projectDir }) {
         .split('\n')
         .filter(Boolean)
         .map((line) => {
-          const [sha, author, email, date, ...subjectParts] = line.split('|');
+          const [sha, author, email, date, ...subjectParts] = line.split('|')
           return {
             sha,
             shortSha: sha.slice(0, 7),
@@ -55,10 +57,10 @@ function createHistoryRouter({ projectDir }) {
             email,
             date,
             subject: subjectParts.join('|'),
-          };
-        });
+          }
+        })
 
-      res.json({ ok: true, path: filePath, history });
+      res.json({ ok: true, path: filePath, history })
     } catch (err) {
       /*
        * 處理 git 命令異常
@@ -66,13 +68,13 @@ function createHistoryRouter({ projectDir }) {
        * - 其他錯誤：回傳 500
        */
       if (err.code === 'ENOENT') {
-        return res.json({ ok: true, path: filePath, history: [], notGitRepo: true });
+        return res.json({ ok: true, path: filePath, history: [], notGitRepo: true })
       }
-      res.status(500).json({ ok: false, error: err.message });
+      res.status(500).json({ ok: false, error: err.message })
     }
-  });
+  })
 
-  return router;
+  return router
 }
 
-module.exports = { createHistoryRouter };
+module.exports = { createHistoryRouter }

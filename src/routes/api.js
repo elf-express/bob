@@ -1,14 +1,14 @@
-const express = require('express');
+const express = require('express')
 
 function createApiRouter(options) {
-  const router = express.Router();
-  const { config, packageManager, packageManagerProvider, configProvider } = options;
+  const router = express.Router()
+  const { config, packageManager, packageManagerProvider, configProvider } = options
 
   router.get('/data', async (_req, res) => {
-    const runtimeConfig = configProvider ? await configProvider() : config;
-    const effectivePm = packageManagerProvider ? await packageManagerProvider() : packageManager;
+    const runtimeConfig = configProvider ? await configProvider() : config
+    const effectivePm = packageManagerProvider ? await packageManagerProvider() : packageManager
 
-    let flatCategories = [];
+    let flatCategories = []
     if (runtimeConfig?.groups) {
       runtimeConfig.groups.forEach((group) => {
         if (group.categories) {
@@ -18,10 +18,10 @@ function createApiRouter(options) {
               ...cmd,
               cmd: cmd.cmd.replace(/\{\{PKG_MANAGER\}\}/g, effectivePm),
             })),
-          }));
-          flatCategories.push(...processedCategories);
+          }))
+          flatCategories.push(...processedCategories)
         }
-      });
+      })
     } else if (runtimeConfig?.categories) {
       flatCategories = runtimeConfig.categories.map((cat) => ({
         ...cat,
@@ -29,7 +29,7 @@ function createApiRouter(options) {
           ...cmd,
           cmd: cmd.cmd.replace(/\{\{PKG_MANAGER\}\}/g, effectivePm),
         })),
-      }));
+      }))
     }
 
     const processedGroups = runtimeConfig?.groups?.map((group) => ({
@@ -41,7 +41,7 @@ function createApiRouter(options) {
           cmd: cmd.cmd.replace(/\{\{PKG_MANAGER\}\}/g, effectivePm),
         })),
       })),
-    }));
+    }))
 
     res.json({
       config: {
@@ -50,10 +50,10 @@ function createApiRouter(options) {
         packageManager: effectivePm,
       },
       categories: flatCategories,
-    });
-  });
+    })
+  })
 
-  return router;
+  return router
 }
 
-module.exports = { createApiRouter };
+module.exports = { createApiRouter }

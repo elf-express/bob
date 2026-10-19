@@ -17,11 +17,11 @@ BOB 已從 team-project-template 抽成獨立 repo(`@elf-express/bob`),定位為
 
 BOB 目前把所有狀態存在**工具目錄**的單一 sqlite(`data/bob-tools.sqlite`):
 
-| code 位置 | 行為 | 後果 |
-|---|---|---|
-| `migrations/001_init.sql`:`project_binding CHECK (id = 1)` | 只能存一筆 binding | 一次只綁一個專案 |
-| `scan-repository.js`:掃描先 `DELETE FROM commands_snapshot / tree_snapshot` 再寫 | 每次掃描全清重寫 | 切專案 → 前一個專案的快照被清空 |
-| `file_tags`:以 `rel_path` 為 UNIQUE key | 無專案維度 | 不同專案同路徑的標註互蓋 |
+| code 位置                                                                        | 行為               | 後果                            |
+| -------------------------------------------------------------------------------- | ------------------ | ------------------------------- |
+| `migrations/001_init.sql`:`project_binding CHECK (id = 1)`                       | 只能存一筆 binding | 一次只綁一個專案                |
+| `scan-repository.js`:掃描先 `DELETE FROM commands_snapshot / tree_snapshot` 再寫 | 每次掃描全清重寫   | 切專案 → 前一個專案的快照被清空 |
+| `file_tags`:以 `rel_path` 為 UNIQUE key                                          | 無專案維度         | 不同專案同路徑的標註互蓋        |
 
 **結論**:同一份 BOB 服務多個專案時,後掃的會覆蓋前面的。資料綁在「工具」上,不是綁在「專案」上。
 
@@ -49,11 +49,11 @@ BOB = **VS Code / ESLint / Playwright 模式**:工具裝一套共用,每個專�
 
 ## 三、現況差距 → 目標
 
-| | 現況 | 目標 |
-|---|---|---|
+|          | 現況                             | 目標                                |
+| -------- | -------------------------------- | ----------------------------------- |
 | 資料存哪 | 工具目錄 `data/bob-tools.sqlite` | 當下服務的專案內(如 `<專案>/.bob/`) |
-| 多專案 | 切換即覆蓋 | 各專案各一份,怎麼切都不覆蓋 |
-| 資料歸屬 | 綁工具 | 綁專案 |
+| 多專案   | 切換即覆蓋                       | 各專案各一份,怎麼切都不覆蓋         |
+| 資料歸屬 | 綁工具                           | 綁專案                              |
 
 ---
 

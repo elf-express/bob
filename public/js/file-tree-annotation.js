@@ -1,18 +1,18 @@
 ﻿function annT(key, fallback = '', params = {}) {
   if (typeof i18n !== 'undefined') {
-    const value = i18n.t(key, params);
+    const value = i18n.t(key, params)
     if (value && value !== key && !['undefined', 'null'].includes(String(value).trim().toLowerCase())) {
-      return value;
+      return value
     }
   }
-  return fallback || key;
+  return fallback || key
 }
 
 function safeText(value, fallback = '') {
-  if (value === null || value === undefined) return fallback;
-  const str = String(value).trim();
-  if (!str || str.toLowerCase() === 'undefined' || str.toLowerCase() === 'null') return fallback;
-  return String(value);
+  if (value === null || value === undefined) return fallback
+  const str = String(value).trim()
+  if (!str || str.toLowerCase() === 'undefined' || str.toLowerCase() === 'null') return fallback
+  return String(value)
 }
 
 function escapeHtml(value) {
@@ -21,7 +21,7 @@ function escapeHtml(value) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/'/g, '&#39;')
 }
 
 async function callAiAnnotate(filePath, purposeInput, relationsInput) {
@@ -30,205 +30,212 @@ async function callAiAnnotate(filePath, purposeInput, relationsInput) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: filePath }),
-    });
-    const data = await res.json();
+    })
+    const data = await res.json()
     if (data.ok && data.generated) {
-      purposeInput.value = data.generated.purpose || '';
-      relationsInput.value = data.generated.relations || '';
+      purposeInput.value = data.generated.purpose || ''
+      relationsInput.value = data.generated.relations || ''
     } else {
       // Failure: log warning, do not overwrite existing inputs.
-      console.warn('ai-annotate failed:', data.error);
+      console.warn('ai-annotate failed:', data.error)
     }
   } catch (err) {
-    console.warn('ai-annotate network error:', err);
+    console.warn('ai-annotate network error:', err)
   }
 }
 
 function renderAnnotationPanelByMode(filePath, container, annotation) {
   // Determine mode via client-side policy mirror.
-  const mode = (typeof window.getAnnotationModeClient === 'function')
-    ? window.getAnnotationModeClient(filePath)
-    : 'ai';
+  const mode =
+    typeof window.getAnnotationModeClient === 'function' ? window.getAnnotationModeClient(filePath) : 'ai'
 
   // Clear the placeholder container.
-  while (container.firstChild) container.removeChild(container.firstChild);
+  while (container.firstChild) container.removeChild(container.firstChild)
 
-  const purpose = safeText(annotation.purpose);
-  const relations = safeText(annotation.relations);
-  const userNote = safeText(annotation.userNote);
+  const purpose = safeText(annotation.purpose)
+  const relations = safeText(annotation.relations)
+  const userNote = safeText(annotation.userNote)
 
   if (mode === 'skip') {
     // Skip mode: show notice, no inputs needed.
-    const notice = document.createElement('div');
-    notice.style.cssText = 'padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;color:#64748b;font-size:13px;';
-    notice.textContent = annT('annotation.skipNotice', 'This file does not need annotation (media / log)');
-    container.appendChild(notice);
-    return;
+    const notice = document.createElement('div')
+    notice.style.cssText =
+      'padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;color:#64748b;font-size:13px;'
+    notice.textContent = annT('annotation.skipNotice', 'This file does not need annotation (media / log)')
+    container.appendChild(notice)
+    return
   }
 
   if (mode === 'manual') {
     // Manual mode: show hint + simple purpose/relations form (no AI generate button).
-    const hint = document.createElement('div');
-    hint.style.cssText = 'margin-bottom:8px;padding:8px 10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;color:#92400e;font-size:12px;';
-    hint.textContent = annT('annotation.manualHint', 'This file type does not use AI. Please fill manually');
-    container.appendChild(hint);
+    const hint = document.createElement('div')
+    hint.style.cssText =
+      'margin-bottom:8px;padding:8px 10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;color:#92400e;font-size:12px;'
+    hint.textContent = annT('annotation.manualHint', 'This file type does not use AI. Please fill manually')
+    container.appendChild(hint)
 
-    _appendPurposeRelationsInputs(container, purpose, relations);
+    _appendPurposeRelationsInputs(container, purpose, relations)
 
-    const userNoteWrap = _buildUserNoteRow(userNote);
-    container.appendChild(userNoteWrap);
-    return;
+    const userNoteWrap = _buildUserNoteRow(userNote)
+    container.appendChild(userNoteWrap)
+    return
   }
 
   if (mode === 'optional') {
     // Optional mode: show hint + simplified form (no AI generate button).
-    const hint = document.createElement('div');
-    hint.style.cssText = 'margin-bottom:8px;padding:8px 10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;color:#166534;font-size:12px;';
-    hint.textContent = annT('annotation.optionalHint', 'Documentation file — annotation optional');
-    container.appendChild(hint);
+    const hint = document.createElement('div')
+    hint.style.cssText =
+      'margin-bottom:8px;padding:8px 10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;color:#166534;font-size:12px;'
+    hint.textContent = annT('annotation.optionalHint', 'Documentation file — annotation optional')
+    container.appendChild(hint)
 
-    _appendPurposeRelationsInputs(container, purpose, relations);
+    _appendPurposeRelationsInputs(container, purpose, relations)
 
-    const userNoteWrap = _buildUserNoteRow(userNote);
-    container.appendChild(userNoteWrap);
-    return;
+    const userNoteWrap = _buildUserNoteRow(userNote)
+    container.appendChild(userNoteWrap)
+    return
   }
 
   // ai mode (default): AI section header + generate button + purpose/relations + user note.
-  const aiHeader = document.createElement('label');
-  aiHeader.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:6px;font-weight:600;font-size:13px;color:#334155;flex-shrink:0;';
-  const aiIcon = document.createElement('span');
-  aiIcon.style.color = '#8b5cf6';
-  aiIcon.textContent = '\u{1F916}';
-  aiHeader.appendChild(aiIcon);
-  const aiLabelText = document.createTextNode(' ' + annT('annotation.aiSection', 'AI Description'));
-  aiHeader.appendChild(aiLabelText);
-  container.appendChild(aiHeader);
+  const aiHeader = document.createElement('label')
+  aiHeader.style.cssText =
+    'display:flex;align-items:center;gap:6px;margin-bottom:6px;font-weight:600;font-size:13px;color:#334155;flex-shrink:0;'
+  const aiIcon = document.createElement('span')
+  aiIcon.style.color = '#8b5cf6'
+  aiIcon.textContent = '\u{1F916}'
+  aiHeader.appendChild(aiIcon)
+  const aiLabelText = document.createTextNode(' ' + annT('annotation.aiSection', 'AI Description'))
+  aiHeader.appendChild(aiLabelText)
+  container.appendChild(aiHeader)
 
-  const inputsWrap = document.createElement('div');
-  inputsWrap.style.cssText = 'flex:1;display:flex;flex-direction:column;gap:8px;min-height:0;';
-  _appendPurposeRelationsInputs(inputsWrap, purpose, relations);
-  container.appendChild(inputsWrap);
+  const inputsWrap = document.createElement('div')
+  inputsWrap.style.cssText = 'flex:1;display:flex;flex-direction:column;gap:8px;min-height:0;'
+  _appendPurposeRelationsInputs(inputsWrap, purpose, relations)
+  container.appendChild(inputsWrap)
 
   // Generate / Regenerate button — only in ai mode.
-  const generateBtn = document.createElement('button');
-  generateBtn.style.cssText = 'margin-top:6px;background:var(--primary,#8b5cf6);color:white;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;align-self:flex-start;transition:all 0.2s;';
-  generateBtn.textContent = annT('annotation.generate', 'Generate / Regenerate');
+  const generateBtn = document.createElement('button')
+  generateBtn.style.cssText =
+    'margin-top:6px;background:var(--primary,#8b5cf6);color:white;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;align-self:flex-start;transition:all 0.2s;'
+  generateBtn.textContent = annT('annotation.generate', 'Generate / Regenerate')
   generateBtn.onclick = async () => {
-    const purposeInput = container.querySelector('#meta-purpose-input');
-    const relationsInput = container.querySelector('#meta-relations-input');
-    if (!purposeInput || !relationsInput) return;
-    const origText = generateBtn.textContent;
-    generateBtn.disabled = true;
-    generateBtn.textContent = annT('projectExplorer.loading', 'Loading...');
-    await callAiAnnotate(filePath, purposeInput, relationsInput);
-    generateBtn.textContent = origText;
-    generateBtn.disabled = false;
-  };
-  container.appendChild(generateBtn);
+    const purposeInput = container.querySelector('#meta-purpose-input')
+    const relationsInput = container.querySelector('#meta-relations-input')
+    if (!purposeInput || !relationsInput) return
+    const origText = generateBtn.textContent
+    generateBtn.disabled = true
+    generateBtn.textContent = annT('projectExplorer.loading', 'Loading...')
+    await callAiAnnotate(filePath, purposeInput, relationsInput)
+    generateBtn.textContent = origText
+    generateBtn.disabled = false
+  }
+  container.appendChild(generateBtn)
 
-  const userNoteWrap = _buildUserNoteRow(userNote);
-  container.appendChild(userNoteWrap);
+  const userNoteWrap = _buildUserNoteRow(userNote)
+  container.appendChild(userNoteWrap)
 }
 
 function _appendPurposeRelationsInputs(container, purpose, relations) {
   // Purpose textarea — built with DOM API to prevent XSS.
-  const purposeWrap = document.createElement('div');
-  purposeWrap.style.cssText = 'flex:2;display:flex;flex-direction:column;min-height:0;';
+  const purposeWrap = document.createElement('div')
+  purposeWrap.style.cssText = 'flex:2;display:flex;flex-direction:column;min-height:0;'
 
-  const purposeLabel = document.createElement('div');
-  purposeLabel.style.cssText = 'font-size:11px;color:#94a3b8;margin-bottom:4px;';
-  purposeLabel.textContent = annT('projectExplorer.purpose', 'Purpose');
-  purposeWrap.appendChild(purposeLabel);
+  const purposeLabel = document.createElement('div')
+  purposeLabel.style.cssText = 'font-size:11px;color:#94a3b8;margin-bottom:4px;'
+  purposeLabel.textContent = annT('projectExplorer.purpose', 'Purpose')
+  purposeWrap.appendChild(purposeLabel)
 
-  const purposeInput = document.createElement('textarea');
-  purposeInput.id = 'meta-purpose-input';
-  purposeInput.style.cssText = 'flex:1;width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;resize:none;font-size:13px;font-family:inherit;transition:border-color 0.2s;min-height:60px;box-sizing:border-box;';
-  purposeInput.placeholder = annT('annotation.purposePlaceholder', 'What does this file do?');
-  purposeInput.value = purpose;
-  purposeWrap.appendChild(purposeInput);
-  container.appendChild(purposeWrap);
+  const purposeInput = document.createElement('textarea')
+  purposeInput.id = 'meta-purpose-input'
+  purposeInput.style.cssText =
+    'flex:1;width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;resize:none;font-size:13px;font-family:inherit;transition:border-color 0.2s;min-height:60px;box-sizing:border-box;'
+  purposeInput.placeholder = annT('annotation.purposePlaceholder', 'What does this file do?')
+  purposeInput.value = purpose
+  purposeWrap.appendChild(purposeInput)
+  container.appendChild(purposeWrap)
 
   // Relations textarea — built with DOM API to prevent XSS.
-  const relationsWrap = document.createElement('div');
-  relationsWrap.style.cssText = 'flex:1;display:flex;flex-direction:column;min-height:0;';
+  const relationsWrap = document.createElement('div')
+  relationsWrap.style.cssText = 'flex:1;display:flex;flex-direction:column;min-height:0;'
 
-  const relationsLabel = document.createElement('div');
-  relationsLabel.style.cssText = 'font-size:11px;color:#94a3b8;margin-bottom:4px;';
-  relationsLabel.textContent = annT('projectExplorer.relations', 'Relations');
-  relationsWrap.appendChild(relationsLabel);
+  const relationsLabel = document.createElement('div')
+  relationsLabel.style.cssText = 'font-size:11px;color:#94a3b8;margin-bottom:4px;'
+  relationsLabel.textContent = annT('projectExplorer.relations', 'Relations')
+  relationsWrap.appendChild(relationsLabel)
 
-  const relationsInput = document.createElement('textarea');
-  relationsInput.id = 'meta-relations-input';
-  relationsInput.style.cssText = 'flex:1;width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;resize:none;font-size:13px;font-family:inherit;transition:border-color 0.2s;min-height:48px;box-sizing:border-box;';
-  relationsInput.placeholder = annT('annotation.relationsPlaceholder', 'Related files (comma-separated)');
-  relationsInput.value = relations;
-  relationsWrap.appendChild(relationsInput);
-  container.appendChild(relationsWrap);
+  const relationsInput = document.createElement('textarea')
+  relationsInput.id = 'meta-relations-input'
+  relationsInput.style.cssText =
+    'flex:1;width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;resize:none;font-size:13px;font-family:inherit;transition:border-color 0.2s;min-height:48px;box-sizing:border-box;'
+  relationsInput.placeholder = annT('annotation.relationsPlaceholder', 'Related files (comma-separated)')
+  relationsInput.value = relations
+  relationsWrap.appendChild(relationsInput)
+  container.appendChild(relationsWrap)
 }
 
 function _buildUserNoteRow(userNote) {
-  const wrap = document.createElement('div');
-  wrap.style.cssText = 'margin-top:8px;display:flex;align-items:center;gap:6px;';
+  const wrap = document.createElement('div')
+  wrap.style.cssText = 'margin-top:8px;display:flex;align-items:center;gap:6px;'
 
-  const noteLabel = document.createElement('div');
-  noteLabel.style.cssText = 'font-size:11px;color:#94a3b8;white-space:nowrap;';
-  noteLabel.textContent = annT('annotation.userNote', 'Your note (optional)');
-  wrap.appendChild(noteLabel);
+  const noteLabel = document.createElement('div')
+  noteLabel.style.cssText = 'font-size:11px;color:#94a3b8;white-space:nowrap;'
+  noteLabel.textContent = annT('annotation.userNote', 'Your note (optional)')
+  wrap.appendChild(noteLabel)
 
-  const noteInput = document.createElement('input');
-  noteInput.id = 'user-note-input';
-  noteInput.type = 'text';
-  noteInput.style.cssText = 'flex:1;padding:5px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;';
-  noteInput.placeholder = annT('projectExplorer.userNotePlaceholder', 'My note...');
-  noteInput.value = userNote;
-  wrap.appendChild(noteInput);
+  const noteInput = document.createElement('input')
+  noteInput.id = 'user-note-input'
+  noteInput.type = 'text'
+  noteInput.style.cssText =
+    'flex:1;padding:5px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;'
+  noteInput.placeholder = annT('projectExplorer.userNotePlaceholder', 'My note...')
+  noteInput.value = userNote
+  wrap.appendChild(noteInput)
 
-  return wrap;
+  return wrap
 }
 
 async function showFileDetails(item) {
-  projectExplorerState.currentFile = item;
+  projectExplorerState.currentFile = item
   if (typeof window.markPeQuickGuideStep === 'function') {
     window.markPeQuickGuideStep(
       'selectFile',
-      annT('projectExplorer.quickDoneSelectFile', 'File selected, details loaded')
-    );
+      annT('projectExplorer.quickDoneSelectFile', 'File selected, details loaded'),
+    )
   }
 
   // Always refresh metadata from API when selecting a node.
   if (typeof fetchFileMetadataApi === 'function' && item?.path !== undefined) {
     try {
-      const metadata = await fetchFileMetadataApi(item.path);
-      item.annotation = safeText(metadata.annotation);
-      item.purpose = safeText(metadata.purpose);
-      item.relations = safeText(metadata.relations);
-      item.userNote = safeText(metadata.userNote);
-    } catch (_error) {
+      const metadata = await fetchFileMetadataApi(item.path)
+      item.annotation = safeText(metadata.annotation)
+      item.purpose = safeText(metadata.purpose)
+      item.relations = safeText(metadata.relations)
+      item.userNote = safeText(metadata.userNote)
+    } catch {
       // Keep rendering with current in-memory value if metadata fetch fails.
     }
   }
 
-  const emptyState = document.getElementById('pe-empty-state');
-  const detailsPanel = document.getElementById('pe-file-details');
+  const emptyState = document.getElementById('pe-empty-state')
+  const detailsPanel = document.getElementById('pe-file-details')
 
-  if (emptyState) emptyState.style.display = 'none';
-  if (detailsPanel) detailsPanel.style.display = 'block';
+  if (emptyState) emptyState.style.display = 'none'
+  if (detailsPanel) detailsPanel.style.display = 'block'
 
-  const iconConfig = getFileIconConfig(item, false);
-  let iconHtml = '';
+  const iconConfig = getFileIconConfig(item, false)
+  let iconHtml = ''
   if (iconConfig.type === 'image') {
-    iconHtml = `<img src="${iconConfig.value}" style="width:32px;height:32px;margin-right:12px;">`;
+    iconHtml = `<img src="${iconConfig.value}" style="width:32px;height:32px;margin-right:12px;">`
   } else if (iconConfig.type === 'devicon') {
-    iconHtml = `<i class="${iconConfig.value}" style="font-size:32px;margin-right:12px;"></i>`;
+    iconHtml = `<i class="${iconConfig.value}" style="font-size:32px;margin-right:12px;"></i>`
   } else if (iconConfig.type === 'emoji') {
-    iconHtml = `<span style="font-size:32px;margin-right:12px;">${iconConfig.value}</span>`;
+    iconHtml = `<span style="font-size:32px;margin-right:12px;">${iconConfig.value}</span>`
   } else {
-    iconHtml = `<i data-lucide="${iconConfig.value}" style="width:32px;height:32px;margin-right:12px;${iconConfig.color ? `color:${iconConfig.color}` : ''}"></i>`;
+    iconHtml = `<i data-lucide="${iconConfig.value}" style="width:32px;height:32px;margin-right:12px;${iconConfig.color ? `color:${iconConfig.color}` : ''}"></i>`
   }
 
-  const annotation = safeText(item.annotation);
-  const tagsHtml = buildTagsSectionHtml(item);
+  const annotation = safeText(item.annotation)
+  const tagsHtml = buildTagsSectionHtml(item)
 
   detailsPanel.innerHTML = `
     <div class="file-details-content" style="padding:20px;display:flex;flex-direction:column;height:100%;">
@@ -257,111 +264,112 @@ async function showFileDetails(item) {
           ${annT('projectExplorer.save', 'Save')}
         </button>
       </div>
-    </div>`;
+    </div>`
 
   // Inject mode-aware annotation panel via DOM API (XSS-safe, no innerHTML + user content).
-  const modePanel = document.getElementById('annotation-mode-panel');
+  const modePanel = document.getElementById('annotation-mode-panel')
   if (modePanel) {
-    renderAnnotationPanelByMode(
-      item.path,
-      modePanel,
-      { purpose: item.purpose, relations: item.relations, userNote: item.userNote }
-    );
+    renderAnnotationPanelByMode(item.path, modePanel, {
+      purpose: item.purpose,
+      relations: item.relations,
+      userNote: item.userNote,
+    })
   }
 
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons()
 
-  const saveBtn = document.getElementById('save-annotation-btn');
-  if (saveBtn) saveBtn.onclick = () => handleSaveAnnotation(item);
+  const saveBtn = document.getElementById('save-annotation-btn')
+  if (saveBtn) saveBtn.onclick = () => handleSaveAnnotation(item)
 
-  loadTagDetails(item);
+  loadTagDetails(item)
 
   // T2.2: render bottom panels (history for files; clear for directories).
   if (typeof window.renderBottomPanels === 'function' && !item.isDirectory) {
-    window.renderBottomPanels(item.path);
+    window.renderBottomPanels(item.path)
   } else if (typeof window.clearBottomPanels === 'function') {
-    window.clearBottomPanels();
+    window.clearBottomPanels()
   }
 }
 
 async function handleSaveAnnotation(item) {
-  const textarea = document.getElementById('file-annotation-input');
-  const purposeInput = document.getElementById('meta-purpose-input');
-  const relationsInput = document.getElementById('meta-relations-input');
-  const userNoteInput = document.getElementById('user-note-input');
-  const btn = document.getElementById('save-annotation-btn');
-  if (!textarea || !btn) return;
+  const textarea = document.getElementById('file-annotation-input')
+  const purposeInput = document.getElementById('meta-purpose-input')
+  const relationsInput = document.getElementById('meta-relations-input')
+  const userNoteInput = document.getElementById('user-note-input')
+  const btn = document.getElementById('save-annotation-btn')
+  if (!textarea || !btn) return
 
-  const content = safeText(textarea.value);
-  const purpose = purposeInput ? safeText(purposeInput.value) : '';
-  const relations = relationsInput ? safeText(relationsInput.value) : '';
-  const userNote = userNoteInput ? safeText(userNoteInput.value) : '';
-  const originalText = btn.textContent;
+  const content = safeText(textarea.value)
+  const purpose = purposeInput ? safeText(purposeInput.value) : ''
+  const relations = relationsInput ? safeText(relationsInput.value) : ''
+  const userNote = userNoteInput ? safeText(userNoteInput.value) : ''
+  const originalText = btn.textContent
 
   try {
-    btn.textContent = annT('fileTree.saving', 'Saving...');
-    btn.disabled = true;
+    btn.textContent = annT('fileTree.saving', 'Saving...')
+    btn.disabled = true
 
-    await saveAnnotationApi(item.path, content, { purpose, relations, userNote });
+    await saveAnnotationApi(item.path, content, { purpose, relations, userNote })
 
-    item.annotation = content;
-    item.purpose = purpose;
-    item.relations = relations;
-    item.userNote = userNote;
+    item.annotation = content
+    item.purpose = purpose
+    item.relations = relations
+    item.userNote = userNote
 
-    const rowDiv = document.querySelector(`.tree-row[data-path="${item.path}"]`);
+    const rowDiv = document.querySelector(`.tree-row[data-path="${item.path}"]`)
     if (rowDiv) {
-      const existingIcon = rowDiv.querySelector('i[data-lucide="message-square"]');
-      if (existingIcon) existingIcon.remove();
+      const existingIcon = rowDiv.querySelector('i[data-lucide="message-square"]')
+      if (existingIcon) existingIcon.remove()
 
       if (content) {
-        const msgIcon = document.createElement('i');
-        msgIcon.setAttribute('data-lucide', 'message-square');
-        msgIcon.style.width = '12px';
-        msgIcon.style.height = '12px';
-        msgIcon.style.color = '#3b82f6';
-        msgIcon.style.marginLeft = 'auto';
-        rowDiv.appendChild(msgIcon);
+        const msgIcon = document.createElement('i')
+        msgIcon.setAttribute('data-lucide', 'message-square')
+        msgIcon.style.width = '12px'
+        msgIcon.style.height = '12px'
+        msgIcon.style.color = '#3b82f6'
+        msgIcon.style.marginLeft = 'auto'
+        rowDiv.appendChild(msgIcon)
       }
 
-      const purposeSpan = rowDiv.querySelector('.tree-purpose-text');
+      const purposeSpan = rowDiv.querySelector('.tree-purpose-text')
       if (purpose) {
-        const displayText = purpose.length > 20 ? `${purpose.substring(0, 20)}...` : purpose;
+        const displayText = purpose.length > 20 ? `${purpose.substring(0, 20)}...` : purpose
         if (purposeSpan) {
-          purposeSpan.textContent = displayText;
-          purposeSpan.title = purpose;
+          purposeSpan.textContent = displayText
+          purposeSpan.title = purpose
         } else {
-          const newSpan = document.createElement('span');
-          newSpan.className = 'tree-purpose-text';
-          newSpan.title = purpose;
-          newSpan.textContent = displayText;
-          const spacer = rowDiv.querySelector('span[style*="flex:1"]');
-          if (spacer) spacer.before(newSpan);
+          const newSpan = document.createElement('span')
+          newSpan.className = 'tree-purpose-text'
+          newSpan.title = purpose
+          newSpan.textContent = displayText
+          const spacer = rowDiv.querySelector('span[style*="flex:1"]')
+          if (spacer) spacer.before(newSpan)
         }
       } else if (purposeSpan) {
-        purposeSpan.remove();
+        purposeSpan.remove()
       }
     }
 
-    btn.textContent = annT('fileTree.saved', 'Saved');
+    btn.textContent = annT('fileTree.saved', 'Saved')
     setTimeout(() => {
-      btn.textContent = originalText;
-      btn.disabled = false;
-      if (typeof lucide !== 'undefined') lucide.createIcons();
-    }, 1500);
+      btn.textContent = originalText
+      btn.disabled = false
+      if (typeof lucide !== 'undefined') lucide.createIcons()
+    }, 1500)
   } catch (error) {
-    alert(`${annT('alerts.saveFailed', 'Save failed')} ${error.message}`);
-    btn.textContent = originalText;
-    btn.disabled = false;
+    alert(`${annT('alerts.saveFailed', 'Save failed')} ${error.message}`)
+    btn.textContent = originalText
+    btn.disabled = false
   }
 
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons()
 }
 
 function buildTagsSectionHtml(item) {
-  const initialBadges = (item.tags && item.tags.length > 0 && typeof renderTagBadges === 'function')
-    ? renderTagBadges(item.tags, { max: 10 })
-    : `<span style="color:#94a3b8;font-size:12px;">${annT('projectExplorer.loading', 'Loading...')}</span>`;
+  const initialBadges =
+    item.tags && item.tags.length > 0 && typeof renderTagBadges === 'function'
+      ? renderTagBadges(item.tags, { max: 10 })
+      : `<span style="color:#94a3b8;font-size:12px;">${annT('projectExplorer.loading', 'Loading...')}</span>`
 
   return `
     <div class="tags-section" style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #e2e8f0;">
@@ -380,37 +388,40 @@ function buildTagsSectionHtml(item) {
           <span style="color:#94a3b8;font-size:12px;">${annT('projectExplorer.loading', 'Loading...')}</span>
         </div>
       </div>
-    </div>`;
+    </div>`
 }
 
 async function loadTagDetails(item) {
-  if (typeof fetchFileTags !== 'function') return;
+  if (typeof fetchFileTags !== 'function') return
 
-  const data = await fetchFileTags(item.path);
+  const data = await fetchFileTags(item.path)
 
-  const previewContainer = document.getElementById('tag-preview-badges');
+  const previewContainer = document.getElementById('tag-preview-badges')
   if (previewContainer && typeof renderTagBadges === 'function') {
     if (data.tags && data.tags.length > 0) {
-      previewContainer.innerHTML = renderTagBadges(data.tags, { max: 10 });
+      previewContainer.innerHTML = renderTagBadges(data.tags, { max: 10 })
     } else {
-      previewContainer.innerHTML = `<span style="color:#94a3b8;font-size:12px;">${annT('projectExplorer.noTags', 'No tags')}</span>`;
+      previewContainer.innerHTML = `<span style="color:#94a3b8;font-size:12px;">${annT('projectExplorer.noTags', 'No tags')}</span>`
     }
   }
 
-  const selectorArea = document.getElementById('tag-selector-area');
+  const selectorArea = document.getElementById('tag-selector-area')
   if (selectorArea && typeof renderTagSelector === 'function') {
-    selectorArea.innerHTML = renderTagSelector(data.custom || [], item.path);
+    selectorArea.innerHTML = renderTagSelector(data.custom || [], item.path)
   }
 }
 
 function toggleTagEditor() {
-  const container = document.getElementById('tag-editor-container');
-  const btn = document.getElementById('tag-edit-toggle');
-  if (!container) return;
+  const container = document.getElementById('tag-editor-container')
+  const btn = document.getElementById('tag-edit-toggle')
+  if (!container) return
 
-  const isHidden = container.style.display === 'none';
-  container.style.display = isHidden ? 'block' : 'none';
-  if (btn) btn.textContent = isHidden ? annT('projectExplorer.collapse', 'Collapse') : annT('projectExplorer.edit', 'Edit');
+  const isHidden = container.style.display === 'none'
+  container.style.display = isHidden ? 'block' : 'none'
+  if (btn)
+    btn.textContent = isHidden
+      ? annT('projectExplorer.collapse', 'Collapse')
+      : annT('projectExplorer.edit', 'Edit')
 }
 
-window.toggleTagEditor = toggleTagEditor;
+window.toggleTagEditor = toggleTagEditor

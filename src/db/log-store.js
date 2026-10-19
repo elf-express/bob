@@ -1,5 +1,5 @@
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require('node:fs')
+const path = require('node:path')
 
 /**
  * 日誌資料存取層
@@ -11,7 +11,7 @@ class LogStore {
    * @param {string} logDir - 日誌目錄絕對路徑
    */
   constructor(logDir) {
-    this.logDir = logDir;
+    this.logDir = logDir
   }
 
   /**
@@ -19,7 +19,7 @@ class LogStore {
    */
   ensureDir() {
     if (!fs.existsSync(this.logDir)) {
-      fs.mkdirSync(this.logDir, { recursive: true });
+      fs.mkdirSync(this.logDir, { recursive: true })
     }
   }
 
@@ -34,17 +34,17 @@ class LogStore {
    * fallback 用整個 filename(舊檔或非標準命名仍能工作)。
    */
   listFileNames(limit = 100) {
-    this.ensureDir();
-    const tsRegex = /(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(?:-\d{3})?)/;
+    this.ensureDir()
+    const tsRegex = /(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(?:-\d{3})?)/
     const tsKey = (f) => {
-      const m = f.match(tsRegex);
-      return m ? m[1] : f;
-    };
+      const m = f.match(tsRegex)
+      return m ? m[1] : f
+    }
     return fs
       .readdirSync(this.logDir)
       .filter((f) => f.endsWith('.log'))
       .sort((a, b) => tsKey(b).localeCompare(tsKey(a)))
-      .slice(0, limit);
+      .slice(0, limit)
   }
 
   /**
@@ -53,8 +53,8 @@ class LogStore {
    * @returns {string} 日誌文字內容
    */
   readLog(fileName) {
-    const filePath = path.join(this.logDir, fileName);
-    return fs.readFileSync(filePath, 'utf8');
+    const filePath = path.join(this.logDir, fileName)
+    return fs.readFileSync(filePath, 'utf8')
   }
 
   /**
@@ -63,8 +63,8 @@ class LogStore {
    * @returns {fs.Stats}
    */
   statLog(fileName) {
-    const filePath = path.join(this.logDir, fileName);
-    return fs.statSync(filePath);
+    const filePath = path.join(this.logDir, fileName)
+    return fs.statSync(filePath)
   }
 
   /**
@@ -73,7 +73,7 @@ class LogStore {
    * @returns {boolean}
    */
   logExists(fileName) {
-    return fs.existsSync(path.join(this.logDir, fileName));
+    return fs.existsSync(path.join(this.logDir, fileName))
   }
 
   /**
@@ -82,9 +82,9 @@ class LogStore {
    * @returns {fs.WriteStream}
    */
   createWriteStream(fileName) {
-    this.ensureDir();
-    const filePath = path.join(this.logDir, fileName);
-    return fs.createWriteStream(filePath, { flags: 'a' });
+    this.ensureDir()
+    const filePath = path.join(this.logDir, fileName)
+    return fs.createWriteStream(filePath, { flags: 'a' })
   }
 
   /**
@@ -92,8 +92,8 @@ class LogStore {
    * @param {string} fileName - 檔名
    */
   deleteLog(fileName) {
-    const filePath = path.join(this.logDir, fileName);
-    fs.unlinkSync(filePath);
+    const filePath = path.join(this.logDir, fileName)
+    fs.unlinkSync(filePath)
   }
 
   /**
@@ -102,23 +102,23 @@ class LogStore {
    * @returns {number} 刪除的檔案數量
    */
   purgeExpired(maxAgeMs = 48 * 60 * 60 * 1000) {
-    this.ensureDir();
-    const now = Date.now();
-    let count = 0;
-    const files = fs.readdirSync(this.logDir).filter((f) => f.endsWith('.log'));
+    this.ensureDir()
+    const now = Date.now()
+    let count = 0
+    const files = fs.readdirSync(this.logDir).filter((f) => f.endsWith('.log'))
     for (const f of files) {
       try {
-        const filePath = path.join(this.logDir, f);
-        const stat = fs.statSync(filePath);
+        const filePath = path.join(this.logDir, f)
+        const stat = fs.statSync(filePath)
         if (now - stat.mtimeMs > maxAgeMs) {
-          fs.unlinkSync(filePath);
-          count++;
+          fs.unlinkSync(filePath)
+          count++
         }
-      } catch (_e) {
+      } catch {
         // 忽略單一檔案的錯誤，繼續處理其他
       }
     }
-    return count;
+    return count
   }
 
   /**
@@ -126,13 +126,13 @@ class LogStore {
    * @returns {number} 刪除的檔案數量
    */
   clearAll() {
-    this.ensureDir();
-    const files = fs.readdirSync(this.logDir).filter((f) => f.endsWith('.log'));
+    this.ensureDir()
+    const files = fs.readdirSync(this.logDir).filter((f) => f.endsWith('.log'))
     for (const f of files) {
-      fs.unlinkSync(path.join(this.logDir, f));
+      fs.unlinkSync(path.join(this.logDir, f))
     }
-    return files.length;
+    return files.length
   }
 }
 
-module.exports = { LogStore };
+module.exports = { LogStore }

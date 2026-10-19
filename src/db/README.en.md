@@ -33,6 +33,7 @@ Single-row table (`id = 1`) to lock BOB Tools to one target project.
 - `package_manager_override`: nullable override (`npm | pnpm | yarn`)
 
 This override participates in runtime PM resolution:
+
 - `effectivePm = package_manager_override || detectedPm`
 
 ### `scan_runs`
@@ -114,9 +115,11 @@ Current migrations:
 `project_binding.package_manager_override` was added for package manager override support.
 
 For SQLite compatibility (older versions may not support `ADD COLUMN IF NOT EXISTS`):
+
 - `004_package_manager_override.sql` is kept as a no-op migration marker.
 - Runtime startup checks schema and backfills column when missing:
   - `ALTER TABLE project_binding ADD COLUMN package_manager_override TEXT`
 
 Implementation entry point:
+
 - `.bob-tools/src/server.js` (`ensureProjectBindingSchema`)

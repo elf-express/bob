@@ -21,7 +21,7 @@
   --info: #17c1e8;
   --dark: #252f40;
   --light: #e9ecef;
-  
+
   /* 中性色 */
   --neutral-100: #f8f9fa;
   --neutral-200: #e9ecef;
@@ -32,19 +32,19 @@
   --neutral-700: #495057;
   --neutral-800: #343a40;
   --neutral-900: #212529;
-  
+
   /* 背景色 */
   --bg-primary: #f5f7fa;
   --bg-secondary: #fafbfc;
   --bg-hover: #f0f3f7;
-  
+
   /* 文字色 */
   --text-primary: #2c3e50;
   --text-secondary: #95a5a6;
-  
+
   /* 邊框色 */
   --border-color: #e1e8ed;
-  
+
   /* 終端機顏色 */
   --terminal-bg: #1e1e1e;
   --terminal-fg: #d4d4d4;
@@ -57,7 +57,7 @@
 }
 
 /* ===== 主題 1：經典藍 (預設) - Soft UI Dashboard ===== */
-[data-theme="classic-blue"] {
+[data-theme='classic-blue'] {
   --primary: #3498db;
   --primary-hover: #2980b9;
   --primary-light: rgba(52, 152, 219, 0.1);
@@ -73,19 +73,19 @@
   --info: #17c1e8;
   --dark: #252f40;
   --light: #e9ecef;
-  
+
   /* 背景色 */
   --bg-primary: #f5f7fa;
   --bg-secondary: #ffffff;
   --bg-hover: #f0f3f7;
-  
+
   /* 文字色 */
   --text-primary: #2c3e50;
   --text-secondary: #95a5a6;
-  
+
   /* 邊框色 */
   --border-color: #e1e8ed;
-  
+
   /* 終端機 - VS Code Dark */
   --terminal-bg: #1e1e1e;
   --terminal-fg: #d4d4d4;
@@ -98,7 +98,7 @@
 }
 
 /* ===== 主題 2：優雅紫 - Material Dashboard ===== */
-[data-theme="elegant-purple"] {
+[data-theme='elegant-purple'] {
   --primary: #9c27b0;
   --primary-hover: #7b1fa2;
   --primary-light: rgba(156, 39, 176, 0.1);
@@ -114,19 +114,19 @@
   --info: #00bcd4;
   --dark: #344767;
   --light: #f0f2f5;
-  
+
   /* 背景色 */
   --bg-primary: #f8f9fa;
   --bg-secondary: #ffffff;
   --bg-hover: #f0f1f3;
-  
+
   /* 文字色 */
   --text-primary: #344767;
   --text-secondary: #7b809a;
-  
+
   /* 邊框色 */
   --border-color: #dee2e6;
-  
+
   /* 終端機 - Dracula */
   --terminal-bg: #282a36;
   --terminal-fg: #f8f8f2;
@@ -139,7 +139,7 @@
 }
 
 /* ===== 主題 3：科技綠 - Argon Design ===== */
-[data-theme="tech-green"] {
+[data-theme='tech-green'] {
   --primary: #2dce89;
   --primary-hover: #24a46d;
   --primary-light: rgba(45, 206, 137, 0.1);
@@ -155,19 +155,19 @@
   --info: #11cdef;
   --dark: #172b4d;
   --light: #f7fafc;
-  
+
   /* 背景色 */
   --bg-primary: #f7fafc;
   --bg-secondary: #ffffff;
   --bg-hover: #f0f4f7;
-  
+
   /* 文字色 */
   --text-primary: #172b4d;
   --text-secondary: #8898aa;
-  
+
   /* 邊框色 */
   --border-color: #e0e5ea;
-  
+
   /* 終端機 - Monokai */
   --terminal-bg: #272822;
   --terminal-fg: #f8f8f2;
@@ -180,7 +180,7 @@
 }
 
 /* ===== 主題 4：商務橙 - Custom ===== */
-[data-theme="business-orange"] {
+[data-theme='business-orange'] {
   --primary: #ff6b35;
   --primary-hover: #e55a2b;
   --primary-light: rgba(255, 107, 53, 0.1);
@@ -196,19 +196,19 @@
   --info: #17a2b8;
   --dark: #2c3e50;
   --light: #f5f5f5;
-  
+
   /* 背景色 */
   --bg-primary: #f8f9fa;
   --bg-secondary: #ffffff;
   --bg-hover: #f0f1f2;
-  
+
   /* 文字色 */
   --text-primary: #2c3e50;
   --text-secondary: #6c757d;
-  
+
   /* 邊框色 */
   --border-color: #dee2e6;
-  
+
   /* 終端機 - Solarized Dark */
   --terminal-bg: #002b36;
   --terminal-fg: #839496;

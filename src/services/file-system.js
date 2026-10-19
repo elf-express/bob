@@ -1,7 +1,7 @@
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require('node:fs')
+const path = require('node:path')
 
-const { AnnotationService } = require('./annotation-service');
+const { AnnotationService } = require('./annotation-service')
 
 /**
  * 媒體 / log / 二進位類副檔名 — tree scan 自動排除
@@ -10,22 +10,54 @@ const { AnnotationService } = require('./annotation-service');
  */
 const TREE_SKIP_EXTENSIONS = new Set([
   // 圖片
-  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico', '.bmp', '.tiff',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.webp',
+  '.svg',
+  '.ico',
+  '.bmp',
+  '.tiff',
   // 影音
-  '.mp4', '.webm', '.mov', '.avi', '.mkv', '.mp3', '.wav', '.ogg', '.flac',
+  '.mp4',
+  '.webm',
+  '.mov',
+  '.avi',
+  '.mkv',
+  '.mp3',
+  '.wav',
+  '.ogg',
+  '.flac',
   // 壓縮 / 二進位
-  '.pdf', '.zip', '.tar', '.gz', '.7z', '.rar',
+  '.pdf',
+  '.zip',
+  '.tar',
+  '.gz',
+  '.7z',
+  '.rar',
   // log / lock
-  '.log', '.lock',
+  '.log',
+  '.lock',
   // 字型
-  '.woff', '.woff2', '.ttf', '.otf', '.eot',
+  '.woff',
+  '.woff2',
+  '.ttf',
+  '.otf',
+  '.eot',
   // 編譯產物 / 序列化
-  '.exe', '.dll', '.so', '.dylib', '.class', '.pyc', '.pyo',
-]);
+  '.exe',
+  '.dll',
+  '.so',
+  '.dylib',
+  '.class',
+  '.pyc',
+  '.pyo',
+])
 
 function shouldSkipTreeFile(filename) {
-  const ext = path.extname(filename).toLowerCase();
-  return TREE_SKIP_EXTENSIONS.has(ext);
+  const ext = path.extname(filename).toLowerCase()
+  return TREE_SKIP_EXTENSIONS.has(ext)
 }
 
 /**
@@ -37,16 +69,16 @@ class FileSystemService {
    * @param {string} projectDir - 專案根目錄
    */
   constructor(projectDir, db) {
-    this.projectDir = path.resolve(projectDir);
-    this.annotationService = new AnnotationService(projectDir, db);
-    this.fileSystemWriteEnabled = false;
+    this.projectDir = path.resolve(projectDir)
+    this.annotationService = new AnnotationService(projectDir, db)
+    this.fileSystemWriteEnabled = false
   }
 
   assertWriteEnabled() {
-    if (this.fileSystemWriteEnabled) return;
-    const error = new Error('File system write is disabled in project explorer.');
-    error.code = 'FS_WRITE_DISABLED';
-    throw error;
+    if (this.fileSystemWriteEnabled) return
+    const error = new Error('File system write is disabled in project explorer.')
+    error.code = 'FS_WRITE_DISABLED'
+    throw error
   }
 
   /**
@@ -57,12 +89,12 @@ class FileSystemService {
    * @throws {Error} 路徑超出專案根目錄時拋出錯誤
    */
   _safePath(relativePath) {
-    const resolved = path.resolve(this.projectDir, relativePath);
+    const resolved = path.resolve(this.projectDir, relativePath)
     // 確保 resolved 在 projectDir 之下（允許剛好等於 projectDir 本身）
     if (!resolved.startsWith(this.projectDir + path.sep) && resolved !== this.projectDir) {
-      throw new Error(`Path traversal denied: ${relativePath}`);
+      throw new Error(`Path traversal denied: ${relativePath}`)
     }
-    return resolved;
+    return resolved
   }
 
   /**
@@ -70,10 +102,10 @@ class FileSystemService {
    * @param {string} relativePath - 相對路徑
    */
   async createDirectory(relativePath) {
-    this.assertWriteEnabled();
-    const fullPath = this._safePath(relativePath);
-    await fs.promises.mkdir(fullPath, { recursive: true });
-    return true;
+    this.assertWriteEnabled()
+    const fullPath = this._safePath(relativePath)
+    await fs.promises.mkdir(fullPath, { recursive: true })
+    return true
   }
 
   /**
@@ -82,12 +114,12 @@ class FileSystemService {
    * @param {string} content - 文件內容
    */
   async createFile(relativePath, content = '') {
-    this.assertWriteEnabled();
-    const fullPath = this._safePath(relativePath);
+    this.assertWriteEnabled()
+    const fullPath = this._safePath(relativePath)
     // 確保目錄存在
-    await fs.promises.mkdir(path.dirname(fullPath), { recursive: true });
-    await fs.promises.writeFile(fullPath, content);
-    return true;
+    await fs.promises.mkdir(path.dirname(fullPath), { recursive: true })
+    await fs.promises.writeFile(fullPath, content)
+    return true
   }
 
   /**
@@ -95,10 +127,10 @@ class FileSystemService {
    * @param {string} relativePath - 相對路徑
    */
   async deletePath(relativePath) {
-    this.assertWriteEnabled();
-    const fullPath = this._safePath(relativePath);
-    await fs.promises.rm(fullPath, { recursive: true, force: true });
-    return true;
+    this.assertWriteEnabled()
+    const fullPath = this._safePath(relativePath)
+    await fs.promises.rm(fullPath, { recursive: true, force: true })
+    return true
   }
 
   /**
@@ -106,20 +138,32 @@ class FileSystemService {
    * 排除 node_modules, .git 等
    */
   async getProjectStats() {
-    let count = 0;
-    const projectDir = this.projectDir;
+    let count = 0
+    const projectDir = this.projectDir
 
     async function walk(dir) {
       try {
-        const files = await fs.promises.readdir(dir, { withFileTypes: true });
+        const files = await fs.promises.readdir(dir, { withFileTypes: true })
         for (const file of files) {
           // 忽略常見的龐大目錄
           if (file.isDirectory()) {
-            if (['.bob-tools', '.git', '.idea', '.vscode', 'build', 'coverage', 'dist', 'node_modules'].includes(file.name)) continue;
-            const entryPath = path.join(dir, file.name);
-            await walk(entryPath);
+            if (
+              [
+                '.bob-tools',
+                '.git',
+                '.idea',
+                '.vscode',
+                'build',
+                'coverage',
+                'dist',
+                'node_modules',
+              ].includes(file.name)
+            )
+              continue
+            const entryPath = path.join(dir, file.name)
+            await walk(entryPath)
           } else {
-            count++;
+            count++
           }
         }
       } catch {
@@ -127,8 +171,8 @@ class FileSystemService {
       }
     }
 
-    await walk(projectDir);
-    return { fileCount: count };
+    await walk(projectDir)
+    return { fileCount: count }
   }
 
   /**
@@ -137,31 +181,33 @@ class FileSystemService {
    * @returns {Array} 文件列表
    */
   async listFiles(relativePath = '') {
-    const fullPath = this._safePath(relativePath);
+    const fullPath = this._safePath(relativePath)
 
     if (!fs.existsSync(fullPath)) {
-      throw new Error(`Directory not found: ${relativePath}`);
+      throw new Error(`Directory not found: ${relativePath}`)
     }
 
-    const stats = await fs.promises.stat(fullPath);
+    const stats = await fs.promises.stat(fullPath)
     if (!stats.isDirectory()) {
-      throw new Error(`Path is not a directory: ${relativePath}`);
+      throw new Error(`Path is not a directory: ${relativePath}`)
     }
 
-    const entries = await fs.promises.readdir(fullPath, { withFileTypes: true });
-    const annotations = await this.annotationService.getAnnotations();
+    const entries = await fs.promises.readdir(fullPath, { withFileTypes: true })
+    const annotations = await this.annotationService.getAnnotations()
 
     const result = entries
       .filter((entry) => {
         // 過濾掉不想要顯示的系統目錄
         if (entry.isDirectory()) {
-          return !['.bob-tools', '.git', '.idea', '.vscode', 'coverage', 'dist', 'node_modules'].includes(entry.name);
+          return !['.bob-tools', '.git', '.idea', '.vscode', 'coverage', 'dist', 'node_modules'].includes(
+            entry.name,
+          )
         }
-        return true;
+        return true
       })
       .map((entry) => {
-        const entryPath = path.join(relativePath, entry.name);
-        const normalizedPath = entryPath.split(path.sep).join('/');
+        const entryPath = path.join(relativePath, entry.name)
+        const normalizedPath = entryPath.split(path.sep).join('/')
 
         return {
           name: entry.name,
@@ -171,18 +217,18 @@ class FileSystemService {
           purpose: (annotations._purposes && annotations._purposes[normalizedPath]) || '',
           relations: (annotations._relations && annotations._relations[normalizedPath]) || '',
           userNote: (annotations._userNotes && annotations._userNotes[normalizedPath]) || '',
-        };
-      });
+        }
+      })
 
     // Sort directories first, then files
     result.sort((a, b) => {
       if (a.isDirectory === b.isDirectory) {
-        return a.name.localeCompare(b.name);
+        return a.name.localeCompare(b.name)
       }
-      return a.isDirectory ? -1 : 1;
-    });
+      return a.isDirectory ? -1 : 1
+    })
 
-    return result;
+    return result
   }
 
   /**
@@ -191,13 +237,13 @@ class FileSystemService {
    * @param {string} newPath - 新路徑
    */
   async renamePath(oldPath, newPath) {
-    this.assertWriteEnabled();
-    const fullOldPath = this._safePath(oldPath);
-    const fullNewPath = this._safePath(newPath);
+    this.assertWriteEnabled()
+    const fullOldPath = this._safePath(oldPath)
+    const fullNewPath = this._safePath(newPath)
     // 確保目標目錄存在
-    await fs.promises.mkdir(path.dirname(fullNewPath), { recursive: true });
-    await fs.promises.rename(fullOldPath, fullNewPath);
-    return true;
+    await fs.promises.mkdir(path.dirname(fullNewPath), { recursive: true })
+    await fs.promises.rename(fullOldPath, fullNewPath)
+    return true
   }
 
   /**
@@ -205,37 +251,46 @@ class FileSystemService {
    * @returns {Promise<Array<{rel_path:string,name:string,is_dir:boolean,depth:number,parent_path:string}>>}
    */
   async scanTreeSnapshot() {
-    const ignoredDirs = new Set(['.bob-tools', '.git', '.idea', '.vscode', 'build', 'coverage', 'dist', 'node_modules']);
-    const nodes = [];
+    const ignoredDirs = new Set([
+      '.bob-tools',
+      '.git',
+      '.idea',
+      '.vscode',
+      'build',
+      'coverage',
+      'dist',
+      'node_modules',
+    ])
+    const nodes = []
 
     const walk = async (dirAbs, relBase) => {
-      const entries = await fs.promises.readdir(dirAbs, { withFileTypes: true });
+      const entries = await fs.promises.readdir(dirAbs, { withFileTypes: true })
       for (const entry of entries) {
-        if (entry.isDirectory() && ignoredDirs.has(entry.name)) continue;
+        if (entry.isDirectory() && ignoredDirs.has(entry.name)) continue
 
         // 過濾媒體 / log / 二進位類:對 AI annotation 無意義
         // (規範 §3.5 + spec §6.2)
-        if (!entry.isDirectory() && shouldSkipTreeFile(entry.name)) continue;
+        if (!entry.isDirectory() && shouldSkipTreeFile(entry.name)) continue
 
-        const relPath = relBase ? `${relBase}/${entry.name}` : entry.name;
-        const parentPath = relBase || '';
-        const depth = relPath.split('/').length;
+        const relPath = relBase ? `${relBase}/${entry.name}` : entry.name
+        const parentPath = relBase || ''
+        const depth = relPath.split('/').length
         nodes.push({
           rel_path: relPath,
           name: entry.name,
           is_dir: entry.isDirectory(),
           depth,
           parent_path: parentPath,
-        });
+        })
 
         if (entry.isDirectory()) {
-          await walk(path.join(dirAbs, entry.name), relPath);
+          await walk(path.join(dirAbs, entry.name), relPath)
         }
       }
-    };
+    }
 
-    await walk(this.projectDir, '');
-    return nodes;
+    await walk(this.projectDir, '')
+    return nodes
   }
 
   /**
@@ -244,21 +299,25 @@ class FileSystemService {
    * @returns {Array} 搜尋結果列表
    */
   async searchFiles(query) {
-    if (!query) return [];
-    const results = [];
-    const lowerQuery = query.toLowerCase();
-    const projectDir = this.projectDir;
-    const annotations = await this.annotationService.getAnnotations();
+    if (!query) return []
+    const results = []
+    const lowerQuery = query.toLowerCase()
+    const projectDir = this.projectDir
+    const annotations = await this.annotationService.getAnnotations()
 
     async function walk(dir) {
       try {
-        const files = await fs.promises.readdir(dir, { withFileTypes: true });
+        const files = await fs.promises.readdir(dir, { withFileTypes: true })
         for (const file of files) {
-          const entryPath = path.join(dir, file.name);
-          const relativePath = path.relative(projectDir, entryPath).split(path.sep).join('/');
+          const entryPath = path.join(dir, file.name)
+          const relativePath = path.relative(projectDir, entryPath).split(path.sep).join('/')
 
           // 忽略常見的龐大目錄
-          if (file.isDirectory() && ['.bob-tools', '.git', 'build', 'coverage', 'dist', 'node_modules'].includes(file.name)) continue;
+          if (
+            file.isDirectory() &&
+            ['.bob-tools', '.git', 'build', 'coverage', 'dist', 'node_modules'].includes(file.name)
+          )
+            continue
 
           if (file.name.toLowerCase().includes(lowerQuery)) {
             results.push({
@@ -266,22 +325,22 @@ class FileSystemService {
               path: relativePath,
               isDirectory: file.isDirectory(),
               annotation: annotations[relativePath] || null,
-            });
+            })
           }
 
           if (file.isDirectory()) {
-            await walk(entryPath);
+            await walk(entryPath)
           }
         }
       } catch (error) {
         // 忽略存取錯誤
-        console.error(`Error walking ${dir}:`, error.message);
+        console.error(`Error walking ${dir}:`, error.message)
       }
     }
 
-    await walk(projectDir);
+    await walk(projectDir)
     // 限制結果數量，避免過多
-    return results.slice(0, 100);
+    return results.slice(0, 100)
   }
 
   /**
@@ -290,8 +349,8 @@ class FileSystemService {
    * @param {string} annotation - 註解內容
    */
   async updateAnnotation(filePath, annotation) {
-    return await this.annotationService.saveAnnotation(filePath, annotation);
+    return await this.annotationService.saveAnnotation(filePath, annotation)
   }
 }
 
-module.exports = { FileSystemService };
+module.exports = { FileSystemService }

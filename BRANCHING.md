@@ -5,23 +5,23 @@
 
 ## 本 repo 資訊
 
-| 項目                  | 值                                     |
-| --------------------- | -------------------------------------- |
-| 類型                  | 第 3 種：自有專案（沒有上游）          |
-| 本 repo（`origin`） | `elf-express/bob`          |
-| 部署位置              | 無伺服器部署；本機 host tool，以 `@elf-express/bob` npm 套件發佈（來源 `release`） |
+| 項目                | 值                                                                                 |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| 類型                | 第 3 種：自有專案（沒有上游）                                                      |
+| 本 repo（`origin`） | `elf-express/bob`                                                                  |
+| 部署位置            | 無伺服器部署；本機 host tool，以 `@elf-express/bob` npm 套件發佈（來源 `release`） |
 
 行尾：LF，由 `.gitattributes` 規定（範本：elf-team-rule `assets/gitattributes`）
 
 ## 分支用途
 
-| 分支                      | 用途                 | 可否提交                 | 從哪裡更新      |
-| ------------------------- | -------------------- | ------------------------ | --------------- |
-| `main`                  | 主庫，只用來同步     | **不提交，只快轉** | `release`     |
-| `dev`                   | 整合測試             | 只能經由開發分支合併     | —              |
-| `feat/`、`fix/`、`docs/`、`chore/`、`test/` | 開發                 | 可以                     | 從 `dev` 開出 |
-| `release`               | 唯一的穩定版，部署用 | **不提交，只快轉** | 測過的 `dev`（緊急修正時 `hotfix/`） |
-| `hotfix/`               | 緊急修正正式版       | 可以                     | 從 `origin/release` 開出 |
+| 分支                                        | 用途                 | 可否提交             | 從哪裡更新                           |
+| ------------------------------------------- | -------------------- | -------------------- | ------------------------------------ |
+| `main`                                      | 主庫，只用來同步     | **不提交，只快轉**   | `release`                            |
+| `dev`                                       | 整合測試             | 只能經由開發分支合併 | —                                    |
+| `feat/`、`fix/`、`docs/`、`chore/`、`test/` | 開發                 | 可以                 | 從 `dev` 開出                        |
+| `release`                                   | 唯一的穩定版，部署用 | **不提交，只快轉**   | 測過的 `dev`（緊急修正時 `hotfix/`） |
+| `hotfix/`                                   | 緊急修正正式版       | 可以                 | 從 `origin/release` 開出             |
 
 開發分支命名 `<類型>/e-<編號>-<英文短名>`（類型：`feat`、`fix`、`docs`、`chore`、`test`、`hotfix`；有 Spec／Plan 用 Plan 編號，單一工作單用該單編號）。
 
@@ -76,13 +76,13 @@ git switch main && git merge --ff-only origin/main && git merge --ff-only origin
 
 建議在 GitHub 設定分支保護規則（Branch Protection Rules 或 Ruleset）：
 
-* **`main` 與 `release`**：禁止 force push、禁止刪除、只允許維護者 push。**不要**設「必須經過 Pull Request」：這兩條分支是在本機 `merge --ff-only` 後直接 push 的，GitHub 的 PR 合併會產生新提交或新 SHA，無法快轉。
-* **`dev`**：禁止 force push、禁止刪除；開發分支（`feat/*`、`fix/*`、`docs/*`、`chore/*`、`test/*`、`merge/*`）一律經 PR 合併，用 merge commit（elf-team-rule 規則 37），維護者保留直接 push 權限，給 hotfix 發佈後的 `release` → `dev` 合回使用。
+- **`main` 與 `release`**：禁止 force push、禁止刪除、只允許維護者 push。**不要**設「必須經過 Pull Request」：這兩條分支是在本機 `merge --ff-only` 後直接 push 的，GitHub 的 PR 合併會產生新提交或新 SHA，無法快轉。
+- **`dev`**：禁止 force push、禁止刪除；開發分支（`feat/*`、`fix/*`、`docs/*`、`chore/*`、`test/*`、`merge/*`）一律經 PR 合併，用 merge commit（elf-team-rule 規則 37），維護者保留直接 push 權限，給 hotfix 發佈後的 `release` → `dev` 合回使用。
 
 ## 禁止事項
 
-* 不在 `main`、`release` 上提交，也不 force push。緊急修正一律走 hotfix，不直接改 `release`／`main`。
-* 不在 check runs 未全部通過、或沒有 CI 且使用者未明確同意例外時快轉 `release`。
-* 不把 `main` 當穩定版或部署來源；部署一律用 `release`。
-* 不直接在 `dev` 上開發。
-* `--ff-only` 失敗或合併有衝突時，停下來回報，不要自行處理。
+- 不在 `main`、`release` 上提交，也不 force push。緊急修正一律走 hotfix，不直接改 `release`／`main`。
+- 不在 check runs 未全部通過、或沒有 CI 且使用者未明確同意例外時快轉 `release`。
+- 不把 `main` 當穩定版或部署來源；部署一律用 `release`。
+- 不直接在 `dev` 上開發。
+- `--ff-only` 失敗或合併有衝突時，停下來回報，不要自行處理。
