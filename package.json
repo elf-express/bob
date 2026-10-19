@@ -7,7 +7,7 @@
   "author": "elf-express",
   "packageManager": "pnpm@11.3.0",
   "engines": {
-    "node": ">=22"
+    "node": ">=24.18"
   },
   "type": "commonjs",
   "main": "src/server.js",
@@ -26,7 +26,13 @@
   ],
   "scripts": {
     "start": "node src/server.js",
-    "bob": "node src/server.js"
+    "bob": "node src/server.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "build": "pnpm pack --dry-run",
+    "verify": "pnpm format:check && pnpm lint && pnpm build"
   },
   "dependencies": {
     "express": "^5.2.1",
@@ -43,5 +49,12 @@
   "homepage": "https://github.com/elf-express/bob#readme",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^9.1.2",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10"
   }
 }
