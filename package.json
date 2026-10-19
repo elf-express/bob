@@ -16,6 +16,7 @@
   },
   "files": [
     "src",
+    "!src/**/*.test.js",
     "public",
     "data/.gitkeep",
     "README.md",
@@ -31,8 +32,11 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "build": "pnpm pack --dry-run",
-    "verify": "pnpm format:check && pnpm lint && pnpm build"
+    "verify": "pnpm format:check && pnpm lint && pnpm test:coverage && pnpm build"
   },
   "dependencies": {
     "express": "^5.2.1",
@@ -53,9 +57,12 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "@vitest/coverage-v8": "5.0.1",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^9.1.2",
     "globals": "^17.13.0",
-    "prettier": "^3.9.10"
+    "prettier": "^3.9.10",
+    "supertest": "7.3.1",
+    "vitest": "5.0.1"
   }
 }
