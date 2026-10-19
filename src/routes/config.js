@@ -6,6 +6,8 @@ const path = require('path')
 const { ConfigEditor, validateConfig } = require('../services/config-editor.js')
 const { validateFileName } = require('../utils/validation.js')
 
+const IMPORT_MAX_FILE_SIZE = 1024 * 1024
+
 function ensureBackupDir(backupDir) {
   if (!fs.existsSync(backupDir)) {
     fs.mkdirSync(backupDir, { recursive: true })
@@ -30,14 +32,22 @@ function writeConfigBackup(backupDir, config) {
   return backupName
 }
 
-function listBackups(backupDir) {
+function listBackupNames(backupDir) {
   ensureBackupDir(backupDir)
-  const files = fs
+  return fs
     .readdirSync(backupDir)
     .filter((f) => f.startsWith('bob.config.') && f.endsWith('.json'))
     .sort()
     .reverse()
-  return files.map((name) => {
+}
+
+// 在備份目錄列表中找出與 name 相同的檔名，找不到時回傳 undefined
+function findBackupName(backupDir, name) {
+  return listBackupNames(backupDir).find((f) => f === name)
+}
+
+function listBackups(backupDir) {
+  return listBackupNames(backupDir).map((name) => {
     const stat = fs.statSync(path.join(backupDir, name))
     return {
       name,
@@ -54,7 +64,7 @@ function listBackups(backupDir) {
  */
 function createConfigRouter(options) {
   const router = express.Router()
-  const upload = multer({ dest: os.tmpdir() })
+  const upload = multer({ dest: os.tmpdir(), limits: { fileSize: IMPORT_MAX_FILE_SIZE } })
 
   const { db, configRepo, configPath, backupDir } = options
   const dbMode = Boolean(db && configRepo)
@@ -114,8 +124,12 @@ function createConfigRouter(options) {
     if (!validateFileName(name)) {
       return res.status(400).json({ error: 'Invalid backup name' })
     }
-    const backupPath = path.join(backupDir, name)
-    return res.download(backupPath, name, (err) => {
+    const match = findBackupName(backupDir, name)
+    if (!match) {
+      return res.status(404).json({ error: 'Backup not found' })
+    }
+    const backupPath = path.join(backupDir, match)
+    return res.download(backupPath, match, (err) => {
       if (err) res.status(404).json({ error: 'Backup not found' })
     })
   })
@@ -127,9 +141,9 @@ function createConfigRouter(options) {
     }
     try {
       if (dbMode) {
-        const backupPath = path.join(backupDir, name)
-        if (!fs.existsSync(backupPath)) throw new Error(`Backup not found: ${name}`)
-        const raw = fs.readFileSync(backupPath, 'utf8')
+        const match = findBackupName(backupDir, name)
+        if (!match) throw new Error(`Backup not found: ${name}`)
+        const raw = fs.readFileSync(path.join(backupDir, match), 'utf8')
         const config = JSON.parse(raw)
         const { valid, errors } = validateConfig(config)
         if (!valid) return res.status(400).json({ error: `Invalid configuration: ${errors.join('; ')}` })
@@ -152,9 +166,9 @@ function createConfigRouter(options) {
     }
     try {
       if (dbMode) {
-        const backupPath = path.join(backupDir, name)
-        if (!fs.existsSync(backupPath)) throw new Error(`Backup not found: ${name}`)
-        fs.unlinkSync(backupPath)
+        const match = findBackupName(backupDir, name)
+        if (!match) throw new Error(`Backup not found: ${name}`)
+        fs.unlinkSync(path.join(backupDir, match))
       } else {
         editor.deleteBackup(name)
       }
@@ -164,7 +178,18 @@ function createConfigRouter(options) {
     }
   })
 
-  router.post('/import', upload.single('file'), async (req, res) => {
+  // 上傳檔超過大小上限時回 413，其餘 multer 錯誤回 400
+  const uploadImportFile = (req, res, next) => {
+    upload.single('file')(req, res, (err) => {
+      if (!err) return next()
+      if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({ error: 'File too large' })
+      }
+      return res.status(400).json({ error: err.message })
+    })
+  }
+
+  router.post('/import', uploadImportFile, async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' })

@@ -48,12 +48,37 @@ class LogStore {
   }
 
   /**
+   * 在日誌目錄列表中找出與 fileName 相同的 .log 檔名
+   * @param {string} fileName - 檔名
+   * @returns {string|undefined} 列表中的檔名，找不到時為 undefined
+   */
+  findFileName(fileName) {
+    this.ensureDir()
+    return fs.readdirSync(this.logDir).find((f) => f.endsWith('.log') && f === fileName)
+  }
+
+  /**
+   * 取得列表中的檔名，找不到時拋出 ENOENT 錯誤
+   * @param {string} fileName - 檔名
+   * @returns {string} 列表中的檔名
+   */
+  requireFileName(fileName) {
+    const match = this.findFileName(fileName)
+    if (!match) {
+      const error = new Error(`ENOENT: no such log file '${fileName}'`)
+      error.code = 'ENOENT'
+      throw error
+    }
+    return match
+  }
+
+  /**
    * 讀取日誌內容
    * @param {string} fileName - 檔名
    * @returns {string} 日誌文字內容
    */
   readLog(fileName) {
-    const filePath = path.join(this.logDir, fileName)
+    const filePath = path.join(this.logDir, this.requireFileName(fileName))
     return fs.readFileSync(filePath, 'utf8')
   }
 
@@ -73,7 +98,7 @@ class LogStore {
    * @returns {boolean}
    */
   logExists(fileName) {
-    return fs.existsSync(path.join(this.logDir, fileName))
+    return this.findFileName(fileName) !== undefined
   }
 
   /**
@@ -92,7 +117,7 @@ class LogStore {
    * @param {string} fileName - 檔名
    */
   deleteLog(fileName) {
-    const filePath = path.join(this.logDir, fileName)
+    const filePath = path.join(this.logDir, this.requireFileName(fileName))
     fs.unlinkSync(filePath)
   }
 

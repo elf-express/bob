@@ -1,4 +1,5 @@
 const express = require('express')
+const { rateLimit } = require('express-rate-limit')
 const path = require('path')
 const { detectPackageManager } = require('./config/index.js')
 const { LogStore } = require('./db/index.js')
@@ -8,11 +9,24 @@ const { setupRoutes } = require('./routes/index.js')
 const { DependencyScanService } = require('./services/dependency-scan-service.js')
 const { CommandScanService } = require('./services/command-scan-service.js')
 const { FileSystemService } = require('./services/file-system.js')
+const { localOriginGuard } = require('./middleware/local-origin-guard.js')
 
 async function createApp(options) {
   const { projectDir, projectName, logDir, publicDir, db, bindingRepo, configRepo } = options
 
   const app = express()
+  app.use(localOriginGuard)
+  // /api 每個 IP 每分鐘最多 600 個請求，超過回 429 { error }；靜態檔不計數
+  app.use(
+    '/api',
+    rateLimit({
+      windowMs: 60_000,
+      limit: 600,
+      standardHeaders: 'draft-8',
+      legacyHeaders: false,
+      message: { error: 'Too Many Requests' },
+    }),
+  )
   app.use(express.json())
   app.use((req, res, next) => {
     res.setHeader('Content-Encoding', 'identity')
