@@ -1,0 +1,21 @@
+.github/dependabot.yml
+  s_56d63bb671cf63::t_b51501b38e94b9 1-10
+.github/workflows/ci.yml
+  s_56d63bb671cf63::t_217c079daa4ef1 1-67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5405898cacdbf6eb9d79aae2810864d8b580a479",
+  "prompts": {},
+  "sessions": {
+    "s_56d63bb671cf63": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "274e8cb0-a321-4fe6-bcdb-25e99d39b109",
+        "model": "unknown"
+      },
+      "human_author": "unknown"
+    }
+  }
+}
