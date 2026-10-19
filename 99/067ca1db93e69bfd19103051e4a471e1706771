@@ -1,0 +1,21 @@
+src/db/log-store.js
+  s_94fae05fa89f60::t_2af53373039f43 50-74,81,101,120
+src/routes/config.js
+  s_94fae05fa89f60::t_fd95432b5fb62c 35,37,42-50,127-132,144-146,169-171
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "99067ca1db93e69bfd19103051e4a471e1706771",
+  "prompts": {},
+  "sessions": {
+    "s_94fae05fa89f60": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "62534f43-2afb-475c-9aa1-7f7876e5cd4a",
+        "model": "unknown"
+      },
+      "human_author": "unknown"
+    }
+  }
+}
