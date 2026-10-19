@@ -13,7 +13,7 @@ function killTree(pid) {
       // Unix/Linux/macOS: 使用負 PID 殺死進程組
       process.kill(-pid, 'SIGKILL')
     }
-  } catch (error) {
+  } catch {
     // 忽略錯誤（進程可能已結束）
   }
 }

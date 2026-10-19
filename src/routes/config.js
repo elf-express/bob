@@ -190,7 +190,9 @@ function createConfigRouter(options) {
       if (req.file) {
         try {
           fs.unlinkSync(req.file.path)
-        } catch (_e) {}
+        } catch {
+          // 暫存上傳檔可能已不存在，刪除失敗不影響回應
+        }
       }
       return res.status(400).json({ error: error.message })
     }

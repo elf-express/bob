@@ -112,8 +112,6 @@ async function runScanScriptsAction() {
       if (!saved) {
         throw new Error(peT('errors.scanSaveFailed', 'Failed to save scan result'))
       }
-      if (typeof renderDynamicNavigation === 'function') renderDynamicNavigation()
-      if (typeof renderCommands === 'function') renderCommands()
     }
 
     await refreshProjectExplorerScanStatus()
@@ -670,7 +668,7 @@ function createTreeItemDOM(item) {
  * @param {MouseEvent} e
  * @returns {void}
  */
-function showFileTreeContextMenu(e, _item, _li) {
+function showFileTreeContextMenu(e) {
   try {
     hideFileTreeContextMenu()
 
@@ -712,11 +710,11 @@ function showFileTreeContextMenu(e, _item, _li) {
     if (typeof lucide !== 'undefined') {
       try {
         lucide.createIcons()
-      } catch (_error) {
+      } catch {
         // Keep menu usable even if icon refresh fails.
       }
     }
-  } catch (_error) {
+  } catch {
     hideFileTreeContextMenu()
   }
 }
@@ -728,15 +726,15 @@ function showReadOnlyFsAlert() {
   alert(peT('projectExplorer.fsWriteDisabled', 'File operations are disabled in project explorer'))
 }
 
-async function handleCreate(_parentItem, _type) {
+async function handleCreate() {
   showReadOnlyFsAlert()
 }
 
-async function handleDelete(_item) {
+async function handleDelete() {
   showReadOnlyFsAlert()
 }
 
-async function handleRename(_item) {
+async function handleRename() {
   showReadOnlyFsAlert()
 }
 

@@ -114,7 +114,7 @@ class LogStore {
           fs.unlinkSync(filePath)
           count++
         }
-      } catch (_e) {
+      } catch {
         // 忽略單一檔案的錯誤，繼續處理其他
       }
     }

@@ -49,7 +49,9 @@ class CommandRunner {
     try {
       this.send('aborted', { index: this.currentIndex })
       if (this.res) this.res.end()
-    } catch {}
+    } catch {
+      // 連線可能已關閉，送出中止通知失敗時忽略
+    }
   }
 
   /**

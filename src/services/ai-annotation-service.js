@@ -1,5 +1,3 @@
-const path = require('node:path')
-
 const PATH_PATTERNS = [
   { match: '/api/', purpose: 'API client / data fetching', tag: 'api' },
   { match: '/composables/', purpose: 'Vue Composition API hook', tag: 'composable' },

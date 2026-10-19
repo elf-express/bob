@@ -204,7 +204,7 @@
     ta.select()
     try {
       document.execCommand('copy')
-    } catch (e) {
+    } catch {
       /* noop */
     }
     document.body.removeChild(ta)

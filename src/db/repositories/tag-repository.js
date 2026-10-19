@@ -16,7 +16,7 @@ class TagRepository {
     for (const row of rows) {
       try {
         out[row.rel_path] = JSON.parse(row.tags_json)
-      } catch (_e) {
+      } catch {
         out[row.rel_path] = []
       }
     }
@@ -30,7 +30,7 @@ class TagRepository {
     if (!row) return []
     try {
       return JSON.parse(row.tags_json)
-    } catch (_e) {
+    } catch {
       return []
     }
   }

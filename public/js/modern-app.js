@@ -134,7 +134,7 @@ function uiText(key) {
   return tr(key, key)
 }
 
-async function saveWithRollback(rollbackFn, successMsg, errorMsg, options = {}) {
+async function saveWithRollback(rollbackFn, successMsg, errorMsg) {
   const saved = await autoSaveConfig()
   if (!saved) {
     if (rollbackFn) rollbackFn()
@@ -1006,10 +1006,7 @@ function isRunActive() {
   return Boolean(runInProgress && activeRunXhr && activeRunXhr.readyState !== 4)
 }
 
-async function executeCommandList(
-  commands,
-  { switchToTerminal = true, showBusyAlert = false, singleRun = false } = {},
-) {
+async function executeCommandList(commands, { switchToTerminal = true, showBusyAlert = false } = {}) {
   if (!Array.isArray(commands) || commands.length === 0) return
 
   if (isRunActive()) {
@@ -1084,7 +1081,9 @@ async function executeCommandList(
             if (data.code !== undefined && data.index !== undefined) {
               pendingHtml += `\n<span class="ansi-yellow ansi-bold">[EXIT CODE: ${data.code}]</span>\n`
             }
-          } catch (_e) {}
+          } catch {
+            // 忽略無法解析的串流資料行，繼續處理下一行
+          }
         }
 
         scheduleFlush()
@@ -2262,7 +2261,7 @@ function enableCommandDragDrop() {
       let payload
       try {
         payload = JSON.parse(event.dataTransfer.getData('application/json') || '{}')
-      } catch (_e) {
+      } catch {
         return
       }
 

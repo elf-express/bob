@@ -17,7 +17,7 @@ class SQLiteClient {
     try {
       // Lazy require to avoid breaking non-sqlite test paths before dependency installation.
       sqlite3 = require('sqlite3')
-    } catch (error) {
+    } catch {
       throw new Error(
         'sqlite3 is not installed. Run `pnpm install` at project root to install all tooling dependencies.',
       )

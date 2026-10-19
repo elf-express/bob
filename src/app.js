@@ -134,7 +134,9 @@ async function createApp(options) {
     try {
       const n = logStore.purgeExpired(LOG_MAX_AGE_MS)
       if (n > 0) console.log(`Auto purged ${n} expired logs`)
-    } catch (_e) {}
+    } catch {
+      // 清除過期日誌失敗不影響服務，下次排程再試
+    }
   }, LOG_PURGE_INTERVAL_MS)
   purgeTimer.unref()
 

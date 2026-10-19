@@ -211,7 +211,7 @@ async function showFileDetails(item) {
       item.purpose = safeText(metadata.purpose)
       item.relations = safeText(metadata.relations)
       item.userNote = safeText(metadata.userNote)
-    } catch (_error) {
+    } catch {
       // Keep rendering with current in-memory value if metadata fetch fails.
     }
   }

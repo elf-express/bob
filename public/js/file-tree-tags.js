@@ -142,10 +142,8 @@ async function saveCustomTags(filePath, tags) {
 /**
  * 處理標籤切換（checkbox onChange）
  * @param {string} filePath - 檔案路徑
- * @param {string} tagId - 標籤 ID
- * @param {boolean} checked - 是否勾選
  */
-async function handleTagToggle(filePath, tagId, checked) {
+async function handleTagToggle(filePath) {
   try {
     // 從 DOM 收集目前所有勾選的自訂標籤
     const checkboxes = document.querySelectorAll('.tag-selector-item input[type="checkbox"]')
