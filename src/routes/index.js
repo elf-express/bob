@@ -63,6 +63,7 @@ function setupRoutes(app, options) {
     logDir,
     packageManager,
     packageManagerProvider,
+    configProvider,
   })
   app.use('/api', runnerRouter)
 
