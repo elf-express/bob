@@ -1,0 +1,23 @@
+src/server.js
+  s_f6f2636b88fa3b::t_39a8518130b8a6 11,128-137
+src/services/command-runner.js
+  s_f6f2636b88fa3b::t_b40fa9268d4b81 8-10,39,41-42,86,113-114,196,227,265-274,277
+src/services/command-runner.test.js
+  s_f6f2636b88fa3b::t_cba7e29f11455a 7,170,172-173,179-193
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "da30172751a4eb90eaa239b144e5d6208137be29",
+  "prompts": {},
+  "sessions": {
+    "s_f6f2636b88fa3b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0d595dd9-5600-4e8f-9e96-ffc97b3ac1c8",
+        "model": "unknown"
+      },
+      "human_author": "楊清雲 <41539966+TW199501@users.noreply.github.com>"
+    }
+  }
+}
