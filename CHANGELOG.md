@@ -5,10 +5,11 @@
 
 ---
 
-## [Unreleased] — 2026-05-27
+## [1.0.0]
 
 ### 改
 
+- **資料位置** — DB 與 log 改放 `~/.bob`（可用 `BOB_HOME` 覆寫），舊位置的資料第一次啟動時自動複製
 - **Sidebar 重構** — 整套 UI 簡化
   - 移除上方「Command Management」動態群組捷徑(`#dynamic-nav-groups`)
   - 移除 commands 主視圖(`<section data-view-content="commands">`)

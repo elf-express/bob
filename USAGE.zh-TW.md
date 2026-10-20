@@ -8,25 +8,26 @@
 
 ## 1. 先決條件
 
-- 目標專案存在（例如本 monorepo 根目錄）
-- `node` / `npm` 可用
+- 目標專案存在
+- Node 24.18 以上、pnpm（全域安裝改用 npm，見 `README.zh-tw.md`「從 GitHub Packages 安裝」）
+
+在 bob 的 repo 根目錄：
 
 ```bash
-cd .bob-tools
-npm install
+pnpm install
 ```
 
 ## 2. 第一次啟動（綁定目標專案）
 
 ```bash
-npm run start:bind
+pnpm start --target <目標專案路徑>
 ```
 
-`start:bind` 內建 `--target ..`，代表把 BOB Tools 綁到上層專案目錄。  
-啟動後預設網址：
+`--target` 指定要綁定的目標專案，相對路徑以 bob repo 根目錄為準（全域安裝時在目標專案根目錄執行 `bob --target .`）。  
+啟動後預設網址（3800 被占用時依序往後找，最多到 3809）：
 
 ```text
-http://127.0.0.1:3100
+http://127.0.0.1:3800
 ```
 
 ## 3. 一般啟動
@@ -34,7 +35,7 @@ http://127.0.0.1:3100
 綁定完成後直接：
 
 ```bash
-npm start
+pnpm start
 ```
 
 ## 4. 重新綁定（換專案）
@@ -52,7 +53,7 @@ node src/server.js --target <新目標路徑> --rebind
 
 - 掃描目標專案根目錄 `package.json` 的 `scripts`
 - 透過 UI/後端執行命令並即時看輸出（SSE）
-- 執行紀錄寫入 `.bob-tools/log`
+- 執行紀錄寫入 `~/.bob/log`
 
 2. 專案檔案掃描與瀏覽
 
@@ -72,9 +73,10 @@ node src/server.js --target <新目標路徑> --rebind
 
 ## 6. 資料存放位置
 
-- DB：`.bob-tools/data/bob-tools.sqlite`
-- Log：`.bob-tools/log/*.log`
-- Config backup：`.bob-tools/log/config-backups/*.json`
+- DB：`~/.bob/data/bob-tools.sqlite`
+- Log：`~/.bob/log/*.log`
+- Config backup：`~/.bob/log/config-backups/*.json`
+- 設定 `BOB_HOME` 可改用其他目錄；舊位置已有資料時，第一次啟動會自動複製過來
 
 注意：目前是 DB-first，執行期主要以 SQLite 為準，不依賴 `bob.config.json`。
 

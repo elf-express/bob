@@ -15,28 +15,57 @@ BOB Tools is now **DB-first (SQLite)**. Runtime no longer depends on `bob.config
 
 ## Quick Start
 
+Run from the bob repo root (for development; for a global install see the next section):
+
 ```bash
-cd .bob-tools
-npm install
+pnpm install
 ```
 
-First-time bind + start:
+First-time bind + start (`--target` points at the target project; a relative path is resolved from the bob repo root):
 
 ```bash
-npm run start:bind
+pnpm start --target <target project path>
 ```
 
 Normal start (after binding):
 
 ```bash
-npm start
+pnpm start
 ```
 
-Default URL:
+Default URL (if 3800 is taken, the next free port up to 3809 is used):
 
 ```text
-http://127.0.0.1:3100
+http://127.0.0.1:3800
 ```
+
+---
+
+## Install from GitHub Packages
+
+`@elf-express/bob` is published to GitHub Packages. Installing it needs GitHub authentication even though the package is public.
+
+1. GitHub → Settings → Developer settings → Personal access tokens → **Tokens (classic)**: create a token with only the `read:packages` scope (GitHub Packages accepts classic tokens only).
+2. Store it as the user environment variable `NODE_AUTH_TOKEN`, then reopen the terminal (PowerShell):
+
+   ```powershell
+   [Environment]::SetEnvironmentVariable('NODE_AUTH_TOKEN', '<your token>', 'User')
+   ```
+
+3. Add these two lines to `~/.npmrc` (Windows: `%USERPROFILE%\.npmrc`). Leave the token to the environment variable; never write the real value:
+
+   ```ini
+   @elf-express:registry=https://npm.pkg.github.com
+   //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+   ```
+
+4. Install, then bind and start from the target project's root the first time:
+
+   ```bash
+   npm i -g @elf-express/bob
+   cd <target project>
+   bob --target .
+   ```
 
 ---
 
@@ -44,7 +73,7 @@ http://127.0.0.1:3100
 
 BOB Tools uses single-project binding:
 
-- First run must provide a target project (`start:bind` already includes `--target ..`)
+- First run must provide a target project (`--target <path>`)
 - If already bound, starting with a different target is rejected
 - In development, use `--rebind` to force rebind
 
@@ -99,7 +128,7 @@ Binding state is stored in table `project_binding`.
 
 ## Database
 
-- DB file: `.bob-tools/data/bob-tools.sqlite`
+- DB file: `~/.bob/data/bob-tools.sqlite` (set `BOB_HOME` to use another directory)
 - Schema docs:
   - Chinese: `.bob-tools/src/db/README.md`
   - English: `.bob-tools/src/db/README.en.md`

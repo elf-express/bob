@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     // 測試檔與被測檔同資料夾：foo.js -> foo.test.js
-    include: ['src/**/*.test.js'],
+    include: ['src/**/*.test.js', 'scripts/**/*.test.mjs'],
     globals: false,
     coverage: {
       provider: 'v8',

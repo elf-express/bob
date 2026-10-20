@@ -4,7 +4,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { CommandRunner } from './command-runner.js'
+import { CommandRunner, abortAllRunners } from './command-runner.js'
 
 function createFakeRes() {
   const res = new EventEmitter()
@@ -167,13 +167,30 @@ describe('CommandRunner', () => {
   })
 
   it('stops the running command and ends the response on abort', async () => {
+    const pidFile = path.join(dir, 'grandchild.pid')
     run([LONG_RUNNING])
-    await vi.waitFor(() => expect(res.chunks.join('')).toContain('Child process spawned'), { timeout: 5000 })
+    await vi.waitFor(() => expect(fs.existsSync(pidFile)).toBe(true), { timeout: 5000 })
+    const pid = Number(fs.readFileSync(pidFile, 'utf8'))
 
     runner.abort()
 
     expect(runner.isRunning()).toBe(false)
     expect(res.writableEnded).toBe(true)
+    expect(parseEvents(res).map((e) => e.event)).toContain('aborted')
+    await vi.waitFor(() => expect(isAlive(pid)).toBe(false), { timeout: 3000 })
+  })
+
+  it('abortAllRunners stops every running command', async () => {
+    const pidFile = path.join(dir, 'grandchild.pid')
+    run([LONG_RUNNING])
+    await vi.waitFor(() => expect(fs.existsSync(pidFile)).toBe(true), { timeout: 5000 })
+    const pid = Number(fs.readFileSync(pidFile, 'utf8'))
+
+    expect(abortAllRunners()).toBe(1)
+
+    expect(runner.aborted).toBe(true)
+    expect(parseEvents(res).map((e) => e.event)).toContain('aborted')
+    await vi.waitFor(() => expect(isAlive(pid)).toBe(false), { timeout: 3000 })
   })
 
   it('aborts when the client disconnects early', async () => {
