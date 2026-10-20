@@ -5,6 +5,9 @@ const { LogStore } = require('../db/index.js')
 const { countIssues, getLogTimestamp, getUserSlug, stripAnsi } = require('../utils/format.js')
 const { killTree } = require('../utils/process.js')
 
+// 執行中的 runner；關閉 bob 時逐一中止
+const RUNNERS = new Set()
+
 class CommandRunner {
   /**
    * @param {object} options - Runner options.
@@ -33,7 +36,10 @@ class CommandRunner {
    */
   abort() {
     if (this.aborted) return
+    RUNNERS.delete(this)
 
+    // 先送出 aborted：send() 看到 aborted 旗標就不再寫入
+    this.send('aborted', { index: this.currentIndex })
     this.aborted = true
 
     if (this.currentChild) {
@@ -47,7 +53,6 @@ class CommandRunner {
     }
 
     try {
-      this.send('aborted', { index: this.currentIndex })
       if (this.res) this.res.end()
     } catch {
       // 連線可能已關閉，送出中止通知失敗時忽略
@@ -78,6 +83,7 @@ class CommandRunner {
         errors: this.errors,
       })
 
+      RUNNERS.delete(this)
       this.res.end()
       return
     }
@@ -104,6 +110,8 @@ class CommandRunner {
     const child = spawn(cmd, {
       cwd: this.projectDir,
       shell: true,
+      // POSIX：子程序自成 process group，killTree 的 kill(-pid) 才殺得到整棵樹
+      detached: process.platform !== 'win32',
       stdio: 'pipe',
       env: {
         ...process.env,
@@ -185,6 +193,7 @@ class CommandRunner {
    */
   run(commands, res) {
     this.res = res
+    RUNNERS.add(this)
     this.aborted = false
     this.errors = 0
     this.warnings = 0
@@ -215,6 +224,7 @@ class CommandRunner {
     )
 
     res.on('close', () => {
+      RUNNERS.delete(this)
       if (!res.writableFinished && !this.aborted) {
         this.abort()
       }
@@ -252,6 +262,17 @@ class CommandRunner {
   }
 }
 
+/**
+ * 中止所有執行中的命令（關閉 bob 時用）
+ * @returns {number} 中止的 runner 數
+ */
+function abortAllRunners() {
+  const runners = [...RUNNERS]
+  for (const runner of runners) runner.abort()
+  return runners.length
+}
+
 module.exports = {
   CommandRunner,
+  abortAllRunners,
 }

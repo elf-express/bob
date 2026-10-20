@@ -8,6 +8,7 @@ const { BindingRepository } = require('./db/repositories/binding-repository.js')
 const { ConfigRepository } = require('./db/repositories/config-repository.js')
 const { buildDefaultConfig } = require('./config/default-taxonomy.js')
 const { copyLegacyData, resolveBobHome } = require('./utils/bob-home.js')
+const { abortAllRunners } = require('./services/command-runner.js')
 
 const DEFAULT_PORT = 3800
 const PROJECT_NAME = 'BOB-Tools'
@@ -124,6 +125,16 @@ function cleanupNestedToolArtifacts() {
 
 ;(async () => {
   const cli = parseArgs(process.argv)
+  // POSIX 上命令自成 process group，收不到終端機的 Ctrl+C；結束前先中止執行中的命令
+  for (const [signal, code] of [
+    ['SIGINT', 130],
+    ['SIGTERM', 143],
+  ]) {
+    process.once(signal, () => {
+      abortAllRunners()
+      process.exit(code)
+    })
+  }
   cleanupNestedToolArtifacts()
   if (copyLegacyData({ legacyRoot: TOOL_DIR, bobHome: BOB_HOME })) {
     console.log(`Copied data/ and log/ from ${TOOL_DIR} to ${BOB_HOME}; the old copy was left in place.`)
