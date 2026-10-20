@@ -1,0 +1,31 @@
+CHANGELOG.md
+  s_f6f2636b88fa3b::t_2f1a21cae5665b 12
+README.md
+  s_f6f2636b88fa3b::t_d9ba4cafbb23e1 131
+README.zh-tw.md
+  s_f6f2636b88fa3b::t_b5628e44762acd 112
+USAGE.zh-TW.md
+  s_f6f2636b88fa3b::t_30f7277216d504 56,76-79
+src/server.js
+  s_f6f2636b88fa3b::t_5dae603747809b 10,15-17,19,128-130,175
+src/utils/bob-home.js
+  s_f6f2636b88fa3b::t_bd4d94a98f33b7 1-50
+src/utils/bob-home.test.js
+  s_f6f2636b88fa3b::t_33e3e4bba7e475 1-108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7396748b58ee209560ddef38a33d9347c5f0f4bc",
+  "prompts": {},
+  "sessions": {
+    "s_f6f2636b88fa3b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0d595dd9-5600-4e8f-9e96-ffc97b3ac1c8",
+        "model": "unknown"
+      },
+      "human_author": "楊清雲 <41539966+TW199501@users.noreply.github.com>"
+    }
+  }
+}
