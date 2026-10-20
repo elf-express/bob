@@ -7,13 +7,16 @@ const { SQLiteClient } = require('./db/sqlite-client.js')
 const { BindingRepository } = require('./db/repositories/binding-repository.js')
 const { ConfigRepository } = require('./db/repositories/config-repository.js')
 const { buildDefaultConfig } = require('./config/default-taxonomy.js')
+const { copyLegacyData, resolveBobHome } = require('./utils/bob-home.js')
 
 const DEFAULT_PORT = 3800
 const PROJECT_NAME = 'BOB-Tools'
 const TOOL_DIR = path.resolve(__dirname, '..')
-const LOG_DIR = path.join(TOOL_DIR, 'log')
+// 資料與紀錄放在套件目錄外（~/.bob 或 BOB_HOME），升級或重裝套件不會蓋掉
+const BOB_HOME = resolveBobHome()
+const LOG_DIR = path.join(BOB_HOME, 'log')
 const PUBLIC_DIR = path.join(TOOL_DIR, 'public')
-const DB_FILE = path.join(TOOL_DIR, 'data', 'bob-tools.sqlite')
+const DB_FILE = path.join(BOB_HOME, 'data', 'bob-tools.sqlite')
 const MIGRATION_DIR = path.join(__dirname, 'db', 'migrations')
 // BOB 已合進專案(scripts/tools/bob/),--target 與預設值改以 CWD 解析
 // 這樣 `pnpm bob` 從專案根目錄執行時,--target . 永遠指到專案根目錄
@@ -122,6 +125,9 @@ function cleanupNestedToolArtifacts() {
 ;(async () => {
   const cli = parseArgs(process.argv)
   cleanupNestedToolArtifacts()
+  if (copyLegacyData({ legacyRoot: TOOL_DIR, bobHome: BOB_HOME })) {
+    console.log(`Copied data/ and log/ from ${TOOL_DIR} to ${BOB_HOME}; the old copy was left in place.`)
+  }
 
   const sqlite = new SQLiteClient(DB_FILE)
   await sqlite.connect()
@@ -166,6 +172,7 @@ function cleanupNestedToolArtifacts() {
         '='.repeat(50),
         'BOB Tools',
         `Bound Project: ${projectDir}`,
+        `Data: ${BOB_HOME}`,
         `Package Manager: ${app.locals.packageManager || 'N/A'}`,
         `URL: http://127.0.0.1:${port}`,
         '='.repeat(50),

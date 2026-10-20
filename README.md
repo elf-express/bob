@@ -128,7 +128,7 @@ Binding state is stored in table `project_binding`.
 
 ## Database
 
-- DB file: `.bob-tools/data/bob-tools.sqlite`
+- DB file: `~/.bob/data/bob-tools.sqlite` (set `BOB_HOME` to use another directory)
 - Schema docs:
   - Chinese: `.bob-tools/src/db/README.md`
   - English: `.bob-tools/src/db/README.en.md`

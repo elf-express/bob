@@ -53,7 +53,7 @@ node src/server.js --target <新目標路徑> --rebind
 
 - 掃描目標專案根目錄 `package.json` 的 `scripts`
 - 透過 UI/後端執行命令並即時看輸出（SSE）
-- 執行紀錄寫入 `.bob-tools/log`
+- 執行紀錄寫入 `~/.bob/log`
 
 2. 專案檔案掃描與瀏覽
 
@@ -73,9 +73,10 @@ node src/server.js --target <新目標路徑> --rebind
 
 ## 6. 資料存放位置
 
-- DB：`.bob-tools/data/bob-tools.sqlite`
-- Log：`.bob-tools/log/*.log`
-- Config backup：`.bob-tools/log/config-backups/*.json`
+- DB：`~/.bob/data/bob-tools.sqlite`
+- Log：`~/.bob/log/*.log`
+- Config backup：`~/.bob/log/config-backups/*.json`
+- 設定 `BOB_HOME` 可改用其他目錄；舊位置已有資料時，第一次啟動會自動複製過來
 
 注意：目前是 DB-first，執行期主要以 SQLite 為準，不依賴 `bob.config.json`。
 

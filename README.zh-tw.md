@@ -109,7 +109,7 @@ BOB Tools 採單專案綁定：
 
 ## 資料庫
 
-- DB 檔案：`.bob-tools/data/bob-tools.sqlite`
+- DB 檔案：`~/.bob/data/bob-tools.sqlite`（設定 `BOB_HOME` 可改用其他目錄）
 - Schema 說明：
   - 中文：`.bob-tools/src/db/README.md`
   - English：`.bob-tools/src/db/README.en.md`
