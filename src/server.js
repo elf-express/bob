@@ -127,6 +127,7 @@ function cleanupNestedToolArtifacts() {
   const cli = parseArgs(process.argv)
   // POSIX 上命令自成 process group，收不到終端機的 Ctrl+C；結束前先中止執行中的命令
   for (const [signal, code] of [
+    ['SIGHUP', 129],
     ['SIGINT', 130],
     ['SIGTERM', 143],
   ]) {
@@ -135,6 +136,8 @@ function cleanupNestedToolArtifacts() {
       process.exit(code)
     })
   }
+  // 其他結束路徑（process.exit、未捕捉的例外）也一併中止；killTree 是同步的
+  process.on('exit', () => abortAllRunners())
   cleanupNestedToolArtifacts()
   if (copyLegacyData({ legacyRoot: TOOL_DIR, bobHome: BOB_HOME })) {
     console.log(`Copied data/ and log/ from ${TOOL_DIR} to ${BOB_HOME}; the old copy was left in place.`)

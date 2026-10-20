@@ -85,6 +85,16 @@ describe('copyLegacyData', () => {
     expect(copyLegacyData({ legacyRoot, bobHome: legacyRoot })).toBe(false)
   })
 
+  it('新位置的 data/ 已有其他檔案但沒有 DB 時，不刪、丟錯', () => {
+    write(legacyRoot, DB, 'old-db')
+    write(bobHome, path.join('data', 'notes.txt'), 'keep me')
+
+    expect(() => copyLegacyData({ legacyRoot, bobHome })).toThrow(/data/)
+
+    expect(read(bobHome, path.join('data', 'notes.txt'))).toBe('keep me')
+    expect(fs.existsSync(path.join(bobHome, 'data.copying'))).toBe(false)
+  })
+
   it('上次複製中斷留下 data.copying/ 時，刪掉重來', () => {
     write(legacyRoot, DB, 'old-db')
     write(bobHome, path.join('data.copying', 'bob-tools.sqlite'), 'half')

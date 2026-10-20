@@ -17,7 +17,7 @@ function resolveBobHome(env = process.env, homeDir = os.homedir()) {
 
 /**
  * 新位置還沒有 DB、舊位置有時，把舊的 data/ 與 log/ 複製到新位置；舊檔保留，新位置已有的 log 不覆寫。
- * 走到這一步時 data/ 裡沒有 DB，整個換掉
+ * 新位置的 data/ 已存在（但沒有 DB）時不動它，直接丟錯
  * @param {{ legacyRoot: string, bobHome: string }} options - 舊資料根目錄與新資料根目錄
  * @returns {boolean} 是否有複製
  */
@@ -31,10 +31,14 @@ function copyLegacyData({ legacyRoot, bobHome }) {
 
   if (fs.existsSync(path.join(bobHome, DB_RELATIVE))) return false
   if (!fs.existsSync(path.join(legacyRoot, DB_RELATIVE))) return false
+  if (fs.existsSync(dataDir)) {
+    throw new Error(
+      `${dataDir} exists but has no bob-tools.sqlite. Move it away or set BOB_HOME to another directory; the old data is still in ${legacyRoot}.`,
+    )
+  }
 
   // data/ 先完整複製到暫存目錄再改名，中途失敗不會留下半份 DB
   fs.cpSync(path.join(legacyRoot, 'data'), staging, { recursive: true })
-  fs.rmSync(dataDir, { recursive: true, force: true })
   fs.renameSync(staging, dataDir)
 
   const legacyLog = path.join(legacyRoot, 'log')
